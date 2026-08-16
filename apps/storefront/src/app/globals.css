@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+:root {
+  --color-paper: #fafaf8;
+  --color-ink: #17181a;
+  --color-ink-soft: #2b2c2e;
+  --color-muted: #6b6b66;
+  --color-line: #e2e1dc;
+  --color-accent: #556b4f;
+  --color-accent-soft: #e7ece3;
+  --color-accent-ink: #33422f;
+  --color-danger: #a13d3d;
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-tag: var(--font-mono-tag), "IBM Plex Mono", monospace;
+}
+
+@theme inline {
+  --color-paper: var(--color-paper);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-muted: var(--color-muted);
+  --color-line: var(--color-line);
+  --color-accent: var(--color-accent);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-accent-ink: var(--color-accent-ink);
+  --color-danger: var(--color-danger);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-tag: var(--font-tag);
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* Signature price-tag treatment: mono figures with a dashed underline,
+   used for prices/SKUs across cards, cart lines, and the PDP. */
+.price-tag {
+  font-family: var(--font-tag);
+  letter-spacing: -0.01em;
+  display: inline-block;
+  border-bottom: 1px dashed var(--color-ink);
+  padding-bottom: 1px;
+}
+.price-tag--muted {
+  border-bottom-color: var(--color-muted);
+  color: var(--color-muted);
+}
+
+.container-page {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .container-page {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
