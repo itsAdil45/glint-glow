@@ -102,8 +102,10 @@ export default function CheckoutPage() {
                   <label
                     key={addr._id}
                     className={cn(
-                      "block border p-4 cursor-pointer text-sm",
-                      selectedAddressId === addr._id ? "border-ink" : "border-line",
+                      "block rounded-xl border p-4 cursor-pointer text-sm transition-colors",
+                      selectedAddressId === addr._id
+                        ? "border-accent-ink bg-accent-soft/40"
+                        : "border-line bg-surface",
                     )}
                   >
                     <input
@@ -150,7 +152,7 @@ export default function CheckoutPage() {
           </section>
         </div>
 
-        <div className="border border-line p-6 h-fit">
+        <div className="rounded-2xl bg-surface card-shadow p-6 h-fit">
           <h2 className="font-display text-lg mb-4">Order summary</h2>
           <div className="space-y-3 mb-4 max-h-64 overflow-y-auto pr-1">
             {items.map((item) => (

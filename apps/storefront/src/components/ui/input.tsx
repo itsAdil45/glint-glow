@@ -11,7 +11,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         className={cn(
-          "h-11 w-full border border-line bg-paper px-3.5 text-sm text-ink placeholder:text-muted focus:border-ink outline-none transition-colors",
+          "h-11 w-full rounded-xl border border-line bg-surface px-4 text-sm text-ink placeholder:text-muted focus:border-accent-ink outline-none transition-colors",
           error && "border-danger",
           className,
         )}

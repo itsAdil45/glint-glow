@@ -4,6 +4,7 @@ import { fetchCategories } from "@/lib/api-categories";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductFilters } from "@/components/product/product-filters";
 import { Pagination } from "@/components/product/pagination";
+import { PageHero } from "@/components/layout/page-hero";
 
 export const metadata: Metadata = {
   title: "Shop all products",
@@ -31,31 +32,34 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     fetchCategories().catch(() => []),
   ]);
 
+  const heroTitle = params.search ? `Results for "${params.search}"` : "Shop All";
+
   return (
-    <div className="container-page py-10">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl">
-          {params.search ? `Results for "${params.search}"` : "Shop all"}
-        </h1>
-        <p className="text-sm text-muted mt-1">{result.total} products</p>
-      </div>
+    <div>
+      <PageHero
+        title={heroTitle}
+        subtitle={`${result.total} product${result.total === 1 ? "" : "s"} — beauty essentials and intimates, curated with care.`}
+        breadcrumbItems={[{ label: "Home", href: "/" }, { label: "Shop" }]}
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
-        <ProductFilters categories={categories} />
+      <div className="container-page py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
+          <ProductFilters categories={categories} />
 
-        <div>
-          {result.items.length === 0 ? (
-            <div className="py-24 text-center text-muted">
-              <p>No products match these filters.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
-              {result.items.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
-            </div>
-          )}
-          <Pagination page={result.page} totalPages={result.totalPages} />
+          <div>
+            {result.items.length === 0 ? (
+              <div className="py-24 text-center text-muted">
+                <p>No products match these filters.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
+                {result.items.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </div>
+            )}
+            <Pagination page={result.page} totalPages={result.totalPages} />
+          </div>
         </div>
       </div>
     </div>

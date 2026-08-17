@@ -32,9 +32,9 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="group block border border-line bg-paper transition-colors hover:border-ink"
+      className="group block rounded-2xl bg-surface overflow-hidden card-shadow transition-shadow duration-300"
     >
-      <div className="relative aspect-square overflow-hidden bg-accent-soft border-b border-line">
+      <div className="relative aspect-square overflow-hidden bg-accent-soft">
         {primaryImage ? (
           <>
             <Image
@@ -43,7 +43,7 @@ export function ProductCard({ product }: { product: Product }) {
               fill
               sizes="(min-width: 1024px) 25vw, 50vw"
               className={cn(
-                "object-cover transition-opacity duration-300",
+                "object-cover transition-all duration-500 group-hover:scale-[1.04]",
                 secondaryImage && "group-hover:opacity-0",
               )}
             />
@@ -53,7 +53,7 @@ export function ProductCard({ product }: { product: Product }) {
                 alt={secondaryImage.alt || product.title}
                 fill
                 sizes="(min-width: 1024px) 25vw, 50vw"
-                className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                className="object-cover opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-[1.04]"
               />
             )}
           </>
@@ -63,29 +63,29 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
 
-        <div className="absolute top-2 left-2 flex flex-col gap-1.5 items-start">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
           {isNew && (
-            <span className="bg-ink text-paper px-2 py-0.5 text-[10px] font-tag tracking-widest uppercase">
+            <span className="rounded-full bg-surface/90 text-accent-ink px-2.5 py-1 text-[10px] font-medium tracking-wide uppercase shadow-sm">
               New
             </span>
           )}
           {discountPct && (
-            <span className="bg-accent text-paper px-2 py-0.5 text-[10px] font-tag tracking-widest uppercase">
+            <span className="rounded-full bg-accent-ink text-paper px-2.5 py-1 text-[10px] font-medium tracking-wide uppercase shadow-sm">
               −{discountPct}%
             </span>
           )}
         </div>
 
-        <span className="absolute inset-x-0 bottom-0 translate-y-full bg-ink text-paper text-center text-xs py-2 tracking-wide transition-transform duration-300 group-hover:translate-y-0">
+        <span className="pointer-events-none absolute inset-x-3 bottom-3 translate-y-3 rounded-full bg-surface/95 text-ink text-center text-xs font-medium py-2.5 opacity-0 shadow-md transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           View product
         </span>
       </div>
 
-      <div className="p-3.5">
+      <div className="p-4">
         {product.brand && (
           <p className="text-[11px] text-muted uppercase tracking-wide">{product.brand}</p>
         )}
-        <h3 className="font-display text-base leading-snug mt-0.5 group-hover:text-accent-ink transition-colors">
+        <h3 className="font-display text-lg leading-snug mt-0.5 group-hover:text-accent-ink transition-colors">
           {product.title}
         </h3>
 
@@ -98,7 +98,7 @@ export function ProductCard({ product }: { product: Product }) {
                   size={11}
                   className={
                     i < Math.round(product.ratingsAvg)
-                      ? "fill-ink text-ink"
+                      ? "fill-gold text-gold"
                       : "fill-none text-line"
                   }
                 />
@@ -114,7 +114,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {(colorAttr || otherAttrCount > 0) && (
-          <div className="mt-2 flex items-center gap-1.5">
+          <div className="mt-2.5 flex items-center gap-1.5">
             {colorAttr?.values.slice(0, MAX_SWATCHES).map((value) => {
               const hex = colorToHex(value);
               return (

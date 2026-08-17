@@ -32,15 +32,15 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="divide-y divide-line border-y border-line">
+    <div className="rounded-2xl bg-surface card-shadow divide-y divide-line overflow-hidden">
       {orders.map((order) => (
         <Link
           key={order._id}
           href={`/account/orders/${order._id}`}
-          className="flex items-center justify-between py-4 hover:bg-accent-soft/50 px-2 -mx-2 transition-colors"
+          className="flex items-center justify-between p-4 hover:bg-accent-soft/40 transition-colors"
         >
           <div>
-            <p className="font-tag text-sm">#{order.orderNumber}</p>
+            <p className="font-body text-sm">#{order.orderNumber}</p>
             <p className="text-xs text-muted mt-1">
               {new Date(order.placedAt).toLocaleDateString()} · {order.items.length} item
               {order.items.length !== 1 ? "s" : ""}

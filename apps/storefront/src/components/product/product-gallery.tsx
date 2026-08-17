@@ -17,15 +17,15 @@ export function ProductGallery({ images, title }: { images: ProductImage[]; titl
             key={img.url + i}
             onClick={() => setActive(i)}
             className={cn(
-              "relative aspect-square w-full overflow-hidden bg-accent-soft border",
-              i === active ? "border-ink" : "border-transparent",
+              "relative aspect-square w-full overflow-hidden rounded-xl bg-accent-soft border-2",
+              i === active ? "border-accent-ink" : "border-transparent",
             )}
           >
             <Image src={img.url} alt={img.alt || title} fill sizes="64px" className="object-cover" />
           </button>
         ))}
       </div>
-      <div className="relative aspect-[4/5] overflow-hidden bg-accent-soft">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-accent-soft card-shadow">
         {current ? (
           <Image
             src={current.url}

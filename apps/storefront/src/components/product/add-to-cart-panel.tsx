@@ -62,8 +62,10 @@ export function AddToCartPanel({ product }: { product: Product }) {
                 <button
                   key={value}
                   onClick={() => setSelected((prev) => ({ ...prev, [attr.name]: value }))}
-                  className={`h-10 min-w-10 px-3 border text-sm transition-colors ${
-                    isActive ? "border-ink bg-ink text-paper" : "border-line hover:border-ink"
+                  className={`h-10 min-w-10 px-4 rounded-full border text-sm transition-colors ${
+                    isActive
+                      ? "border-accent-ink bg-accent-ink text-paper"
+                      : "border-line hover:border-accent-ink"
                   }`}
                 >
                   {value}
@@ -75,7 +77,7 @@ export function AddToCartPanel({ product }: { product: Product }) {
       ))}
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center border border-line h-11 w-fit">
+        <div className="flex items-center rounded-full border border-line h-11 w-fit">
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="w-10 h-full text-lg"
@@ -83,7 +85,7 @@ export function AddToCartPanel({ product }: { product: Product }) {
           >
             −
           </button>
-          <span className="w-10 text-center text-sm font-tag">{quantity}</span>
+          <span className="w-10 text-center text-sm font-body">{quantity}</span>
           <button
             onClick={() => setQuantity((q) => Math.min(stock || 1, q + 1))}
             className="w-10 h-full text-lg"

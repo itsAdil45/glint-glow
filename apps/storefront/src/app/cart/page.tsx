@@ -70,15 +70,15 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-12">
-          <div className="divide-y divide-line border-y border-line">
+          <div className="rounded-2xl bg-surface card-shadow divide-y divide-line overflow-hidden">
             {items.map((item) => {
               const itemKey = key(item.productId, item.variationSku);
               const isBusy = busyKey === itemKey;
               return (
-                <div key={itemKey} className="flex gap-4 py-5">
+                <div key={itemKey} className="flex gap-4 p-4">
                   <Link
                     href={`/product/${item.slug}`}
-                    className="relative w-24 h-28 shrink-0 bg-accent-soft overflow-hidden"
+                    className="relative w-24 h-28 shrink-0 rounded-xl bg-accent-soft overflow-hidden"
                   >
                     {item.image && (
                       <Image src={item.image} alt={item.title} fill sizes="96px" className="object-cover" />
@@ -101,7 +101,7 @@ export default function CartPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center border border-line h-9 w-fit">
+                      <div className="flex items-center rounded-full border border-line h-9 w-fit">
                         <button
                           disabled={isBusy}
                           onClick={() =>
@@ -111,7 +111,7 @@ export default function CartPage() {
                         >
                           −
                         </button>
-                        <span className="w-8 text-center text-sm font-tag">{item.quantity}</span>
+                        <span className="w-8 text-center text-sm font-body">{item.quantity}</span>
                         <button
                           disabled={isBusy || item.quantity >= item.availableStock}
                           onClick={() =>
@@ -139,7 +139,7 @@ export default function CartPage() {
             })}
           </div>
 
-          <div className="border border-line p-6 h-fit">
+          <div className="rounded-2xl bg-surface card-shadow p-6 h-fit">
             <h2 className="font-display text-lg mb-4">Order summary</h2>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-muted">Subtotal</span>

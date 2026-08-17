@@ -73,11 +73,17 @@ export default function AddressesPage() {
       ) : (
         <div className="space-y-3">
           {addresses.map((addr) => (
-            <div key={addr._id} className={cn("border p-4 text-sm", addr.isDefault ? "border-ink" : "border-line")}>
+            <div
+              key={addr._id}
+              className={cn(
+                "rounded-xl p-4 text-sm bg-surface card-shadow border",
+                addr.isDefault ? "border-accent-ink" : "border-transparent",
+              )}
+            >
               <div className="flex justify-between">
                 <span className="font-medium">{addr.fullName}</span>
                 {addr.isDefault && (
-                  <span className="text-xs font-tag uppercase tracking-wide text-accent-ink">Default</span>
+                  <span className="text-xs font-body uppercase tracking-wide text-accent-ink">Default</span>
                 )}
               </div>
               <p className="text-muted mt-1">{addr.phone}</p>

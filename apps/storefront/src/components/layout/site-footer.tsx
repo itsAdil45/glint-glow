@@ -17,12 +17,12 @@ const COMPANY_LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line mt-24">
+    <footer className="border-t border-line mt-24 bg-accent-soft/30">
       <div className="container-page py-14 grid grid-cols-2 gap-10 lg:grid-cols-5">
         <div className="col-span-2">
           <span className="font-display text-2xl">Store</span>
           <p className="mt-3 text-sm text-muted max-w-xs">
-            Thoughtfully made goods, shipped with care. New arrivals every week.
+            Cosmetics and intimates, chosen with care. New arrivals every week.
           </p>
           <div className="flex items-center gap-3 mt-5">
             <a href="#" aria-label="Instagram" className="hover:text-accent-ink">
@@ -45,13 +45,13 @@ export function SiteFooter() {
             Newsletter
           </h4>
           <p className="text-sm text-muted mb-3">Get news on new arrivals and offers.</p>
-          <form className="flex">
+          <form className="flex gap-2">
             <input
               type="email"
               placeholder="Email address"
-              className="h-10 w-full border border-line bg-paper px-3 text-sm outline-none focus:border-ink"
+              className="h-10 w-full rounded-full border border-line bg-surface px-4 text-sm outline-none focus:border-accent-ink"
             />
-            <button type="submit" className="h-10 px-4 bg-ink text-paper text-sm shrink-0">
+            <button type="submit" className="h-10 px-5 rounded-full bg-ink text-paper text-sm shrink-0">
               Join
             </button>
           </form>

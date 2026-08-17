@@ -54,14 +54,14 @@ export function SiteHeader() {
         <div className="flex items-center gap-1">
           <button
             aria-label="Search"
-            className="h-10 w-10 flex items-center justify-center hover:bg-accent-soft transition-colors"
+            className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-accent-soft transition-colors"
             onClick={() => setSearchOpen((v) => !v)}
           >
             <Search size={19} />
           </button>
 
           <AccountMenu user={user}>
-            <span className="h-10 w-10 flex items-center justify-center hover:bg-accent-soft transition-colors cursor-pointer">
+            <span className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-accent-soft transition-colors cursor-pointer">
               <User size={19} />
             </span>
           </AccountMenu>
@@ -69,11 +69,11 @@ export function SiteHeader() {
           <Link
             href="/cart"
             aria-label="Cart"
-            className="relative h-10 w-10 flex items-center justify-center hover:bg-accent-soft transition-colors"
+            className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-accent-soft transition-colors"
           >
             <ShoppingBag size={19} />
             {itemCount > 0 && (
-              <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center bg-accent px-1 text-[10px] font-medium text-paper">
+              <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-ink px-1 text-[10px] font-medium text-paper">
                 {itemCount}
               </span>
             )}
@@ -89,9 +89,9 @@ export function SiteHeader() {
                 name="search"
                 autoFocus
                 placeholder="Search products…"
-                className="h-11 w-full border border-line bg-paper px-3.5 text-sm outline-none focus:border-ink"
+                className="h-11 w-full rounded-full border border-line bg-surface px-4 text-sm outline-none focus:border-accent-ink"
               />
-              <button type="submit" className="h-11 px-4 bg-ink text-paper text-sm">
+              <button type="submit" className="h-11 px-5 rounded-full bg-ink text-paper text-sm shrink-0">
                 Search
               </button>
             </form>

@@ -47,7 +47,7 @@ export function AddressForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 border border-line p-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-2xl bg-surface card-shadow p-5">
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="fullName">Full name</Label>

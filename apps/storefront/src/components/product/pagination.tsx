@@ -22,18 +22,16 @@ export function Pagination({ page, totalPages }: { page: number; totalPages: num
       <button
         onClick={() => goTo(page - 1)}
         disabled={page <= 1}
-        className="h-9 w-9 flex items-center justify-center border border-line disabled:opacity-30"
+        className="h-9 w-9 rounded-full flex items-center justify-center border border-line hover:border-accent-ink transition-colors disabled:opacity-30 disabled:hover:border-line"
         aria-label="Previous page"
       >
         <ChevronLeft size={16} />
       </button>
-      <span className="text-sm font-tag">
-        {page} / {totalPages}
-      </span>
+      <span className="text-sm font-body">{page} / {totalPages}</span>
       <button
         onClick={() => goTo(page + 1)}
         disabled={page >= totalPages}
-        className="h-9 w-9 flex items-center justify-center border border-line disabled:opacity-30"
+        className="h-9 w-9 rounded-full flex items-center justify-center border border-line hover:border-accent-ink transition-colors disabled:opacity-30 disabled:hover:border-line"
         aria-label="Next page"
       >
         <ChevronRight size={16} />

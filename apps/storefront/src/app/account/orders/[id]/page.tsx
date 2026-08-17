@@ -38,12 +38,12 @@ export default function OrderDetailPage() {
             Placed on {new Date(order.placedAt).toLocaleDateString()}
           </p>
         </div>
-        <span className="text-xs font-tag uppercase tracking-wide bg-accent-soft px-2 py-1">
+        <span className="text-xs font-body uppercase tracking-wide bg-accent-soft text-accent-ink rounded-full px-3 py-1">
           {STATUS_LABEL[order.status]}
         </span>
       </div>
 
-      <div className="border border-line p-5 mb-6">
+      <div className="rounded-2xl bg-surface card-shadow p-5 mb-6">
         <h3 className="text-sm font-medium mb-3">Items</h3>
         <div className="space-y-3">
           {order.items.map((item, i) => (
@@ -69,7 +69,7 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      <div className="border border-line p-5">
+      <div className="rounded-2xl bg-surface card-shadow p-5">
         <h3 className="text-sm font-medium mb-3">Shipping address</h3>
         <p className="text-sm text-muted">
           {order.shippingAddress.fullName}

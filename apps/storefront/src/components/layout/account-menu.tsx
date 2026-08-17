@@ -41,7 +41,7 @@ export function AccountMenu({
     <div className="relative" onMouseEnter={openNow} onMouseLeave={closeSoon}>
       {children}
       {open && (
-        <div className="absolute right-0 top-full w-52 border border-line bg-paper py-2 shadow-sm">
+        <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-line bg-surface py-2 card-shadow overflow-hidden">
           {user ? (
             <>
               <div className="px-4 py-2 text-xs text-muted">Signed in as</div>

@@ -19,18 +19,18 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero — asymmetric, photo-led */}
-      <section className="border-b border-line">
+      <section className="bg-gradient-to-br from-accent-soft via-paper to-gold-soft/40 border-b border-line">
         <div className="container-page grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 lg:py-0">
           <div className="lg:col-span-7 order-2 lg:order-1 flex flex-col justify-center py-8 lg:py-24">
-            <span className="font-tag text-xs tracking-widest text-muted uppercase mb-4">
+            <span className="font-body text-xs tracking-widest text-accent-ink uppercase mb-4">
               New season — now shipping
             </span>
             <h1 className="font-display text-5xl sm:text-6xl leading-[1.05] max-w-lg">
-              Made to be used, not just owned.
+              Beauty and essentials, chosen with care.
             </h1>
             <p className="mt-5 text-muted max-w-md">
-              Every piece in the shop is built from materials that hold up —
-              chosen the way you&apos;d choose them for yourself.
+              Skincare, makeup, and intimates picked the way we&apos;d choose them
+              for ourselves — quality that feels as good as it looks.
             </p>
             <div className="mt-8 flex gap-3">
               <Button size="lg" asChild>
@@ -41,7 +41,7 @@ export default async function HomePage() {
               </Button>
             </div>
           </div>
-          <div className="lg:col-span-5 order-1 lg:order-2 relative aspect-[4/5] lg:aspect-auto bg-accent-soft">
+          <div className="lg:col-span-5 order-1 lg:order-2 relative aspect-[4/5] lg:aspect-auto lg:my-10 rounded-3xl overflow-hidden bg-accent-soft card-shadow">
             {heroProduct?.images[0] ? (
               <Image
                 src={heroProduct.images[0].url}
@@ -69,7 +69,7 @@ export default async function HomePage() {
               <Link
                 key={category._id}
                 href={`/category/${category.slug}`}
-                className="group relative aspect-square overflow-hidden bg-accent-soft"
+                className="group relative aspect-square overflow-hidden rounded-2xl bg-accent-soft card-shadow"
               >
                 {category.image && (
                   <Image
@@ -80,7 +80,7 @@ export default async function HomePage() {
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 )}
-                <span className="absolute inset-x-0 bottom-0 bg-paper/90 px-3 py-2 text-sm font-medium">
+                <span className="absolute inset-x-0 bottom-0 bg-surface/90 px-3 py-2.5 text-sm font-medium text-center">
                   {category.name}
                 </span>
               </Link>
@@ -94,7 +94,7 @@ export default async function HomePage() {
         <section className="container-page py-8">
           <div className="flex items-baseline justify-between mb-6">
             <h2 className="font-display text-2xl">Best sellers</h2>
-            <Link href="/products" className="text-sm underline underline-offset-4">
+            <Link href="/products" className="text-sm text-accent-ink underline underline-offset-4">
               View all
             </Link>
           </div>
@@ -108,8 +108,8 @@ export default async function HomePage() {
 
       {/* Promo banner */}
       <section className="container-page py-8">
-        <div className="bg-ink text-paper px-8 py-12 flex flex-col items-start gap-4">
-          <span className="font-tag text-xs tracking-widest uppercase text-paper/70">
+        <div className="rounded-3xl bg-gradient-to-br from-ink to-ink-soft text-paper px-8 py-12 flex flex-col items-start gap-4">
+          <span className="font-body text-xs tracking-widest uppercase text-gold">
             Cash on delivery, everywhere
           </span>
           <h3 className="font-display text-3xl max-w-md">
@@ -126,7 +126,7 @@ export default async function HomePage() {
         <section className="container-page py-8 pb-20">
           <div className="flex items-baseline justify-between mb-6">
             <h2 className="font-display text-2xl">New arrivals</h2>
-            <Link href="/products?sort=newest" className="text-sm underline underline-offset-4">
+            <Link href="/products?sort=newest" className="text-sm text-accent-ink underline underline-offset-4">
               View all
             </Link>
           </div>

@@ -15,11 +15,9 @@ export function PriceTag({
   const sizeClass = size === "lg" ? "text-2xl" : size === "sm" ? "text-xs" : "text-sm";
   return (
     <span className={cn("inline-flex items-baseline gap-2", className)}>
-      <span className={cn("price-tag", sizeClass)}>{formatPrice(amount)}</span>
+      <span className={cn("price-figure text-accent-ink", sizeClass)}>{formatPrice(amount)}</span>
       {compareAt && compareAt > amount && (
-        <span className="price-tag price-tag--muted text-xs line-through">
-          {formatPrice(compareAt)}
-        </span>
+        <span className="price-figure price-figure--muted text-xs">{formatPrice(compareAt)}</span>
       )}
     </span>
   );

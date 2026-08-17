@@ -23,17 +23,17 @@ export default function OrderConfirmationPage() {
 
   return (
     <div className="container-page py-16 max-w-lg mx-auto text-center">
-      <span className="font-tag text-xs tracking-widest text-accent-ink uppercase">
+      <span className="font-body text-xs tracking-widest text-accent-ink uppercase">
         Order confirmed
       </span>
       <h1 className="font-display text-3xl mt-3">Thank you for your order</h1>
       <p className="text-muted mt-2">
-        Order <span className="font-tag">#{params.orderNumber}</span> has been placed. A
+        Order <span className="font-body">#{params.orderNumber}</span> has been placed. A
         confirmation email is on its way.
       </p>
 
       {!loading && order && (
-        <div className="mt-8 border border-line p-6 text-left">
+        <div className="mt-8 rounded-2xl bg-surface card-shadow p-6 text-left">
           <div className="space-y-2 mb-4">
             {order.items.map((item, i) => (
               <div key={i} className="flex justify-between text-sm">
