@@ -30,8 +30,11 @@ export function ProductCard({ product }: { product: Product }) {
   const otherAttrCount = product.attributes.filter((a) => a.name.toLowerCase() !== "color").length;
 
   return (
-    <Link href={`/product/${product.slug}`} className="group block">
-      <div className="relative aspect-[4/5] overflow-hidden bg-accent-soft">
+    <Link
+      href={`/product/${product.slug}`}
+      className="group block border border-line bg-paper transition-colors hover:border-ink"
+    >
+      <div className="relative aspect-square overflow-hidden bg-accent-soft border-b border-line">
         {primaryImage ? (
           <>
             <Image
@@ -78,7 +81,7 @@ export function ProductCard({ product }: { product: Product }) {
         </span>
       </div>
 
-      <div className="mt-3">
+      <div className="p-3.5">
         {product.brand && (
           <p className="text-[11px] text-muted uppercase tracking-wide">{product.brand}</p>
         )}

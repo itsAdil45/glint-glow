@@ -98,7 +98,7 @@ export default async function HomePage() {
               View all
             </Link>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {featured.items.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
@@ -130,7 +130,7 @@ export default async function HomePage() {
               View all
             </Link>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {latest.items.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
