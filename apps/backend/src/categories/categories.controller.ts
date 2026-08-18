@@ -22,6 +22,11 @@ export class CategoriesController {
     return this.categoriesService.findAllAdmin();
   }
 
+  @Get('nav')
+  findNavTree() {
+    return this.categoriesService.findNavTree();
+  }
+
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.categoriesService.findBySlug(slug);

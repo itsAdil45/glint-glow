@@ -32,6 +32,11 @@ export class ProductsController {
     return this.productsService.findByIdAdmin(id);
   }
 
+  @Get('meta/brands')
+  findBrands() {
+    return this.productsService.findDistinctBrands();
+  }
+
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
     return this.productsService.findBySlug(slug);

@@ -21,6 +21,15 @@ export class ProductsService {
     };
   }
 
+  /** Distinct brand names across published products — backs the storefront's Brands nav flyout. */
+  async findDistinctBrands(): Promise<string[]> {
+    const brands = await this.productModel.distinct('brand', {
+      isPublished: true,
+      brand: { $nin: [null, ''] },
+    });
+    return (brands as string[]).sort((a, b) => a.localeCompare(b));
+  }
+
   async findAll(query: QueryProductsDto, rawAttrFilters: Record<string, string> = {}) {
     const filter: any = { isPublished: true };
 
