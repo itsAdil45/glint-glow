@@ -4,6 +4,7 @@ import { fetchProducts } from "@/lib/api-products";
 import { fetchCategories } from "@/lib/api-categories";
 import { ProductCard } from "@/components/product/product-card";
 import { Button } from "@/components/ui/button";
+import { HeroSlider } from "@/components/layout/hero-slider";
 
 export const revalidate = 60;
 
@@ -14,51 +15,9 @@ export default async function HomePage() {
     fetchCategories().catch(() => []),
   ]);
 
-  const heroProduct = featured.items[0];
-
   return (
     <div>
-      {/* Hero — asymmetric, photo-led */}
-      <section className="bg-gradient-to-br from-accent-soft via-paper to-gold-soft/40 border-b border-line">
-        <div className="container-page grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 lg:py-0">
-          <div className="lg:col-span-7 order-2 lg:order-1 flex flex-col justify-center py-8 lg:py-24">
-            <span className="font-body text-xs tracking-widest text-accent-ink uppercase mb-4">
-              New season — now shipping
-            </span>
-            <h1 className="font-display text-5xl sm:text-6xl leading-[1.05] max-w-lg">
-              Beauty and essentials, chosen with care.
-            </h1>
-            <p className="mt-5 text-muted max-w-md">
-              Skincare, makeup, and intimates picked the way we&apos;d choose them
-              for ourselves — quality that feels as good as it looks.
-            </p>
-            <div className="mt-8 flex gap-3">
-              <Button size="lg" asChild>
-                <Link href="/products">Shop all</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/category/new-arrivals">New arrivals</Link>
-              </Button>
-            </div>
-          </div>
-          <div className="lg:col-span-5 order-1 lg:order-2 relative aspect-[4/5] lg:aspect-auto lg:my-10 rounded-3xl overflow-hidden bg-accent-soft card-shadow">
-            {heroProduct?.images[0] ? (
-              <Image
-                src={heroProduct.images[0].url}
-                alt={heroProduct.images[0].alt || heroProduct.title}
-                fill
-                priority
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                className="object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center text-muted text-sm">
-                Add products to feature them here
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      <HeroSlider />
 
       {/* Categories */}
       {categories.length > 0 && (
