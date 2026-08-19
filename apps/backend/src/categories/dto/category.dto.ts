@@ -5,6 +5,7 @@ export class CreateCategoryDto {
   @IsOptional() @IsString() slug?: string;
   @IsOptional() @IsString() parentId?: string;
   @IsOptional() @IsString() image?: string;
+  @IsOptional() @IsBoolean() isActive?: boolean;
   @IsOptional() @IsString() seoTitle?: string;
   @IsOptional() @IsString() seoDescription?: string;
 }

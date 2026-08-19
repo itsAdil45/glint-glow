@@ -82,6 +82,7 @@ export class CategoriesService {
       slug,
       parentId: dto.parentId || null,
       image: dto.image,
+      isActive: dto.isActive ?? true,
       seo: { title: dto.seoTitle, description: dto.seoDescription },
     });
     return category.save();
