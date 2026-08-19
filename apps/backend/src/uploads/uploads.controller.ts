@@ -21,6 +21,35 @@ import { UserRole } from '../users/schemas/user.schema';
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Deletes a file, retrying on Windows' EBUSY/EPERM — the OS can hold a
+ * read handle open for a few tens/hundreds of ms after a library like
+ * Sharp finishes reading a file, so an immediate unlink can transiently
+ * fail there even though nothing is actually wrong. Never throws; a
+ * leftover temp file is harmless clutter, not a reason to fail the
+ * request or discard output that was already generated successfully.
+ */
+async function unlinkBestEffort(path: string, logger: Logger, attempts = 5, delayMs = 150) {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      await fs.promises.unlink(path);
+      return;
+    } catch (err) {
+      const isLastAttempt = i === attempts - 1;
+      const code = (err as NodeJS.ErrnoException)?.code;
+      if (isLastAttempt || (code !== 'EBUSY' && code !== 'EPERM')) {
+        logger.warn(`Could not remove temp file ${path}: ${(err as Error).message}`);
+        return;
+      }
+      await delay(delayMs);
+    }
+  }
+}
+
 @Controller('uploads')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
@@ -68,27 +97,27 @@ export class UploadsController {
         .webp({ quality: 82 })
         .toFile(optimizedPath);
       await sharp(file.path).resize(400, 400, { fit: 'inside' }).webp({ quality: 75 }).toFile(thumbPath);
-      fs.unlinkSync(file.path); // remove original upload, keep optimized versions
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       this.logger.error(
         `Sharp processing failed for "${file.originalname}" (${file.mimetype}, ${file.size}B): ${message}`,
         err instanceof Error ? err.stack : undefined,
       );
-      // Clean up whatever partial output exists so a retry doesn't trip over it
+      // Processing itself failed — clean up whatever partial output exists
+      // so a retry doesn't trip over it, and this genuinely is a failure.
       for (const p of [file.path, optimizedPath, thumbPath]) {
-        if (fs.existsSync(p)) {
-          try {
-            fs.unlinkSync(p);
-          } catch {
-            /* best effort */
-          }
-        }
+        if (fs.existsSync(p)) await unlinkBestEffort(p, this.logger, 1);
       }
       throw new InternalServerErrorException(
         `Image processing failed: ${message}. Check the backend console for details.`,
       );
     }
+
+    // Processing succeeded — the optimized + thumbnail files exist and are
+    // usable. Removing the original upload is just housekeeping from here
+    // on, so its failure (e.g. a transient Windows file lock) must never
+    // turn a successful upload into a 500.
+    void unlinkBestEffort(file.path, this.logger);
 
     return {
       url: `/uploads/${optimizedName}`,
