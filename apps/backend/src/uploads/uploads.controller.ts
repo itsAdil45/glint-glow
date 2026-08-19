@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   Controller,
+  InternalServerErrorException,
+  Logger,
   Post,
   UploadedFile,
   UseGuards,
@@ -23,6 +25,8 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class UploadsController {
+  private readonly logger = new Logger(UploadsController.name);
+
   @Post('image')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -45,6 +49,10 @@ export class UploadsController {
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
 
+    this.logger.log(
+      `Processing upload: originalname="${file.originalname}" mimetype=${file.mimetype} size=${file.size}B path=${file.path}`,
+    );
+
     // Build the optimized/thumb filenames from a base that's independent of
     // the input's extension, so an already-.webp upload never collides with
     // its own optimized output (Sharp can't read and write the same file).
@@ -54,9 +62,33 @@ export class UploadsController {
     const thumbName = `${base}-thumb.webp`;
     const thumbPath = join(UPLOAD_DIR, thumbName);
 
-    await sharp(file.path).resize(1600, 1600, { fit: 'inside' }).webp({ quality: 82 }).toFile(optimizedPath);
-    await sharp(file.path).resize(400, 400, { fit: 'inside' }).webp({ quality: 75 }).toFile(thumbPath);
-    fs.unlinkSync(file.path); // remove original upload, keep optimized versions
+    try {
+      await sharp(file.path)
+        .resize(1600, 1600, { fit: 'inside' })
+        .webp({ quality: 82 })
+        .toFile(optimizedPath);
+      await sharp(file.path).resize(400, 400, { fit: 'inside' }).webp({ quality: 75 }).toFile(thumbPath);
+      fs.unlinkSync(file.path); // remove original upload, keep optimized versions
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(
+        `Sharp processing failed for "${file.originalname}" (${file.mimetype}, ${file.size}B): ${message}`,
+        err instanceof Error ? err.stack : undefined,
+      );
+      // Clean up whatever partial output exists so a retry doesn't trip over it
+      for (const p of [file.path, optimizedPath, thumbPath]) {
+        if (fs.existsSync(p)) {
+          try {
+            fs.unlinkSync(p);
+          } catch {
+            /* best effort */
+          }
+        }
+      }
+      throw new InternalServerErrorException(
+        `Image processing failed: ${message}. Check the backend console for details.`,
+      );
+    }
 
     return {
       url: `/uploads/${optimizedName}`,
