@@ -2,7 +2,7 @@ node_modules/
 dist/
 .next/
 .env
-uploads/
+apps/backend/uploads/
 *.log
 .DS_Store
 /package-lock.json
