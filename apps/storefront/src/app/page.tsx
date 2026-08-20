@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { fetchProducts } from "@/lib/api-products";
 import { fetchCategories } from "@/lib/api-categories";
-import { ProductCard } from "@/components/product/product-card";
 import { CategoryCard } from "@/components/category/category-card";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/layout/hero-slider";
+import { ProductRail } from "@/components/product/product-rail";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
   const [featured, latest, allCategories] = await Promise.all([
-    fetchProducts({ limit: 4, sort: "popular" }).catch(() => ({ items: [] })),
-    fetchProducts({ limit: 8, sort: "newest" }).catch(() => ({ items: [] })),
+    fetchProducts({ limit: 12, sort: "popular" }).catch(() => ({ items: [] })),
+    fetchProducts({ limit: 12, sort: "newest" }).catch(() => ({ items: [] })),
     fetchCategories().catch(() => []),
   ]);
   // Top-level only — subcategories would otherwise show up as peers of their
@@ -39,22 +39,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Featured products */}
-      {featured.items.length > 0 && (
-        <section className="container-page py-8">
-          <div className="flex items-baseline justify-between mb-6">
-            <h2 className="font-display text-2xl">Best sellers</h2>
-            <Link href="/products" className="text-sm text-accent-ink underline underline-offset-4">
-              View all
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {featured.items.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Best sellers */}
+      <ProductRail title="Best Sellers" viewAllHref="/products?sort=popular" products={featured.items} />
 
       {/* Promo banner */}
       <section className="container-page py-8">
@@ -71,22 +57,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Latest arrivals */}
-      {latest.items.length > 0 && (
-        <section className="container-page py-8 pb-20">
-          <div className="flex items-baseline justify-between mb-6">
-            <h2 className="font-display text-2xl">New arrivals</h2>
-            <Link href="/products?sort=newest" className="text-sm text-accent-ink underline underline-offset-4">
-              View all
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {latest.items.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* New arrivals */}
+      <ProductRail title="New Arrivals" viewAllHref="/products?sort=newest" products={latest.items} />
     </div>
   );
 }
