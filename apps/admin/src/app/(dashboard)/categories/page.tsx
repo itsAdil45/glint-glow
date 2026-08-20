@@ -11,10 +11,18 @@ import {
 } from "@/lib/api-categories";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
+import { SingleImageUploader } from "@/components/products/single-image-uploader";
 import { ApiError } from "@/lib/api";
+import { API_URL } from "@/lib/api";
 
 interface CategoryTreeNode extends Category {
   depth: number;
+}
+
+function resolveUrl(url: string) {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  return `${API_URL.replace(/\/api$/, "")}${url}`;
 }
 
 /** Flattens the category list into depth-ordered rows for indented rendering. */
@@ -139,17 +147,27 @@ export default function CategoriesPage() {
               className="flex items-center justify-between px-5 py-3"
               style={{ paddingLeft: `${20 + cat.depth * 24}px` }}
             >
-              <div>
-                <p className="text-sm font-medium">
-                  {cat.depth > 0 && <span className="text-muted mr-1.5">└</span>}
-                  {cat.name}
-                  {!cat.isActive && (
-                    <span className="ml-2 text-[10px] uppercase tracking-wide text-muted bg-line rounded-full px-2 py-0.5">
-                      Inactive
-                    </span>
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 shrink-0 rounded-md border border-line bg-bg overflow-hidden flex items-center justify-center">
+                  {cat.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={resolveUrl(cat.image)} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-[10px] text-muted">No img</span>
                   )}
-                </p>
-                <p className="text-xs text-muted price-tag">/{cat.slug}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">
+                    {cat.depth > 0 && <span className="text-muted mr-1.5">└</span>}
+                    {cat.name}
+                    {!cat.isActive && (
+                      <span className="ml-2 text-[10px] uppercase tracking-wide text-muted bg-line rounded-full px-2 py-0.5">
+                        Inactive
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted price-tag">/{cat.slug}</p>
+                </div>
               </div>
               <div className="flex gap-3">
                 <button
@@ -190,6 +208,7 @@ function CategoryForm({
   const [name, setName] = useState(initial?.name || "");
   const [slug, setSlug] = useState(initial?.slug || "");
   const [parentId, setParentId] = useState(initial?.parentId || "");
+  const [image, setImage] = useState(initial?.image || "");
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -213,6 +232,7 @@ function CategoryForm({
       name,
       slug: slug || undefined,
       parentId: parentId || undefined,
+      image: image || undefined,
       isActive,
     };
     try {
@@ -227,6 +247,21 @@ function CategoryForm({
 
   return (
     <form onSubmit={handleSubmit} className="bg-surface border border-line rounded-lg p-5 space-y-4">
+      <div>
+        <Label>Category image</Label>
+        <p className="text-xs text-muted mb-2">
+          Shown on the &quot;Shop by category&quot; cards and category page header. A 4:5 portrait
+          image works best.
+        </p>
+        <div className="max-w-[220px]">
+          <SingleImageUploader
+            image={image}
+            onChange={setImage}
+            aspectRatio="4/5"
+            label="Upload category image"
+          />
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="cat-name">Name</Label>
