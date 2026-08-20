@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ProductImage } from "@/types";
-import { cn } from "@/lib/utils";
+import { cn, resolveImageUrl } from "@/lib/utils";
 
 export function ProductGallery({ images, title }: { images: ProductImage[]; title: string }) {
   const [active, setActive] = useState(0);
@@ -21,14 +21,14 @@ export function ProductGallery({ images, title }: { images: ProductImage[]; titl
               i === active ? "border-accent-ink" : "border-transparent",
             )}
           >
-            <Image src={img.url} alt={img.alt || title} fill sizes="64px" className="object-cover" />
+            <Image src={resolveImageUrl(img.url)} alt={img.alt || title} fill sizes="64px" className="object-cover" />
           </button>
         ))}
       </div>
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-accent-soft card-shadow">
         {current ? (
           <Image
-            src={current.url}
+            src={resolveImageUrl(current.url)}
             alt={current.alt || title}
             fill
             priority

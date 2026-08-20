@@ -6,7 +6,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchHeroSlides, HeroSlide } from "@/lib/hero-slides-data";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, resolveImageUrl } from "@/lib/utils";
 
 const AUTOPLAY_MS = 5500;
 
@@ -60,7 +60,7 @@ export function HeroSlider() {
             )}
           >
             <Image
-              src={s.image}
+              src={resolveImageUrl(s.image)}
               alt={s.imageAlt}
               fill
               priority={i === 0}

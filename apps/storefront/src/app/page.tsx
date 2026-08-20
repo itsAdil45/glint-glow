@@ -5,6 +5,7 @@ import { fetchCategories } from "@/lib/api-categories";
 import { ProductCard } from "@/components/product/product-card";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/layout/hero-slider";
+import { resolveImageUrl } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -32,7 +33,7 @@ export default async function HomePage() {
               >
                 {category.image && (
                   <Image
-                    src={category.image}
+                    src={resolveImageUrl(category.image)}
                     alt={category.name}
                     fill
                     sizes="20vw"

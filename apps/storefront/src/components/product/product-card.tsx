@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 import { Product } from "@/types";
 import { PriceTag } from "@/components/ui/price-tag";
 import { colorToHex } from "@/lib/colors";
-import { cn } from "@/lib/utils";
+import { cn, resolveImageUrl } from "@/lib/utils";
 
 const NEW_WINDOW_DAYS = 14;
 const MAX_SWATCHES = 5;
@@ -38,7 +38,7 @@ export function ProductCard({ product }: { product: Product }) {
         {primaryImage ? (
           <>
             <Image
-              src={primaryImage.url}
+              src={resolveImageUrl(primaryImage.url)}
               alt={primaryImage.alt || product.title}
               fill
               sizes="(min-width: 1024px) 25vw, 50vw"
@@ -49,7 +49,7 @@ export function ProductCard({ product }: { product: Product }) {
             />
             {secondaryImage && (
               <Image
-                src={secondaryImage.url}
+                src={resolveImageUrl(secondaryImage.url)}
                 alt={secondaryImage.alt || product.title}
                 fill
                 sizes="(min-width: 1024px) 25vw, 50vw"

@@ -1,7 +1,4 @@
-// Dummy data for the header's mega menus. Shaped the way the real
-// categories API will eventually return grouped nav data, so swapping
-// `fetchMegaMenu` for a real backend call later is a one-function change —
-// nothing in the header components needs to know the difference.
+import { apiFetch } from "@/lib/api";
 
 export interface MegaMenuLink {
   label: string;
@@ -28,217 +25,65 @@ export interface NavCategory {
   simpleMenu?: MegaMenuLink[];
 }
 
-const DUMMY_NAV: NavCategory[] = [
-  { label: "Home", href: "/" },
-  {
-    label: "Makeup",
-    href: "/category/makeup",
-    megaMenu: [
-      {
-        label: "Face",
-        href: "/category/makeup/face",
-        sections: [
-          {
-            title: "FACE",
-            links: [
-              { label: "Foundation", href: "/products?category=foundation" },
-              { label: "Concealer", href: "/products?category=concealer" },
-              { label: "Primer", href: "/products?category=primer" },
-              { label: "Setting Powder", href: "/products?category=setting-powder" },
-              { label: "Blush", href: "/products?category=blush" },
-              { label: "Highlighter", href: "/products?category=highlighter" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Eyes",
-        href: "/category/makeup/eyes",
-        sections: [
-          {
-            title: "EYES",
-            links: [
-              { label: "Eyeshadow", href: "/products?category=eyeshadow" },
-              { label: "Eyeliner", href: "/products?category=eyeliner" },
-              { label: "Mascara", href: "/products?category=mascara" },
-              { label: "Brow Kits", href: "/products?category=brow-kits" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Lips",
-        href: "/category/makeup/lips",
-        sections: [
-          {
-            title: "LIPS",
-            links: [
-              { label: "Lipstick", href: "/products?category=lipstick" },
-              { label: "Lip Gloss", href: "/products?category=lip-gloss" },
-              { label: "Lip Liner", href: "/products?category=lip-liner" },
-              { label: "Lip Oil", href: "/products?category=lip-oil" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Nails",
-        href: "/category/makeup/nails",
-        sections: [
-          {
-            title: "NAILS",
-            links: [
-              { label: "Nail Polish", href: "/products?category=nail-polish" },
-              { label: "Nail Care", href: "/products?category=nail-care" },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Skincare",
-    href: "/category/skincare",
-    megaMenu: [
-      {
-        label: "Cleansers",
-        href: "/category/skincare/cleansers",
-        sections: [
-          {
-            title: "CLEANSERS",
-            links: [
-              { label: "Face Wash", href: "/products?category=face-wash" },
-              { label: "Micellar Water", href: "/products?category=micellar-water" },
-              { label: "Exfoliants", href: "/products?category=exfoliants" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Moisturizers",
-        href: "/category/skincare/moisturizers",
-        sections: [
-          {
-            title: "MOISTURIZERS",
-            links: [
-              { label: "Day Cream", href: "/products?category=day-cream" },
-              { label: "Night Cream", href: "/products?category=night-cream" },
-              { label: "Body Lotion", href: "/products?category=body-lotion" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Serums",
-        href: "/category/skincare/serums",
-        sections: [
-          {
-            title: "SERUMS & TREATMENTS",
-            links: [
-              { label: "Vitamin C", href: "/products?category=vitamin-c" },
-              { label: "Hyaluronic Acid", href: "/products?category=hyaluronic-acid" },
-              { label: "Retinol", href: "/products?category=retinol" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Sun Care",
-        href: "/category/skincare/sun-care",
-        sections: [
-          {
-            title: "SUN CARE",
-            links: [
-              { label: "Sunscreen SPF 30", href: "/products?category=spf-30" },
-              { label: "Sunscreen SPF 50", href: "/products?category=spf-50" },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Lingerie",
-    href: "/category/lingerie",
-    megaMenu: [
-      {
-        label: "Bras",
-        href: "/category/lingerie/bras",
-        sections: [
-          {
-            title: "BRAS",
-            links: [
-              { label: "T-Shirt Bra", href: "/products?category=tshirt-bra" },
-              { label: "Push-Up", href: "/products?category=push-up" },
-              { label: "Wireless", href: "/products?category=wireless" },
-              { label: "Sports Bra", href: "/products?category=sports-bra" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Panties",
-        href: "/category/lingerie/panties",
-        sections: [
-          {
-            title: "PANTIES",
-            links: [
-              { label: "Briefs", href: "/products?category=briefs" },
-              { label: "Bikini", href: "/products?category=bikini" },
-              { label: "Thong", href: "/products?category=thong" },
-              { label: "High-Waist", href: "/products?category=high-waist" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Shapewear",
-        href: "/category/lingerie/shapewear",
-        sections: [
-          {
-            title: "SHAPEWEAR",
-            links: [
-              { label: "Bodysuits", href: "/products?category=bodysuits" },
-              { label: "Waist Trainers", href: "/products?category=waist-trainers" },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Sleepwear",
-        href: "/category/lingerie/sleepwear",
-        sections: [
-          {
-            title: "SLEEPWEAR",
-            links: [
-              { label: "Nightgowns", href: "/products?category=nightgowns" },
-              { label: "Pajama Sets", href: "/products?category=pajama-sets" },
-              { label: "Robes", href: "/products?category=robes" },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  { label: "Fragrance", href: "/category/fragrance" },
-  { label: "Accessories", href: "/category/accessories" },
-  {
-    label: "Brands",
-    href: "/products",
-    simpleMenu: [
-      { label: "Glow Lab", href: "/products?brand=glow-lab" },
-      { label: "Petal & Co.", href: "/products?brand=petal-co" },
-      { label: "Bare Skin", href: "/products?brand=bare-skin" },
-      { label: "Velvet House", href: "/products?brand=velvet-house" },
-      { label: "Lumière", href: "/products?brand=lumiere" },
-      { label: "Silk & Sable", href: "/products?brand=silk-sable" },
-    ],
-  },
-  { label: "Contact", href: "/contact" },
-];
+// Shape returned by GET /categories/nav — a plain nested tree built from
+// the category collection's parentId field, root -> subcategory -> leaf.
+interface CategoryNavNode {
+  _id: string;
+  name: string;
+  slug: string;
+  image?: string;
+  children: CategoryNavNode[];
+}
+
+function categoryHref(slug: string) {
+  return `/category/${slug}`;
+}
+
+function subcategoryToMenuEntry(sub: CategoryNavNode): MegaMenuSubcategory {
+  const links: MegaMenuLink[] =
+    sub.children.length > 0
+      ? sub.children.map((leaf) => ({ label: leaf.name, href: categoryHref(leaf.slug) }))
+      : [{ label: `All ${sub.name}`, href: categoryHref(sub.slug) }];
+
+  return {
+    label: sub.name,
+    href: categoryHref(sub.slug),
+    sections: [{ title: sub.name.toUpperCase(), links }],
+  };
+}
+
+function rootToNavCategory(root: CategoryNavNode): NavCategory {
+  return {
+    label: root.name,
+    href: categoryHref(root.slug),
+    megaMenu: root.children.length > 0 ? root.children.map(subcategoryToMenuEntry) : undefined,
+  };
+}
 
 export async function fetchMegaMenu(): Promise<NavCategory[]> {
-  // TODO: replace with a real call once the categories API returns nav
-  // structure, e.g. `apiFetch<NavCategory[]>("/categories/nav", { auth: false })`.
-  return DUMMY_NAV;
+  const [tree, brands] = await Promise.all([
+    apiFetch<CategoryNavNode[]>("/categories/nav", { auth: false }).catch(() => []),
+    apiFetch<string[]>("/products/meta/brands", { auth: false }).catch(() => []),
+  ]);
+
+  const categoryItems = tree.map(rootToNavCategory);
+
+  const brandsItem: NavCategory | null =
+    brands.length > 0
+      ? {
+          label: "Brands",
+          href: "/products",
+          simpleMenu: brands.map((brand) => ({
+            label: brand,
+            href: `/products?brand=${encodeURIComponent(brand)}`,
+          })),
+        }
+      : null;
+
+  return [
+    { label: "Home", href: "/" },
+    ...categoryItems,
+    ...(brandsItem ? [brandsItem] : []),
+    { label: "Contact", href: "/contact" },
+  ];
 }

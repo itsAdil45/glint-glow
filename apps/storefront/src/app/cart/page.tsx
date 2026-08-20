@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/cart-store";
 import { useAuthStore } from "@/store/auth-store";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
+import { resolveImageUrl } from "@/lib/utils";
 
 export default function CartPage() {
   const { cart, isLoading, load, updateItem, removeItem } = useCartStore();
@@ -81,7 +82,7 @@ export default function CartPage() {
                     className="relative w-24 h-28 shrink-0 rounded-xl bg-accent-soft overflow-hidden"
                   >
                     {item.image && (
-                      <Image src={item.image} alt={item.title} fill sizes="96px" className="object-cover" />
+                      <Image src={resolveImageUrl(item.image)} alt={item.title} fill sizes="96px" className="object-cover" />
                     )}
                   </Link>
                   <div className="flex-1 flex flex-col justify-between">
