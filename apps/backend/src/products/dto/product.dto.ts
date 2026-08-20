@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Min,
@@ -22,7 +23,7 @@ class ProductAttributeDto {
 
 class ProductVariationDto {
   @IsString() sku: string;
-  attributes: Record<string, string>;
+  @IsObject() attributes: Record<string, string>;
   @IsNumber() @Min(0) price: number;
   @IsOptional() @IsNumber() @Min(0) compareAtPrice?: number;
   @IsNumber() @Min(0) stock: number;
