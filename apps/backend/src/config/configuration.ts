@@ -20,4 +20,9 @@ export default () => ({
   storefrontUrl: process.env.STOREFRONT_URL || 'http://localhost:3000',
   adminUrl: process.env.ADMIN_URL || 'http://localhost:3001',
   uploadDir: process.env.UPLOAD_DIR || 'uploads',
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  },
 });

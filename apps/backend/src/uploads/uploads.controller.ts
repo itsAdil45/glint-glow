@@ -9,46 +9,18 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import * as fs from 'fs';
-import * as sharp from 'sharp';
+import { memoryStorage } from 'multer';
+import { ConfigService } from '@nestjs/config';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/schemas/user.schema';
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Deletes a file, retrying on Windows' EBUSY/EPERM — the OS can hold a
- * read handle open for a few tens/hundreds of ms after a library like
- * Sharp finishes reading a file, so an immediate unlink can transiently
- * fail there even though nothing is actually wrong. Never throws; a
- * leftover temp file is harmless clutter, not a reason to fail the
- * request or discard output that was already generated successfully.
- */
-async function unlinkBestEffort(path: string, logger: Logger, attempts = 5, delayMs = 150) {
-  for (let i = 0; i < attempts; i++) {
-    try {
-      await fs.promises.unlink(path);
-      return;
-    } catch (err) {
-      const isLastAttempt = i === attempts - 1;
-      const code = (err as NodeJS.ErrnoException)?.code;
-      if (isLastAttempt || (code !== 'EBUSY' && code !== 'EPERM')) {
-        logger.warn(`Could not remove temp file ${path}: ${(err as Error).message}`);
-        return;
-      }
-      await delay(delayMs);
-    }
-  }
-}
+// Sensible default folder — keeps product images grouped and easy to find/
+// manage from the Cloudinary dashboard, separate from any other asset types
+// that might get their own upload endpoints later.
+const CLOUDINARY_FOLDER = 'glint-glow/products';
 
 @Controller('uploads')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -56,16 +28,21 @@ async function unlinkBestEffort(path: string, logger: Logger, attempts = 5, dela
 export class UploadsController {
   private readonly logger = new Logger(UploadsController.name);
 
+  constructor(private readonly configService: ConfigService) {
+    cloudinary.config({
+      cloud_name: this.configService.get<string>('cloudinary.cloudName'),
+      api_key: this.configService.get<string>('cloudinary.apiKey'),
+      api_secret: this.configService.get<string>('cloudinary.apiSecret'),
+    });
+  }
+
   @Post('image')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: UPLOAD_DIR,
-        filename: (_req, file, cb) => {
-          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          cb(null, `${unique}${extname(file.originalname)}`);
-        },
-      }),
+      // No disk writes at all — the buffer is streamed straight to
+      // Cloudinary, so there's nothing local to clean up on success or
+      // failure.
+      storage: memoryStorage(),
       limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
       fileFilter: (_req, file, cb) => {
         if (!/\/(jpg|jpeg|png|webp)$/.test(file.mimetype)) {
@@ -79,49 +56,58 @@ export class UploadsController {
     if (!file) throw new BadRequestException('No file uploaded');
 
     this.logger.log(
-      `Processing upload: originalname="${file.originalname}" mimetype=${file.mimetype} size=${file.size}B path=${file.path}`,
+      `Processing upload: originalname="${file.originalname}" mimetype=${file.mimetype} size=${file.size}B`,
     );
 
-    // Build the optimized/thumb filenames from a base that's independent of
-    // the input's extension, so an already-.webp upload never collides with
-    // its own optimized output (Sharp can't read and write the same file).
-    const base = file.filename.replace(extname(file.filename), '');
-    const optimizedName = `${base}-optimized.webp`;
-    const optimizedPath = join(UPLOAD_DIR, optimizedName);
-    const thumbName = `${base}-thumb.webp`;
-    const thumbPath = join(UPLOAD_DIR, thumbName);
-
+    let result: UploadApiResponse;
     try {
-      await sharp(file.path)
-        .resize(1600, 1600, { fit: 'inside' })
-        .webp({ quality: 82 })
-        .toFile(optimizedPath);
-      await sharp(file.path).resize(400, 400, { fit: 'inside' }).webp({ quality: 75 }).toFile(thumbPath);
+      result = await new Promise<UploadApiResponse>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: CLOUDINARY_FOLDER,
+            resource_type: 'image',
+            // Cloudinary generates both derived sizes at upload time (rather
+            // than on first request) and hands back their URLs directly in
+            // the response, so we don't need Sharp locally anymore.
+            eager: [
+              { width: 1600, height: 1600, crop: 'limit', fetch_format: 'webp', quality: 'auto:good' },
+              { width: 400, height: 400, crop: 'limit', fetch_format: 'webp', quality: 'auto:eco' },
+            ],
+            eager_async: false,
+          },
+          (error, uploadResult) => {
+            if (error || !uploadResult) return reject(error ?? new Error('Cloudinary returned no result'));
+            resolve(uploadResult);
+          },
+        );
+        uploadStream.end(file.buffer);
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       this.logger.error(
-        `Sharp processing failed for "${file.originalname}" (${file.mimetype}, ${file.size}B): ${message}`,
+        `Cloudinary upload failed for "${file.originalname}" (${file.mimetype}, ${file.size}B): ${message}`,
         err instanceof Error ? err.stack : undefined,
       );
-      // Processing itself failed — clean up whatever partial output exists
-      // so a retry doesn't trip over it, and this genuinely is a failure.
-      for (const p of [file.path, optimizedPath, thumbPath]) {
-        if (fs.existsSync(p)) await unlinkBestEffort(p, this.logger, 1);
-      }
       throw new InternalServerErrorException(
-        `Image processing failed: ${message}. Check the backend console for details.`,
+        `Image upload failed: ${message}. Check the backend console for details.`,
       );
     }
 
-    // Processing succeeded — the optimized + thumbnail files exist and are
-    // usable. Removing the original upload is just housekeeping from here
-    // on, so its failure (e.g. a transient Windows file lock) must never
-    // turn a successful upload into a 500.
-    void unlinkBestEffort(file.path, this.logger);
+    const [optimized, thumb] = result.eager ?? [];
+    if (!optimized?.secure_url || !thumb?.secure_url) {
+      this.logger.error(
+        `Cloudinary response missing expected eager transforms for public_id=${result.public_id}`,
+      );
+      throw new InternalServerErrorException('Image upload succeeded but optimization failed. Try again.');
+    }
 
+    // Same response shape as before ({ url, thumbnailUrl }), so admin's
+    // uploadImage() call site and the rest of the product-image flow don't
+    // need to change at all — only the values are now absolute Cloudinary
+    // URLs instead of "/uploads/...".
     return {
-      url: `/uploads/${optimizedName}`,
-      thumbnailUrl: `/uploads/${thumbName}`,
+      url: optimized.secure_url,
+      thumbnailUrl: thumb.secure_url,
     };
   }
 }
