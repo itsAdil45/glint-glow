@@ -39,6 +39,11 @@ export function ProductForm({
   const [variations, setVariations] = useState<ProductVariation[]>(initial?.variations || []);
   const [isPublished, setIsPublished] = useState(initial?.isPublished ?? true);
   const [isFeatured, setIsFeatured] = useState(initial?.isFeatured || false);
+  const [isFragrance, setIsFragrance] = useState(initial?.isFragrance || false);
+  const [isSkinCare, setIsSkinCare] = useState(initial?.isSkinCare || false);
+  const [isMakeupAccessory, setIsMakeupAccessory] = useState(initial?.isMakeupAccessory || false);
+  const [isMakeup, setIsMakeup] = useState(initial?.isMakeup || false);
+  const [isLingerie, setIsLingerie] = useState(initial?.isLingerie || false);
   const [relatedProductIds, setRelatedProductIds] = useState<string[]>(
     initial?.relatedProductIds || [],
   );
@@ -82,6 +87,11 @@ export function ProductForm({
       stock: Number(stock),
       isPublished: publishOverride ?? isPublished,
       isFeatured,
+      isFragrance,
+      isSkinCare,
+      isMakeupAccessory,
+      isMakeup,
+      isLingerie,
       relatedProductIds,
       seoTitle,
       seoDescription,
@@ -284,7 +294,7 @@ export function ProductForm({
 
       {/* Visibility */}
       <Section title="Visibility">
-        <div className="flex gap-6">
+        <div className="flex flex-wrap gap-6">
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
             Published (visible on storefront)
@@ -292,6 +302,35 @@ export function ProductForm({
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} />
             Featured (shown in &quot;Best sellers&quot;)
+          </label>
+        </div>
+        <p className="text-xs text-muted mt-4 mb-2">
+          Homepage rows — a product can appear in more than one, or none.
+        </p>
+        <div className="flex flex-wrap gap-6">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={isFragrance} onChange={(e) => setIsFragrance(e.target.checked)} />
+            Fragrances
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={isSkinCare} onChange={(e) => setIsSkinCare(e.target.checked)} />
+            Skin Care
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={isMakeupAccessory}
+              onChange={(e) => setIsMakeupAccessory(e.target.checked)}
+            />
+            Makeup Accessories
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={isMakeup} onChange={(e) => setIsMakeup(e.target.checked)} />
+            Makeup
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={isLingerie} onChange={(e) => setIsLingerie(e.target.checked)} />
+            Lingerie
           </label>
         </div>
       </Section>

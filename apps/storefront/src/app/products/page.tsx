@@ -26,6 +26,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       minPrice: params.minPrice ? Number(params.minPrice) : undefined,
       maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
       featured: params.featured === "true" ? true : undefined,
+      fragrance: params.fragrance === "true" ? true : undefined,
+      skinCare: params.skinCare === "true" ? true : undefined,
+      makeupAccessory: params.makeupAccessory === "true" ? true : undefined,
+      makeup: params.makeup === "true" ? true : undefined,
+      lingerie: params.lingerie === "true" ? true : undefined,
       sort: (params.sort as ProductQuery["sort"]) || "newest",
       page,
       limit: 12,
@@ -33,11 +38,16 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     fetchCategories().catch(() => []),
   ]);
 
-  const heroTitle = params.search
-    ? `Results for "${params.search}"`
-    : params.featured === "true"
-      ? "Best Sellers"
-      : "Shop All";
+  const ROW_TITLES: [string, string][] = [
+    ["featured", "Best Sellers"],
+    ["fragrance", "Fragrances"],
+    ["skinCare", "Skin Care"],
+    ["makeupAccessory", "Makeup Accessories"],
+    ["makeup", "Makeup"],
+    ["lingerie", "Lingerie"],
+  ];
+  const activeRow = ROW_TITLES.find(([key]) => params[key] === "true");
+  const heroTitle = params.search ? `Results for "${params.search}"` : activeRow?.[1] || "Shop All";
 
   return (
     <div>

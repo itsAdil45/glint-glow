@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Plus } from "lucide-react";
 import { fetchAdminProducts, deleteProduct, updateProduct } from "@/lib/api-products";
 import { Product } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { API_URL } from "@/lib/api";
@@ -15,6 +15,35 @@ function resolveUrl(url: string) {
   if (url.startsWith("http")) return url;
   return `${API_URL.replace(/\/api$/, "")}${url}`;
 }
+
+type ToggleField =
+  | "isPublished"
+  | "isFeatured"
+  | "isFragrance"
+  | "isSkinCare"
+  | "isMakeupAccessory"
+  | "isMakeup"
+  | "isLingerie";
+
+const TOGGLE_LABELS: Record<ToggleField, string> = {
+  isPublished: "published",
+  isFeatured: "best seller",
+  isFragrance: "fragrances row",
+  isSkinCare: "skin care row",
+  isMakeupAccessory: "makeup accessories row",
+  isMakeup: "makeup row",
+  isLingerie: "lingerie row",
+};
+
+// Homepage row placement — kept separate from Published/Best Seller since a
+// product can belong to none, one, or several of these at once.
+const HOME_SECTION_TOGGLES: { field: ToggleField; label: string }[] = [
+  { field: "isFragrance", label: "Fragrances" },
+  { field: "isSkinCare", label: "Skin Care" },
+  { field: "isMakeupAccessory", label: "Makeup Accessories" },
+  { field: "isMakeup", label: "Makeup" },
+  { field: "isLingerie", label: "Lingerie" },
+];
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -35,7 +64,7 @@ export default function ProductsPage() {
     setProducts((prev) => prev.filter((p) => p._id !== id));
   }
 
-  async function handleToggle(product: Product, field: "isPublished" | "isFeatured") {
+  async function handleToggle(product: Product, field: ToggleField) {
     const nextValue = !product[field];
     setPendingId(product._id);
     setProducts((prev) =>
@@ -48,7 +77,7 @@ export default function ProductsPage() {
       setProducts((prev) =>
         prev.map((p) => (p._id === product._id ? { ...p, [field]: !nextValue } : p)),
       );
-      alert(`Could not update ${field === "isPublished" ? "published" : "best seller"} status`);
+      alert(`Could not update ${TOGGLE_LABELS[field]} status`);
     } finally {
       setPendingId(null);
     }
@@ -74,6 +103,7 @@ export default function ProductsPage() {
               <th className="text-left px-5 py-3 font-medium">Stock</th>
               <th className="text-left px-5 py-3 font-medium">Published</th>
               <th className="text-left px-5 py-3 font-medium">Best Seller</th>
+              <th className="text-left px-5 py-3 font-medium">Home Sections</th>
               <th className="text-right px-5 py-3 font-medium">Actions</th>
             </tr>
           </thead>
@@ -131,6 +161,31 @@ export default function ProductsPage() {
                       label={`Toggle best seller for ${product.title}`}
                     />
                   </td>
+                  <td className="px-5 py-3">
+                    <div className="flex flex-wrap gap-1.5 max-w-[220px]">
+                      {HOME_SECTION_TOGGLES.map(({ field, label }) => {
+                        const active = product[field];
+                        return (
+                          <button
+                            key={field}
+                            type="button"
+                            onClick={() => handleToggle(product, field)}
+                            disabled={pendingId === product._id}
+                            aria-pressed={active}
+                            aria-label={`Toggle ${label} row for ${product.title}`}
+                            className={cn(
+                              "text-[11px] leading-none px-2 py-1 rounded-full border transition-colors disabled:opacity-50",
+                              active
+                                ? "bg-ink text-white border-ink"
+                                : "bg-transparent text-muted border-line hover:border-ink hover:text-ink",
+                            )}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex justify-end gap-3">
                       <Link
@@ -152,7 +207,7 @@ export default function ProductsPage() {
             })}
             {!loading && products.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-8 text-center text-muted text-sm">
+                <td colSpan={7} className="px-5 py-8 text-center text-muted text-sm">
                   No products yet.{" "}
                   <Link href="/products/new" className="underline underline-offset-4">
                     Create your first one

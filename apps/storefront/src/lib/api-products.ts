@@ -8,6 +8,11 @@ export interface ProductQuery {
   maxPrice?: number;
   brand?: string;
   featured?: boolean;
+  fragrance?: boolean;
+  skinCare?: boolean;
+  makeupAccessory?: boolean;
+  makeup?: boolean;
+  lingerie?: boolean;
   sort?: "newest" | "price_asc" | "price_desc" | "popular";
   page?: number;
   limit?: number;

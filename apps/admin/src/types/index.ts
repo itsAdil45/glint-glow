@@ -35,6 +35,11 @@ export interface Product {
   stock: number;
   isPublished: boolean;
   isFeatured: boolean;
+  isFragrance: boolean;
+  isSkinCare: boolean;
+  isMakeupAccessory: boolean;
+  isMakeup: boolean;
+  isLingerie: boolean;
   relatedProductIds: string[];
   ratingsAvg: number;
   ratingsCount: number;

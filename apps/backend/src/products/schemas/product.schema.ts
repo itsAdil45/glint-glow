@@ -105,6 +105,24 @@ export class Product {
   @Prop({ default: false, index: true })
   isFeatured: boolean;
 
+  // Homepage row placement — independent of category, since a product's
+  // category doesn't reliably say which curated row it belongs in (and a
+  // product can appear in more than one row, same as isFeatured).
+  @Prop({ default: false, index: true })
+  isFragrance: boolean;
+
+  @Prop({ default: false, index: true })
+  isSkinCare: boolean;
+
+  @Prop({ default: false, index: true })
+  isMakeupAccessory: boolean;
+
+  @Prop({ default: false, index: true })
+  isMakeup: boolean;
+
+  @Prop({ default: false, index: true })
+  isLingerie: boolean;
+
   @Prop({ type: [Types.ObjectId], ref: 'Product', default: [] })
   relatedProductIds: Types.ObjectId[];
 

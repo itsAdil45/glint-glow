@@ -1,53 +1,46 @@
 import Link from "next/link";
-import { fetchProducts } from "@/lib/api-products";
+import { fetchProducts, ProductQuery } from "@/lib/api-products";
 import { fetchCategories } from "@/lib/api-categories";
 import { CategoryCard } from "@/components/category/category-card";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/layout/hero-slider";
 import { ProductRail } from "@/components/product/product-rail";
-import { findCategoryByKeywords } from "@/lib/homepage-categories";
 
 export const revalidate = 60;
 
-// Each themed row is matched against whatever categories actually exist by
-// keyword, since the admin controls the real slugs/names — see
-// findCategoryByKeywords. Order here is the display order on the page.
-const THEMED_ROWS: { title: string; keywords: string[] }[] = [
-  { title: "Makeup", keywords: ["makeup", "make-up", "make up"] },
-  { title: "Skin Care", keywords: ["skincare", "skin-care", "skin care"] },
-  { title: "Fragrances", keywords: ["fragrance", "perfume", "scent"] },
-  {
-    title: "Beauty Tools & Accessories",
-    keywords: ["accessor", "tool", "brush", "applicator"],
-  },
-  {
-    title: "Lingerie",
-    keywords: ["lingerie", "undergarment", "intimate", "innerwear"],
-  },
+// Homepage rows are admin-curated per product (see the "Home Sections"
+// toggles in the admin products table / form) rather than derived from
+// category names — a product's category doesn't reliably say which row it
+// should appear in, and a product can belong to more than one row.
+const CURATED_ROWS: { title: string; queryKey: "fragrance" | "skinCare" | "makeupAccessory" | "makeup" | "lingerie" }[] = [
+  { title: "Fragrances", queryKey: "fragrance" },
+  { title: "Skin Care", queryKey: "skinCare" },
+  { title: "Makeup Accessories", queryKey: "makeupAccessory" },
+  { title: "Makeup", queryKey: "makeup" },
+  { title: "Lingerie", queryKey: "lingerie" },
 ];
 
 export default async function HomePage() {
-  const [featured, latest, allCategories] = await Promise.all([
+  const [featured, latest, allCategories, curated] = await Promise.all([
     // "Best Sellers" is admin-curated via the isFeatured toggle — sort=popular
     // alone doesn't filter by it at all, it just ranks by ratingsCount.
     fetchProducts({ featured: true, limit: 12, sort: "popular" }).catch(() => ({ items: [] })),
     fetchProducts({ limit: 12, sort: "newest" }).catch(() => ({ items: [] })),
     fetchCategories().catch(() => []),
+    Promise.all(
+      CURATED_ROWS.map((row) =>
+        fetchProducts({ [row.queryKey]: true, limit: 12 } as ProductQuery)
+          .then((result) => result.items)
+          .catch(() => []),
+      ),
+    ),
   ]);
   // Top-level only — subcategories would otherwise show up as peers of their
   // own parent in this strip.
   const categories = allCategories.filter((c) => !c.parentId);
 
-  const themedRows = await Promise.all(
-    THEMED_ROWS.map(async (row) => {
-      const category = findCategoryByKeywords(allCategories, row.keywords);
-      if (!category) return { ...row, category, products: [] as typeof featured.items };
-      const result = await fetchProducts({ category: category.slug, limit: 12 }).catch(() => ({
-        items: [],
-      }));
-      return { ...row, category, products: result.items };
-    }),
-  );
+  const rows = CURATED_ROWS.map((row, i) => ({ ...row, products: curated[i] }));
+  const [fragrances, skinCare, makeupAccessories, makeup, lingerie] = rows;
 
   return (
     <div>
@@ -74,16 +67,8 @@ export default async function HomePage() {
       <ProductRail title="Best Sellers" viewAllHref="/products?featured=true" products={featured.items} />
 
       {/* Makeup / Skin Care */}
-      {themedRows.slice(0, 2).map((row) =>
-        row.category ? (
-          <ProductRail
-            key={row.title}
-            title={row.title}
-            viewAllHref={`/category/${row.category.slug}`}
-            products={row.products}
-          />
-        ) : null,
-      )}
+      <ProductRail title={makeup.title} viewAllHref={`/products?${makeup.queryKey}=true`} products={makeup.products} />
+      <ProductRail title={skinCare.title} viewAllHref={`/products?${skinCare.queryKey}=true`} products={skinCare.products} />
 
       {/* Promo banner */}
       <section className="container-page py-8">
@@ -100,17 +85,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Fragrances / Beauty Tools & Accessories / Lingerie */}
-      {themedRows.slice(2).map((row) =>
-        row.category ? (
-          <ProductRail
-            key={row.title}
-            title={row.title}
-            viewAllHref={`/category/${row.category.slug}`}
-            products={row.products}
-          />
-        ) : null,
-      )}
+      {/* Fragrances / Makeup Accessories / Lingerie */}
+      <ProductRail title={fragrances.title} viewAllHref={`/products?${fragrances.queryKey}=true`} products={fragrances.products} />
+      <ProductRail
+        title={makeupAccessories.title}
+        viewAllHref={`/products?${makeupAccessories.queryKey}=true`}
+        products={makeupAccessories.products}
+      />
+      <ProductRail title={lingerie.title} viewAllHref={`/products?${lingerie.queryKey}=true`} products={lingerie.products} />
 
       {/* New arrivals */}
       <ProductRail title="New Arrivals" viewAllHref="/products?sort=newest" products={latest.items} />

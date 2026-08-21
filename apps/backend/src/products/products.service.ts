@@ -47,6 +47,21 @@ export class ProductsService {
     if (query.featured != null) {
       filter.isFeatured = query.featured;
     }
+    if (query.fragrance != null) {
+      filter.isFragrance = query.fragrance;
+    }
+    if (query.skinCare != null) {
+      filter.isSkinCare = query.skinCare;
+    }
+    if (query.makeupAccessory != null) {
+      filter.isMakeupAccessory = query.makeupAccessory;
+    }
+    if (query.makeup != null) {
+      filter.isMakeup = query.makeup;
+    }
+    if (query.lingerie != null) {
+      filter.isLingerie = query.lingerie;
+    }
     if (query.minPrice != null || query.maxPrice != null) {
       filter.basePrice = {};
       if (query.minPrice != null) filter.basePrice.$gte = query.minPrice;
@@ -123,6 +138,11 @@ export class ProductsService {
       stock: dto.stock || 0,
       isPublished: dto.isPublished ?? true,
       isFeatured: dto.isFeatured ?? false,
+      isFragrance: dto.isFragrance ?? false,
+      isSkinCare: dto.isSkinCare ?? false,
+      isMakeupAccessory: dto.isMakeupAccessory ?? false,
+      isMakeup: dto.isMakeup ?? false,
+      isLingerie: dto.isLingerie ?? false,
       relatedProductIds: (dto.relatedProductIds || []).map((id) => new Types.ObjectId(id)),
       seo: this.toSeoFields(dto),
     });
@@ -144,6 +164,11 @@ export class ProductsService {
       stock: dto.stock,
       isPublished: dto.isPublished,
       isFeatured: dto.isFeatured,
+      isFragrance: dto.isFragrance,
+      isSkinCare: dto.isSkinCare,
+      isMakeupAccessory: dto.isMakeupAccessory,
+      isMakeup: dto.isMakeup,
+      isLingerie: dto.isLingerie,
     };
     // Dot-path assignment updates each SEO sub-field independently rather
     // than replacing the whole `seo` subdocument — a partial PATCH that
