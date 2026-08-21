@@ -44,11 +44,15 @@ export function ProductRail({
   const barWidthPct = products.length > 4 ? Math.max(progress * 100, 15) : 100;
 
   return (
-    <section className="border-t-2 border-accent-ink py-10">
+    // border-t-2 border-accent-ink
+    <section className=" py-10">
       <div className="container-page">
         <div className="flex items-baseline justify-between mb-6">
           <h2 className="font-display text-3xl">{title}</h2>
-          <Link href={viewAllHref} className="text-sm font-medium underline underline-offset-4">
+          <Link
+            href={viewAllHref}
+            className="text-sm font-medium underline underline-offset-4"
+          >
             View All
           </Link>
         </div>
