@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
-import { fetchAdminProducts, deleteProduct } from "@/lib/api-products";
+import { fetchAdminProducts, deleteProduct, updateProduct } from "@/lib/api-products";
 import { Product } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { API_URL } from "@/lib/api";
 
 function resolveUrl(url: string) {
@@ -19,6 +19,7 @@ function resolveUrl(url: string) {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   function load() {
     fetchAdminProducts()
@@ -32,6 +33,25 @@ export default function ProductsPage() {
     if (!confirm("Delete this product? This cannot be undone.")) return;
     await deleteProduct(id);
     setProducts((prev) => prev.filter((p) => p._id !== id));
+  }
+
+  async function handleToggle(product: Product, field: "isPublished" | "isFeatured") {
+    const nextValue = !product[field];
+    setPendingId(product._id);
+    setProducts((prev) =>
+      prev.map((p) => (p._id === product._id ? { ...p, [field]: nextValue } : p)),
+    );
+    try {
+      await updateProduct(product._id, { [field]: nextValue });
+    } catch {
+      // roll back on failure
+      setProducts((prev) =>
+        prev.map((p) => (p._id === product._id ? { ...p, [field]: !nextValue } : p)),
+      );
+      alert(`Could not update ${field === "isPublished" ? "published" : "best seller"} status`);
+    } finally {
+      setPendingId(null);
+    }
   }
 
   return (
@@ -52,7 +72,8 @@ export default function ProductsPage() {
               <th className="text-left px-5 py-3 font-medium">Product</th>
               <th className="text-left px-5 py-3 font-medium">Price</th>
               <th className="text-left px-5 py-3 font-medium">Stock</th>
-              <th className="text-left px-5 py-3 font-medium">Status</th>
+              <th className="text-left px-5 py-3 font-medium">Published</th>
+              <th className="text-left px-5 py-3 font-medium">Best Seller</th>
               <th className="text-right px-5 py-3 font-medium">Actions</th>
             </tr>
           </thead>
@@ -95,11 +116,20 @@ export default function ProductsPage() {
                     <span className={stock <= 5 ? "text-warn font-medium" : ""}>{stock}</span>
                   </td>
                   <td className="px-5 py-3">
-                    {product.isPublished ? (
-                      <Badge>Published</Badge>
-                    ) : (
-                      <Badge className="bg-line text-muted">Draft</Badge>
-                    )}
+                    <Switch
+                      checked={product.isPublished}
+                      onChange={() => handleToggle(product, "isPublished")}
+                      disabled={pendingId === product._id}
+                      label={`Toggle published for ${product.title}`}
+                    />
+                  </td>
+                  <td className="px-5 py-3">
+                    <Switch
+                      checked={product.isFeatured}
+                      onChange={() => handleToggle(product, "isFeatured")}
+                      disabled={pendingId === product._id}
+                      label={`Toggle best seller for ${product.title}`}
+                    />
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex justify-end gap-3">
@@ -122,7 +152,7 @@ export default function ProductsPage() {
             })}
             {!loading && products.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-muted text-sm">
+                <td colSpan={6} className="px-5 py-8 text-center text-muted text-sm">
                   No products yet.{" "}
                   <Link href="/products/new" className="underline underline-offset-4">
                     Create your first one

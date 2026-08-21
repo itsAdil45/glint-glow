@@ -5,8 +5,26 @@ import { CategoryCard } from "@/components/category/category-card";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/layout/hero-slider";
 import { ProductRail } from "@/components/product/product-rail";
+import { findCategoryByKeywords } from "@/lib/homepage-categories";
 
 export const revalidate = 60;
+
+// Each themed row is matched against whatever categories actually exist by
+// keyword, since the admin controls the real slugs/names — see
+// findCategoryByKeywords. Order here is the display order on the page.
+const THEMED_ROWS: { title: string; keywords: string[] }[] = [
+  { title: "Makeup", keywords: ["makeup", "make-up", "make up"] },
+  { title: "Skin Care", keywords: ["skincare", "skin-care", "skin care"] },
+  { title: "Fragrances", keywords: ["fragrance", "perfume", "scent"] },
+  {
+    title: "Beauty Tools & Accessories",
+    keywords: ["accessor", "tool", "brush", "applicator"],
+  },
+  {
+    title: "Lingerie",
+    keywords: ["lingerie", "undergarment", "intimate", "innerwear"],
+  },
+];
 
 export default async function HomePage() {
   const [featured, latest, allCategories] = await Promise.all([
@@ -17,6 +35,17 @@ export default async function HomePage() {
   // Top-level only — subcategories would otherwise show up as peers of their
   // own parent in this strip.
   const categories = allCategories.filter((c) => !c.parentId);
+
+  const themedRows = await Promise.all(
+    THEMED_ROWS.map(async (row) => {
+      const category = findCategoryByKeywords(allCategories, row.keywords);
+      if (!category) return { ...row, category, products: [] as typeof featured.items };
+      const result = await fetchProducts({ category: category.slug, limit: 12 }).catch(() => ({
+        items: [],
+      }));
+      return { ...row, category, products: result.items };
+    }),
+  );
 
   return (
     <div>
@@ -42,6 +71,18 @@ export default async function HomePage() {
       {/* Best sellers */}
       <ProductRail title="Best Sellers" viewAllHref="/products?sort=popular" products={featured.items} />
 
+      {/* Makeup / Skin Care */}
+      {themedRows.slice(0, 2).map((row) =>
+        row.category ? (
+          <ProductRail
+            key={row.title}
+            title={row.title}
+            viewAllHref={`/category/${row.category.slug}`}
+            products={row.products}
+          />
+        ) : null,
+      )}
+
       {/* Promo banner */}
       <section className="container-page py-8">
         <div className="rounded-3xl bg-gradient-to-br from-ink to-ink-soft text-paper px-8 py-12 flex flex-col items-start gap-4">
@@ -56,6 +97,18 @@ export default async function HomePage() {
           </Button>
         </div>
       </section>
+
+      {/* Fragrances / Beauty Tools & Accessories / Lingerie */}
+      {themedRows.slice(2).map((row) =>
+        row.category ? (
+          <ProductRail
+            key={row.title}
+            title={row.title}
+            viewAllHref={`/category/${row.category.slug}`}
+            products={row.products}
+          />
+        ) : null,
+      )}
 
       {/* New arrivals */}
       <ProductRail title="New Arrivals" viewAllHref="/products?sort=newest" products={latest.items} />

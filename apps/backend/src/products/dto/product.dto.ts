@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -58,7 +59,12 @@ export class CreateProductDto {
   @IsOptional() @IsArray() @IsString({ each: true }) seoKeywords?: string[];
 }
 
-export class UpdateProductDto extends CreateProductDto {}
+// PartialType makes every inherited field optional (title/description/basePrice
+// included) while keeping their validators for whatever IS provided — a naive
+// `extends CreateProductDto` would inherit those as still-required, so a
+// partial PATCH (e.g. just { isFeatured: true } for an inline table toggle)
+// would fail validation for fields the request never intended to touch.
+export class UpdateProductDto extends PartialType(CreateProductDto) {}
 
 export class QueryProductsDto {
   @IsOptional() @IsString() search?: string;

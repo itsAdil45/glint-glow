@@ -87,7 +87,7 @@ export class ProductsService {
     return this.productModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  private validateVariations(dto: CreateProductDto) {
+  private validateVariations(dto: Partial<CreateProductDto>) {
     if (dto.hasVariations) {
       if (!dto.variations || dto.variations.length === 0) {
         throw new BadRequestException('At least one variation is required when hasVariations is true');
@@ -141,8 +141,15 @@ export class ProductsService {
       stock: dto.stock,
       isPublished: dto.isPublished,
       isFeatured: dto.isFeatured,
-      seo: this.toSeoFields(dto),
     };
+    // Dot-path assignment updates each SEO sub-field independently rather
+    // than replacing the whole `seo` subdocument — a partial PATCH that
+    // doesn't mention SEO at all (e.g. an inline table toggle sending just
+    // { isFeatured: true }) must never wipe out seo.title/description that
+    // were never part of this request.
+    if (dto.seoTitle !== undefined) update['seo.title'] = dto.seoTitle;
+    if (dto.seoDescription !== undefined) update['seo.description'] = dto.seoDescription;
+    if (dto.seoKeywords !== undefined) update['seo.keywords'] = dto.seoKeywords;
     if (dto.slug) update.slug = slugify(dto.slug, { lower: true });
     if (dto.categoryIds) update.categoryIds = dto.categoryIds.map((id) => new Types.ObjectId(id));
     if (dto.relatedProductIds)
