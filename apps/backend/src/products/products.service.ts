@@ -44,6 +44,9 @@ export class ProductsService {
     if (query.brand) {
       filter.brand = query.brand;
     }
+    if (query.featured != null) {
+      filter.isFeatured = query.featured;
+    }
     if (query.minPrice != null || query.maxPrice != null) {
       filter.basePrice = {};
       if (query.minPrice != null) filter.basePrice.$gte = query.minPrice;

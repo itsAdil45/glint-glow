@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -72,6 +72,13 @@ export class QueryProductsDto {
   @IsOptional() @IsNumber() @Type(() => Number) minPrice?: number;
   @IsOptional() @IsNumber() @Type(() => Number) maxPrice?: number;
   @IsOptional() @IsString() brand?: string;
+  // Query strings are always strings, and `@Type(() => Boolean)` would turn
+  // "false" into `true` (any non-empty string is truthy) — so this needs an
+  // explicit Transform rather than the usual @Type coercion.
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  featured?: boolean;
   @IsOptional() @IsString() sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular';
   @IsOptional() @IsNumber() @Type(() => Number) page?: number;
   @IsOptional() @IsNumber() @Type(() => Number) limit?: number;

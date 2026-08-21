@@ -25,6 +25,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       category: params.category,
       minPrice: params.minPrice ? Number(params.minPrice) : undefined,
       maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
+      featured: params.featured === "true" ? true : undefined,
       sort: (params.sort as ProductQuery["sort"]) || "newest",
       page,
       limit: 12,
@@ -32,7 +33,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     fetchCategories().catch(() => []),
   ]);
 
-  const heroTitle = params.search ? `Results for "${params.search}"` : "Shop All";
+  const heroTitle = params.search
+    ? `Results for "${params.search}"`
+    : params.featured === "true"
+      ? "Best Sellers"
+      : "Shop All";
 
   return (
     <div>

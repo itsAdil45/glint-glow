@@ -7,6 +7,7 @@ export interface ProductQuery {
   minPrice?: number;
   maxPrice?: number;
   brand?: string;
+  featured?: boolean;
   sort?: "newest" | "price_asc" | "price_desc" | "popular";
   page?: number;
   limit?: number;

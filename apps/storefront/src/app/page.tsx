@@ -28,7 +28,9 @@ const THEMED_ROWS: { title: string; keywords: string[] }[] = [
 
 export default async function HomePage() {
   const [featured, latest, allCategories] = await Promise.all([
-    fetchProducts({ limit: 12, sort: "popular" }).catch(() => ({ items: [] })),
+    // "Best Sellers" is admin-curated via the isFeatured toggle — sort=popular
+    // alone doesn't filter by it at all, it just ranks by ratingsCount.
+    fetchProducts({ featured: true, limit: 12, sort: "popular" }).catch(() => ({ items: [] })),
     fetchProducts({ limit: 12, sort: "newest" }).catch(() => ({ items: [] })),
     fetchCategories().catch(() => []),
   ]);
@@ -69,7 +71,7 @@ export default async function HomePage() {
       )}
 
       {/* Best sellers */}
-      <ProductRail title="Best Sellers" viewAllHref="/products?sort=popular" products={featured.items} />
+      <ProductRail title="Best Sellers" viewAllHref="/products?featured=true" products={featured.items} />
 
       {/* Makeup / Skin Care */}
       {themedRows.slice(0, 2).map((row) =>
