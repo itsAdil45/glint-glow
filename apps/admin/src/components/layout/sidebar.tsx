@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Package, FolderTree, ShoppingCart, Images, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, FolderTree, ShoppingCart, Images, GalleryHorizontal, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
 import { logoutAdmin } from "@/lib/api-auth";
@@ -12,6 +12,7 @@ const NAV = [
   { href: "/products", label: "Products", icon: Package },
   { href: "/categories", label: "Categories", icon: FolderTree },
   { href: "/hero-slides", label: "Hero Slides", icon: Images },
+  { href: "/banners", label: "Banners", icon: GalleryHorizontal },
   { href: "/orders", label: "Orders", icon: ShoppingCart },
 ];
 

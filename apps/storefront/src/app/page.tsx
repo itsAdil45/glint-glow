@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { fetchProducts, ProductQuery } from "@/lib/api-products";
 import { fetchCategories } from "@/lib/api-categories";
+import { fetchBanners } from "@/lib/banners-data";
 import { CategoryCard } from "@/components/category/category-card";
-import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/layout/hero-slider";
 import { ProductRail } from "@/components/product/product-rail";
+import { PromoBanner } from "@/components/home/promo-banner";
 
 export const revalidate = 60;
 
@@ -20,8 +21,23 @@ const CURATED_ROWS: { title: string; queryKey: "fragrance" | "skinCare" | "makeu
   { title: "Lingerie", queryKey: "lingerie" },
 ];
 
+// Fixed "slots" the homepage rows sit in. Banners are admin-managed with a
+// numeric `position` (see the Banners page in admin) and get interleaved
+// into these gaps — e.g. a banner with position 25 renders between Best
+// Sellers (20) and Makeup (30).
+const SLOT = {
+  categories: 10,
+  bestSellers: 20,
+  makeup: 30,
+  skinCare: 40,
+  fragrances: 50,
+  makeupAccessories: 60,
+  lingerie: 70,
+  newArrivals: 80,
+};
+
 export default async function HomePage() {
-  const [featured, latest, allCategories, curated] = await Promise.all([
+  const [featured, latest, allCategories, curated, banners] = await Promise.all([
     // "Best Sellers" is admin-curated via the isFeatured toggle — sort=popular
     // alone doesn't filter by it at all, it just ranks by ratingsCount.
     fetchProducts({ featured: true, limit: 12, sort: "popular" }).catch(() => ({ items: [] })),
@@ -34,6 +50,7 @@ export default async function HomePage() {
           .catch(() => []),
       ),
     ),
+    fetchBanners(),
   ]);
   // Top-level only — subcategories would otherwise show up as peers of their
   // own parent in this strip.
@@ -41,6 +58,48 @@ export default async function HomePage() {
 
   const rows = CURATED_ROWS.map((row, i) => ({ ...row, products: curated[i] }));
   const [fragrances, skinCare, makeupAccessories, makeup, lingerie] = rows;
+
+  // Sections between the hero and the categories strip are fixed; everything
+  // from "Best Sellers" onward is a flat, position-sorted list so admin
+  // banners can be inserted anywhere among the rows.
+  const sections: { position: number; node: React.ReactNode }[] = [
+    {
+      position: SLOT.bestSellers,
+      node: <ProductRail key="best-sellers" title="Best Sellers" viewAllHref="/products?featured=true" products={featured.items} />,
+    },
+    {
+      position: SLOT.makeup,
+      node: <ProductRail key="makeup" title={makeup.title} viewAllHref={`/products?${makeup.queryKey}=true`} products={makeup.products} />,
+    },
+    {
+      position: SLOT.skinCare,
+      node: <ProductRail key="skin-care" title={skinCare.title} viewAllHref={`/products?${skinCare.queryKey}=true`} products={skinCare.products} />,
+    },
+    {
+      position: SLOT.fragrances,
+      node: <ProductRail key="fragrances" title={fragrances.title} viewAllHref={`/products?${fragrances.queryKey}=true`} products={fragrances.products} />,
+    },
+    {
+      position: SLOT.makeupAccessories,
+      node: (
+        <ProductRail
+          key="makeup-accessories"
+          title={makeupAccessories.title}
+          viewAllHref={`/products?${makeupAccessories.queryKey}=true`}
+          products={makeupAccessories.products}
+        />
+      ),
+    },
+    {
+      position: SLOT.lingerie,
+      node: <ProductRail key="lingerie" title={lingerie.title} viewAllHref={`/products?${lingerie.queryKey}=true`} products={lingerie.products} />,
+    },
+    {
+      position: SLOT.newArrivals,
+      node: <ProductRail key="new-arrivals" title="New Arrivals" viewAllHref="/products?sort=newest" products={latest.items} />,
+    },
+    ...banners.map((banner) => ({ position: banner.position, node: <PromoBanner key={banner.id} banner={banner} /> })),
+  ].sort((a, b) => a.position - b.position);
 
   return (
     <div>
@@ -63,39 +122,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Best sellers */}
-      <ProductRail title="Best Sellers" viewAllHref="/products?featured=true" products={featured.items} />
-
-      {/* Makeup / Skin Care */}
-      <ProductRail title={makeup.title} viewAllHref={`/products?${makeup.queryKey}=true`} products={makeup.products} />
-      <ProductRail title={skinCare.title} viewAllHref={`/products?${skinCare.queryKey}=true`} products={skinCare.products} />
-
-      {/* Promo banner */}
-      <section className="container-page py-8">
-        <div className="rounded-3xl bg-gradient-to-br from-ink to-ink-soft text-paper px-8 py-12 flex flex-col items-start gap-4">
-          <span className="font-body text-xs tracking-widest uppercase text-gold">
-            Cash on delivery, everywhere
-          </span>
-          <h3 className="font-display text-3xl max-w-md">
-            Order now, pay when it arrives at your door.
-          </h3>
-          <Button variant="accent" size="lg" asChild>
-            <Link href="/products">Start shopping</Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* Fragrances / Makeup Accessories / Lingerie */}
-      <ProductRail title={fragrances.title} viewAllHref={`/products?${fragrances.queryKey}=true`} products={fragrances.products} />
-      <ProductRail
-        title={makeupAccessories.title}
-        viewAllHref={`/products?${makeupAccessories.queryKey}=true`}
-        products={makeupAccessories.products}
-      />
-      <ProductRail title={lingerie.title} viewAllHref={`/products?${lingerie.queryKey}=true`} products={lingerie.products} />
-
-      {/* New arrivals */}
-      <ProductRail title="New Arrivals" viewAllHref="/products?sort=newest" products={latest.items} />
+      {sections.map((section) => section.node)}
     </div>
   );
 }
