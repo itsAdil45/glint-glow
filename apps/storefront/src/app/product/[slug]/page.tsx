@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { fetchProductBySlug } from "@/lib/api-products";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { AddToCartPanel } from "@/components/product/add-to-cart-panel";
-import { ProductCard } from "@/components/product/product-card";
+import { ProductRail } from "@/components/product/product-rail";
 import { Product } from "@/types";
 
 interface PageProps {
@@ -73,44 +73,39 @@ export default async function ProductPage({ params }: PageProps) {
   };
 
   return (
-    <div className="container-page py-10 pb-28 lg:pb-10">
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <ProductGallery images={product.images} title={product.title} />
+      <div className="container-page py-10 pb-28 lg:pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <ProductGallery images={product.images} title={product.title} />
 
-        <div>
-          {product.brand && <p className="text-xs text-muted uppercase tracking-wide">{product.brand}</p>}
-          <h1 className="font-display text-3xl mt-1">{product.title}</h1>
-          {product.shortDescription && (
-            <p className="text-muted mt-2">{product.shortDescription}</p>
-          )}
+          <div>
+            {product.brand && <p className="text-xs text-muted uppercase tracking-wide">{product.brand}</p>}
+            <h1 className="font-display text-3xl mt-1">{product.title}</h1>
+            {product.shortDescription && (
+              <p className="text-muted mt-2">{product.shortDescription}</p>
+            )}
 
-          <div className="mt-6">
-            <AddToCartPanel product={product} />
-          </div>
+            <div className="mt-6">
+              <AddToCartPanel product={product} />
+            </div>
 
-          <div className="mt-10 border-t border-line pt-6">
-            <h2 className="font-display text-lg mb-3">Description</h2>
-            <p className="text-sm text-ink-soft whitespace-pre-line leading-relaxed">
-              {product.description}
-            </p>
+            <div className="mt-10 border-t border-line pt-6">
+              <h2 className="font-display text-lg mb-3">Description</h2>
+              <p className="text-sm text-ink-soft whitespace-pre-line leading-relaxed">
+                {product.description}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {relatedProducts.length > 0 && (
-        <section className="mt-20">
-          <h2 className="font-display text-2xl mb-6">You may also like</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {relatedProducts.map((p) => (
-              <ProductCard key={p._id} product={p} />
-            ))}
-          </div>
-        </section>
+        <ProductRail title="You May Also Like" viewAllHref="/products" products={relatedProducts} />
       )}
     </div>
   );
