@@ -229,7 +229,7 @@ function HeroSlideForm({
           <Label htmlFor="slide-cta-href">Button link</Label>
           <Input
             id="slide-cta-href"
-            placeholder="/category/makeup"
+            placeholder="/collections/makeup"
             value={ctaHref}
             onChange={(e) => setCtaHref(e.target.value)}
           />

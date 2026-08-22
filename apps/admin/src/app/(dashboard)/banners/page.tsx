@@ -340,7 +340,7 @@ function BannerForm({
           <Label htmlFor="banner-cta-href">Button / banner link</Label>
           <Input
             id="banner-cta-href"
-            placeholder="/category/hair-care"
+            placeholder="/collections/hair-care"
             value={ctaHref}
             onChange={(e) => setCtaHref(e.target.value)}
           />

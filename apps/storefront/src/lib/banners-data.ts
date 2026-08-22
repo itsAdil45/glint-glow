@@ -44,7 +44,7 @@ export async function fetchBanners(): Promise<Banner[]> {
     title: b.title,
     description: b.description || "",
     ctaLabel: b.ctaLabel || "",
-    ctaHref: b.ctaHref || "/products",
+    ctaHref: b.ctaHref || "/collections",
     image: b.image,
     imageAlt: b.imageAlt || b.title,
     layout: b.layout || "split",

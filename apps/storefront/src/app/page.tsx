@@ -81,7 +81,7 @@ export default async function HomePage() {
         <ProductRail
           key="best-sellers"
           title="Best Sellers"
-          viewAllHref="/products?featured=true"
+          viewAllHref="/collections?featured=true"
           products={featured.items}
         />
       ),
@@ -92,7 +92,7 @@ export default async function HomePage() {
         <ProductRail
           key="makeup"
           title={makeup.title}
-          viewAllHref={`/products?${makeup.queryKey}=true`}
+          viewAllHref={`/collections?${makeup.queryKey}=true`}
           products={makeup.products}
         />
       ),
@@ -103,7 +103,7 @@ export default async function HomePage() {
         <ProductRail
           key="skin-care"
           title={skinCare.title}
-          viewAllHref={`/products?${skinCare.queryKey}=true`}
+          viewAllHref={`/collections?${skinCare.queryKey}=true`}
           products={skinCare.products}
         />
       ),
@@ -114,7 +114,7 @@ export default async function HomePage() {
         <ProductRail
           key="fragrances"
           title={fragrances.title}
-          viewAllHref={`/products?${fragrances.queryKey}=true`}
+          viewAllHref={`/collections?${fragrances.queryKey}=true`}
           products={fragrances.products}
         />
       ),
@@ -125,7 +125,7 @@ export default async function HomePage() {
         <ProductRail
           key="makeup-accessories"
           title={makeupAccessories.title}
-          viewAllHref={`/products?${makeupAccessories.queryKey}=true`}
+          viewAllHref={`/collections?${makeupAccessories.queryKey}=true`}
           products={makeupAccessories.products}
         />
       ),
@@ -136,7 +136,7 @@ export default async function HomePage() {
         <ProductRail
           key="lingerie"
           title={lingerie.title}
-          viewAllHref={`/products?${lingerie.queryKey}=true`}
+          viewAllHref={`/collections?${lingerie.queryKey}=true`}
           products={lingerie.products}
         />
       ),
@@ -147,7 +147,7 @@ export default async function HomePage() {
         <ProductRail
           key="new-arrivals"
           title="New Arrivals"
-          viewAllHref="/products?sort=newest"
+          viewAllHref="/collections?sort=newest"
           products={latest.items}
         />
       ),
