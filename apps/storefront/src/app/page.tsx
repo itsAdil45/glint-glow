@@ -64,11 +64,11 @@ export default async function HomePage() {
       )}
 
       {/* Best sellers */}
-      <ProductRail title="Best Sellers" viewAllHref="/products?featured=true" products={featured.items} />
+      <ProductRail title="Best Sellers" viewAllHref="/collections?featured=true" products={featured.items} />
 
       {/* Makeup / Skin Care */}
-      <ProductRail title={makeup.title} viewAllHref={`/products?${makeup.queryKey}=true`} products={makeup.products} />
-      <ProductRail title={skinCare.title} viewAllHref={`/products?${skinCare.queryKey}=true`} products={skinCare.products} />
+      <ProductRail title={makeup.title} viewAllHref={`/collections?${makeup.queryKey}=true`} products={makeup.products} />
+      <ProductRail title={skinCare.title} viewAllHref={`/collections?${skinCare.queryKey}=true`} products={skinCare.products} />
 
       {/* Promo banner */}
       <section className="container-page py-8">
@@ -80,22 +80,22 @@ export default async function HomePage() {
             Order now, pay when it arrives at your door.
           </h3>
           <Button variant="accent" size="lg" asChild>
-            <Link href="/products">Start shopping</Link>
+            <Link href="/collections">Start shopping</Link>
           </Button>
         </div>
       </section>
 
       {/* Fragrances / Makeup Accessories / Lingerie */}
-      <ProductRail title={fragrances.title} viewAllHref={`/products?${fragrances.queryKey}=true`} products={fragrances.products} />
+      <ProductRail title={fragrances.title} viewAllHref={`/collections?${fragrances.queryKey}=true`} products={fragrances.products} />
       <ProductRail
         title={makeupAccessories.title}
-        viewAllHref={`/products?${makeupAccessories.queryKey}=true`}
+        viewAllHref={`/collections?${makeupAccessories.queryKey}=true`}
         products={makeupAccessories.products}
       />
-      <ProductRail title={lingerie.title} viewAllHref={`/products?${lingerie.queryKey}=true`} products={lingerie.products} />
+      <ProductRail title={lingerie.title} viewAllHref={`/collections?${lingerie.queryKey}=true`} products={lingerie.products} />
 
       {/* New arrivals */}
-      <ProductRail title="New Arrivals" viewAllHref="/products?sort=newest" products={latest.items} />
+      <ProductRail title="New Arrivals" viewAllHref="/collections?sort=newest" products={latest.items} />
     </div>
   );
 }

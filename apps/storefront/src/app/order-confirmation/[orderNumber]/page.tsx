@@ -54,7 +54,7 @@ export default function OrderConfirmationPage() {
 
       <div className="mt-8 flex justify-center gap-3">
         <Button asChild>
-          <Link href="/products">Continue shopping</Link>
+          <Link href="/collections">Continue shopping</Link>
         </Button>
         <Button variant="outline" asChild>
           <Link href="/account/orders">View orders</Link>

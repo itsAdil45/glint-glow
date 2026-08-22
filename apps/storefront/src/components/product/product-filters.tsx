@@ -12,16 +12,21 @@ const SORT_OPTIONS = [
   { value: "popular", label: "Most popular" },
 ];
 
-export function ProductFilters({
-  categories,
-  currentCategorySlug,
-}: {
-  categories: Category[];
-  currentCategorySlug?: string;
-}) {
+export function ProductFilters({ categories }: { categories: Category[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // /collections/[slug] is the clean, canonical URL for a pure category
+  // browse; bare /collections (with query params) is the filtered/combined
+  // listing. Both are the same route now, so any filter change always
+  // targets bare /collections — but if we're currently on a clean
+  // /collections/[slug] path, the slug has to be carried over as a query
+  // param first, or it'd be lost the moment we leave the path form.
+  const isCleanCategoryPath = pathname !== "/collections" && pathname.startsWith("/collections/");
+  const pathCategorySlug = isCleanCategoryPath
+    ? pathname.replace("/collections/", "").split("/")[0]
+    : undefined;
 
   function setParam(key: string, value: string | null) {
     const params = new URLSearchParams(searchParams.toString());
@@ -29,25 +34,13 @@ export function ProductFilters({
     else params.delete(key);
     params.delete("page");
 
-    // /category/[slug] is the clean, canonical URL for a pure category
-    // browse. The moment any filter is touched, the view becomes a
-    // filtered/combined listing — those live on /products as query params
-    // instead, so the category path never has to represent more than one
-    // piece of state at a time. Carry the current category along unless
-    // the category itself is what just changed (e.g. picking a different
-    // one, or clearing to "All categories").
-    const isCategoryRoute = pathname.startsWith("/category/");
-    if (isCategoryRoute) {
-      if (key !== "category" && currentCategorySlug && !params.get("category")) {
-        params.set("category", currentCategorySlug);
-      }
-      router.push(`/products?${params.toString()}`);
-    } else {
-      router.push(`${pathname}?${params.toString()}`);
+    if (isCleanCategoryPath && key !== "category" && pathCategorySlug && !params.get("category")) {
+      params.set("category", pathCategorySlug);
     }
+    router.push(`/collections?${params.toString()}`);
   }
 
-  const activeCategory = searchParams.get("category");
+  const activeCategory = searchParams.get("category") || pathCategorySlug || null;
   const sort = searchParams.get("sort") || "newest";
   const minPrice = searchParams.get("minPrice") || "";
   const maxPrice = searchParams.get("maxPrice") || "";

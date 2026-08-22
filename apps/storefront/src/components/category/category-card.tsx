@@ -24,7 +24,7 @@ function gradientFor(id: string) {
 export function CategoryCard({ category, sizes = "20vw" }: { category: Category; sizes?: string }) {
   return (
     <Link
-      href={`/category/${category.slug}`}
+      href={`/collections/${category.slug}`}
       className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface card-shadow transition-shadow"
     >
       <div className="relative aspect-[4/5] overflow-hidden">

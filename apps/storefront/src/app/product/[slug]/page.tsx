@@ -105,7 +105,7 @@ export default async function ProductPage({ params }: PageProps) {
       </div>
 
       {relatedProducts.length > 0 && (
-        <ProductRail title="You May Also Like" viewAllHref="/products" products={relatedProducts} />
+        <ProductRail title="You May Also Like" viewAllHref="/collections" products={relatedProducts} />
       )}
     </div>
   );

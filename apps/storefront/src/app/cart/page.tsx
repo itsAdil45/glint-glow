@@ -66,7 +66,7 @@ export default function CartPage() {
         <div className="py-20 text-center">
           <p className="text-muted mb-4">Your cart is empty.</p>
           <Button asChild>
-            <Link href="/products">Continue shopping</Link>
+            <Link href="/collections">Continue shopping</Link>
           </Button>
         </div>
       ) : (

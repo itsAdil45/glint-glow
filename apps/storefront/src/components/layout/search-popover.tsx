@@ -21,7 +21,7 @@ export function SearchPopover({ onClose }: { onClose: () => void }) {
       ref={containerRef}
       className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl bg-ink p-2 shadow-lg z-50"
     >
-      <form action="/products" className="flex items-center gap-1.5">
+      <form action="/collections" className="flex items-center gap-1.5">
         <input
           name="search"
           autoFocus
