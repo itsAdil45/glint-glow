@@ -1,9 +1,11 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Check } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { Category } from "@/types";
 import { cn, slugify } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -11,6 +13,38 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Price: high to low" },
   { value: "popular", label: "Most popular" },
 ];
+
+interface CategoryNode extends Category {
+  children: CategoryNode[];
+}
+
+function buildCategoryTree(categories: Category[]): CategoryNode[] {
+  const byId = new Map<string, CategoryNode>();
+  categories.forEach((c) => byId.set(c._id, { ...c, children: [] }));
+  const roots: CategoryNode[] = [];
+  byId.forEach((node) => {
+    const parent = node.parentId ? byId.get(node.parentId) : undefined;
+    if (parent) parent.children.push(node);
+    else roots.push(node);
+  });
+  return roots;
+}
+
+/** Prunes the tree to nodes that match the query themselves or have a
+ * descendant that does, so a hit on "Lipstick" still shows under "Makeup"
+ * for context instead of floating with no parent. */
+function filterCategoryTree(nodes: CategoryNode[], query: string): CategoryNode[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return nodes;
+  const result: CategoryNode[] = [];
+  for (const node of nodes) {
+    const children = filterCategoryTree(node.children, query);
+    if (node.name.toLowerCase().includes(q) || children.length > 0) {
+      result.push({ ...node, children });
+    }
+  }
+  return result;
+}
 
 export function ProductFilters({
   categories,
@@ -22,6 +56,9 @@ export function ProductFilters({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [expandOverrides, setExpandOverrides] = useState<Set<string>>(new Set());
 
   // /collections/[slug] and /collections/brand/[slug] are the clean,
   // canonical URLs for a pure category or brand browse; bare /collections
@@ -55,6 +92,7 @@ export function ProductFilters({
       params.set("brand", pathBrandName);
     }
     router.push(`/collections?${params.toString()}`);
+    setMobileOpen(false);
   }
 
   const activeCategory = searchParams.get("category") || pathCategorySlug || null;
@@ -63,8 +101,61 @@ export function ProductFilters({
   const minPrice = searchParams.get("minPrice") || "";
   const maxPrice = searchParams.get("maxPrice") || "";
 
-  return (
-    <aside className="rounded-2xl bg-surface card-shadow p-5 h-fit space-y-6">
+  const hasActiveFilters = Boolean(
+    activeCategory || activeBrand || minPrice || maxPrice || sort !== "newest",
+  );
+
+  function clearAll() {
+    router.push("/collections");
+    setMobileOpen(false);
+  }
+
+  const categoryTree = useMemo(() => buildCategoryTree(categories), [categories]);
+  const visibleCategoryTree = useMemo(
+    () => filterCategoryTree(categoryTree, categorySearch),
+    [categoryTree, categorySearch],
+  );
+
+  // Whichever branch contains the active category auto-expands, so landing
+  // on a subcategory page shows it in context instead of collapsed away.
+  // Kept as a pure derived value (not state set from an effect) — a manual
+  // toggle then XORs against this default rather than fighting it.
+  const autoExpanded = useMemo(() => {
+    const ids = new Set<string>();
+    if (!activeCategory) return ids;
+    function walk(nodes: CategoryNode[]): boolean {
+      for (const node of nodes) {
+        if (node.slug === activeCategory) return true;
+        if (walk(node.children)) {
+          ids.add(node._id);
+          return true;
+        }
+      }
+      return false;
+    }
+    walk(categoryTree);
+    return ids;
+  }, [activeCategory, categoryTree]);
+
+  function isExpanded(id: string) {
+    const auto = autoExpanded.has(id);
+    const overridden = expandOverrides.has(id);
+    return overridden ? !auto : auto;
+  }
+
+  function toggleExpanded(id: string) {
+    setExpandOverrides((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const isSearchingCategories = categorySearch.trim().length > 0;
+
+  const filtersContent = (
+    <div className="space-y-6">
       <FilterSection title="Sort by">
         <div className="space-y-1">
           {SORT_OPTIONS.map((opt) => (
@@ -82,19 +173,38 @@ export function ProductFilters({
       <div className="h-px bg-line" />
 
       <FilterSection title="Category">
-        <div className="space-y-1">
-          <FilterOption active={!activeCategory} onClick={() => setParam("category", null)}>
-            All categories
-          </FilterOption>
-          {categories.map((cat) => (
-            <FilterOption
-              key={cat._id}
-              active={activeCategory === cat.slug}
-              onClick={() => setParam("category", cat.slug)}
-            >
-              {cat.name}
+        <div className="relative mb-2">
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            value={categorySearch}
+            onChange={(e) => setCategorySearch(e.target.value)}
+            placeholder="Search categories"
+            className="h-9 w-full rounded-lg border border-line bg-paper pl-8 pr-2.5 text-sm outline-none focus:border-accent-ink"
+          />
+        </div>
+        <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
+          {!isSearchingCategories && (
+            <FilterOption active={!activeCategory} onClick={() => setParam("category", null)}>
+              All categories
             </FilterOption>
-          ))}
+          )}
+          {visibleCategoryTree.length === 0 ? (
+            <p className="text-xs text-muted px-2.5 py-1.5">No categories match &quot;{categorySearch}&quot;.</p>
+          ) : (
+            visibleCategoryTree.map((node) => (
+              <CategoryTreeItem
+                key={node._id}
+                node={node}
+                depth={0}
+                activeCategory={activeCategory}
+                isExpanded={isExpanded}
+                forceExpanded={isSearchingCategories}
+                onToggleExpand={toggleExpanded}
+                onSelect={(slug) => setParam("category", slug)}
+              />
+            ))
+          )}
         </div>
       </FilterSection>
 
@@ -142,7 +252,122 @@ export function ProductFilters({
           />
         </div>
       </FilterSection>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile trigger bar */}
+      <div className="flex items-center justify-between gap-3 mb-4 lg:hidden">
+        <Button variant="outline" size="sm" onClick={() => setMobileOpen(true)}>
+          <SlidersHorizontal size={15} /> Filters
+        </Button>
+        {hasActiveFilters && (
+          <button onClick={clearAll} className="text-sm text-accent-ink underline underline-offset-4">
+            Clear filters
+          </button>
+        )}
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:block rounded-2xl bg-surface card-shadow p-5 h-fit">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="font-display text-xl">Filters</h2>
+          {hasActiveFilters && (
+            <button onClick={clearAll} className="text-xs text-accent-ink underline underline-offset-4">
+              Clear all
+            </button>
+          )}
+        </div>
+        <div className="mt-4">{filtersContent}</div>
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileOpen(false)} />
+          <div className="absolute inset-y-0 left-0 w-[86%] max-w-sm bg-paper overflow-y-auto p-5 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-xl">Filters</h2>
+              <div className="flex items-center gap-3">
+                {hasActiveFilters && (
+                  <button onClick={clearAll} className="text-xs text-accent-ink underline underline-offset-4">
+                    Clear all
+                  </button>
+                )}
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close filters"
+                  className="text-muted hover:text-ink"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+            {filtersContent}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function CategoryTreeItem({
+  node,
+  depth,
+  activeCategory,
+  isExpanded,
+  forceExpanded,
+  onToggleExpand,
+  onSelect,
+}: {
+  node: CategoryNode;
+  depth: number;
+  activeCategory: string | null;
+  isExpanded: (id: string) => boolean;
+  forceExpanded: boolean;
+  onToggleExpand: (id: string) => void;
+  onSelect: (slug: string) => void;
+}) {
+  const hasChildren = node.children.length > 0;
+  const expanded = forceExpanded || isExpanded(node._id);
+
+  return (
+    <div>
+      <div className="flex items-center" style={{ paddingLeft: depth * 14 }}>
+        {hasChildren ? (
+          <button
+            onClick={() => onToggleExpand(node._id)}
+            aria-label={expanded ? `Collapse ${node.name}` : `Expand ${node.name}`}
+            aria-expanded={expanded}
+            className="p-1 -ml-1 text-muted hover:text-ink shrink-0"
+          >
+            {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+        ) : (
+          <span className="w-[22px] shrink-0" />
+        )}
+        <FilterOption active={activeCategory === node.slug} onClick={() => onSelect(node.slug)}>
+          {node.name}
+        </FilterOption>
+      </div>
+      {hasChildren && expanded && (
+        <div className="space-y-1 mt-1">
+          {node.children.map((child) => (
+            <CategoryTreeItem
+              key={child._id}
+              node={child}
+              depth={depth + 1}
+              activeCategory={activeCategory}
+              isExpanded={isExpanded}
+              forceExpanded={forceExpanded}
+              onToggleExpand={onToggleExpand}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
