@@ -36,7 +36,7 @@ interface CategoryNavNode {
 }
 
 function categoryHref(slug: string) {
-  return `/category/${slug}`;
+  return `/collections/${slug}`;
 }
 
 function subcategoryToMenuEntry(sub: CategoryNavNode): MegaMenuSubcategory {
@@ -72,10 +72,10 @@ export async function fetchMegaMenu(): Promise<NavCategory[]> {
     brands.length > 0
       ? {
           label: "Brands",
-          href: "/products",
+          href: "/collections",
           simpleMenu: brands.map((brand) => ({
             label: brand,
-            href: `/products?brand=${encodeURIComponent(brand)}`,
+            href: `/collections?brand=${encodeURIComponent(brand)}`,
           })),
         }
       : null;

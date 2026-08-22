@@ -10,7 +10,7 @@ const CUSTOMER_LINKS = [
 
 const COMPANY_LINKS = [
   { href: "/about", label: "About" },
-  { href: "/products", label: "Shop all" },
+  { href: "/collections", label: "Shop all" },
   { href: "/privacy", label: "Privacy policy" },
   { href: "/terms", label: "Terms of service" },
 ];

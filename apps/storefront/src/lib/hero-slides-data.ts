@@ -34,7 +34,7 @@ export async function fetchHeroSlides(): Promise<HeroSlide[]> {
     title: s.title,
     subtitle: s.subtitle || "",
     ctaLabel: s.ctaLabel || "Shop Now",
-    ctaHref: s.ctaHref || "/products",
+    ctaHref: s.ctaHref || "/collections",
     image: s.image,
     imageAlt: s.imageAlt || s.title,
   }));
