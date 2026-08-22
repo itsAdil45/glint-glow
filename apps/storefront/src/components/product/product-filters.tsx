@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Check } from "lucide-react";
 import { Category } from "@/types";
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -12,18 +12,32 @@ const SORT_OPTIONS = [
   { value: "popular", label: "Most popular" },
 ];
 
-export function ProductFilters({ categories }: { categories: Category[] }) {
+export function ProductFilters({
+  categories,
+  brands,
+}: {
+  categories: Category[];
+  brands: string[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // /collections/[slug] is the clean, canonical URL for a pure category
-  // browse; bare /collections (with query params) is the filtered/combined
-  // listing. Both are the same route now, so any filter change always
-  // targets bare /collections — but if we're currently on a clean
-  // /collections/[slug] path, the slug has to be carried over as a query
-  // param first, or it'd be lost the moment we leave the path form.
-  const isCleanCategoryPath = pathname !== "/collections" && pathname.startsWith("/collections/");
+  // /collections/[slug] and /collections/brand/[slug] are the clean,
+  // canonical URLs for a pure category or brand browse; bare /collections
+  // (with query params) is the filtered/combined listing. All three are
+  // the same route now, so any filter change always targets bare
+  // /collections — but if we're currently on one of the clean paths, that
+  // identifier has to be carried over as a query param first, or it'd be
+  // lost the moment we leave the path form.
+  const isCleanBrandPath = pathname.startsWith("/collections/brand/");
+  const pathBrandSlug = isCleanBrandPath
+    ? pathname.replace("/collections/brand/", "").split("/")[0]
+    : undefined;
+  const pathBrandName = pathBrandSlug ? brands.find((b) => slugify(b) === pathBrandSlug) : undefined;
+
+  const isCleanCategoryPath =
+    pathname !== "/collections" && pathname.startsWith("/collections/") && !isCleanBrandPath;
   const pathCategorySlug = isCleanCategoryPath
     ? pathname.replace("/collections/", "").split("/")[0]
     : undefined;
@@ -37,10 +51,14 @@ export function ProductFilters({ categories }: { categories: Category[] }) {
     if (isCleanCategoryPath && key !== "category" && pathCategorySlug && !params.get("category")) {
       params.set("category", pathCategorySlug);
     }
+    if (isCleanBrandPath && key !== "brand" && pathBrandName && !params.get("brand")) {
+      params.set("brand", pathBrandName);
+    }
     router.push(`/collections?${params.toString()}`);
   }
 
   const activeCategory = searchParams.get("category") || pathCategorySlug || null;
+  const activeBrand = searchParams.get("brand") || pathBrandName || null;
   const sort = searchParams.get("sort") || "newest";
   const minPrice = searchParams.get("minPrice") || "";
   const maxPrice = searchParams.get("maxPrice") || "";
@@ -79,6 +97,29 @@ export function ProductFilters({ categories }: { categories: Category[] }) {
           ))}
         </div>
       </FilterSection>
+
+      {brands.length > 0 && (
+        <>
+          <div className="h-px bg-line" />
+
+          <FilterSection title="Brand">
+            <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+              <FilterOption active={!activeBrand} onClick={() => setParam("brand", null)}>
+                All brands
+              </FilterOption>
+              {brands.map((brand) => (
+                <FilterOption
+                  key={brand}
+                  active={activeBrand === brand}
+                  onClick={() => setParam("brand", brand)}
+                >
+                  {brand}
+                </FilterOption>
+              ))}
+            </div>
+          </FilterSection>
+        </>
+      )}
 
       <div className="h-px bg-line" />
 

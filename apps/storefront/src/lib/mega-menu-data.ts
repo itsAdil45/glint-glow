@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api";
+import { slugify } from "@/lib/utils";
 
 export interface MegaMenuLink {
   label: string;
@@ -75,7 +76,7 @@ export async function fetchMegaMenu(): Promise<NavCategory[]> {
           href: "/collections",
           simpleMenu: brands.map((brand) => ({
             label: brand,
-            href: `/collections?brand=${encodeURIComponent(brand)}`,
+            href: `/collections/brand/${slugify(brand)}`,
           })),
         }
       : null;

@@ -39,3 +39,7 @@ export async function fetchProducts(query: ProductQuery = {}): Promise<ProductLi
 export async function fetchProductBySlug(slug: string): Promise<Product> {
   return apiFetch<Product>(`/products/${slug}`, { auth: false });
 }
+
+export async function fetchBrands(): Promise<string[]> {
+  return apiFetch<string[]>("/products/meta/brands", { auth: false });
+}
