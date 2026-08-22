@@ -19,6 +19,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: category.seo?.title || category.name,
       description: category.seo?.description || `Shop ${category.name} — new arrivals and best sellers.`,
+      // Self-canonical: this is the one clean URL for a pure browse of this
+      // category. Any filter combination involving it lives on /products
+      // as query params (see ProductFilters), which points its own
+      // canonical back here when category is the only param present — so
+      // the two views never compete as duplicate content in the index.
+      alternates: { canonical: `/category/${slug}` },
     };
   } catch {
     return { title: "Category" };
@@ -63,7 +69,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
       <div className="container-page py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
-          <ProductFilters categories={categories} />
+          <ProductFilters categories={categories} currentCategorySlug={slug} />
 
           <div>
             {result.items.length === 0 ? (

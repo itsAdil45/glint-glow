@@ -6,13 +6,38 @@ import { ProductFilters } from "@/components/product/product-filters";
 import { Pagination } from "@/components/product/pagination";
 import { PageHero } from "@/components/layout/page-hero";
 
-export const metadata: Metadata = {
+interface PageProps {
+  searchParams: Promise<Record<string, string | undefined>>;
+}
+
+const BASE_METADATA = {
   title: "Shop all products",
   description: "Browse the full collection — filter by category, price, and more.",
 };
 
-interface PageProps {
-  searchParams: Promise<Record<string, string | undefined>>;
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  const presentKeys = Object.keys(sp).filter((k) => sp[k] && !(k === "page" && sp[k] === "1"));
+
+  if (presentKeys.length === 0) {
+    // Bare /products — the general "shop all" listing, worth indexing on
+    // its own.
+    return { ...BASE_METADATA, alternates: { canonical: "/products" } };
+  }
+
+  if (presentKeys.length === 1 && presentKeys[0] === "category" && sp.category) {
+    // Identical content to the clean category page — canonicalize there
+    // instead of letting this query-string URL compete with it in search
+    // results.
+    return { ...BASE_METADATA, alternates: { canonical: `/category/${sp.category}` } };
+  }
+
+  // Any other filter combination (search, price range, sort, multiple
+  // params together) is a "these results right now" view, not a page
+  // worth ranking on its own — there's an unbounded number of these.
+  // Keeping them out of the index focuses crawl budget and ranking
+  // signals on the canonical category/shop pages instead.
+  return { ...BASE_METADATA, robots: { index: false, follow: true } };
 }
 
 export default async function ProductsPage({ searchParams }: PageProps) {

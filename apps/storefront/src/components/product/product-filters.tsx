@@ -12,7 +12,13 @@ const SORT_OPTIONS = [
   { value: "popular", label: "Most popular" },
 ];
 
-export function ProductFilters({ categories }: { categories: Category[] }) {
+export function ProductFilters({
+  categories,
+  currentCategorySlug,
+}: {
+  categories: Category[];
+  currentCategorySlug?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -22,7 +28,23 @@ export function ProductFilters({ categories }: { categories: Category[] }) {
     if (value) params.set(key, value);
     else params.delete(key);
     params.delete("page");
-    router.push(`${pathname}?${params.toString()}`);
+
+    // /category/[slug] is the clean, canonical URL for a pure category
+    // browse. The moment any filter is touched, the view becomes a
+    // filtered/combined listing — those live on /products as query params
+    // instead, so the category path never has to represent more than one
+    // piece of state at a time. Carry the current category along unless
+    // the category itself is what just changed (e.g. picking a different
+    // one, or clearing to "All categories").
+    const isCategoryRoute = pathname.startsWith("/category/");
+    if (isCategoryRoute) {
+      if (key !== "category" && currentCategorySlug && !params.get("category")) {
+        params.set("category", currentCategorySlug);
+      }
+      router.push(`/products?${params.toString()}`);
+    } else {
+      router.push(`${pathname}?${params.toString()}`);
+    }
   }
 
   const activeCategory = searchParams.get("category");
