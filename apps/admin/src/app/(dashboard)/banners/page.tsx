@@ -59,7 +59,9 @@ export default function BannersPage() {
   }
 
   async function handleToggleActive(banner: Banner) {
-    const updated = await updateBanner(banner._id, { isActive: !banner.isActive });
+    const updated = await updateBanner(banner._id, {
+      isActive: !banner.isActive,
+    });
     setBanners((prev) => prev.map((b) => (b._id === banner._id ? updated : b)));
   }
 
@@ -79,8 +81,9 @@ export default function BannersPage() {
         )}
       </div>
       <p className="text-xs text-muted mb-6">
-        Promo banners shown between the product rows on the homepage. &quot;Position&quot; controls where
-        each banner slots in among the rows — lower numbers show first.
+        Promo banners shown between the product rows on the homepage.
+        &quot;Position&quot; controls where each banner slots in among the rows
+        — lower numbers show first.
       </p>
 
       {showForm && (
@@ -90,7 +93,9 @@ export default function BannersPage() {
             onDone={(banner) => {
               setBanners((prev) => {
                 const exists = prev.some((b) => b._id === banner._id);
-                const next = exists ? prev.map((b) => (b._id === banner._id ? banner : b)) : [...prev, banner];
+                const next = exists
+                  ? prev.map((b) => (b._id === banner._id ? banner : b))
+                  : [...prev, banner];
                 return [...next].sort((a, b) => a.position - b.position);
               });
               setShowForm(false);
@@ -115,7 +120,12 @@ export default function BannersPage() {
               <GripVertical size={16} className="text-muted shrink-0" />
               <div className="relative w-24 h-12 rounded bg-bg overflow-hidden shrink-0">
                 {banner.image && (
-                  <Image src={resolveUrl(banner.image)} alt="" fill className="object-cover" />
+                  <Image
+                    src={resolveUrl(banner.image)}
+                    alt=""
+                    fill
+                    className="object-cover"
+                  />
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -124,7 +134,9 @@ export default function BannersPage() {
                   {banner.layout} · {banner.theme}
                 </p>
               </div>
-              <span className="text-xs text-muted price-tag shrink-0">#{banner.position}</span>
+              <span className="text-xs text-muted price-tag shrink-0">
+                #{banner.position}
+              </span>
               <label className="flex items-center gap-1.5 text-xs shrink-0">
                 <input
                   type="checkbox"
@@ -174,8 +186,12 @@ function BannerForm({
   const [ctaHref, setCtaHref] = useState(initial?.ctaHref || "/products");
   const [image, setImage] = useState(initial?.image || "");
   const [imageAlt, setImageAlt] = useState(initial?.imageAlt || "");
-  const [layout, setLayout] = useState<BannerLayout>(initial?.layout || "split");
-  const [imagePosition, setImagePosition] = useState<BannerImagePosition>(initial?.imagePosition || "right");
+  const [layout, setLayout] = useState<BannerLayout>(
+    initial?.layout || "split",
+  );
+  const [imagePosition, setImagePosition] = useState<BannerImagePosition>(
+    initial?.imagePosition || "right",
+  );
   const [theme, setTheme] = useState<BannerTheme>(initial?.theme || "dark");
   const [position, setPosition] = useState(initial?.position ?? 25);
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
@@ -205,7 +221,9 @@ function BannerForm({
       isActive,
     };
     try {
-      const result = initial ? await updateBanner(initial._id, payload) : await createBanner(payload);
+      const result = initial
+        ? await updateBanner(initial._id, payload)
+        : await createBanner(payload);
       onDone(result);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not save banner");
@@ -215,23 +233,38 @@ function BannerForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-surface border border-line rounded-lg p-5 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-surface border border-line rounded-lg p-5 space-y-4"
+    >
       <div>
         <Label>Banner image</Label>
-        <SingleImageUploader image={image} onChange={setImage} aspectRatio="21/9" />
+        <SingleImageUploader
+          image={image}
+          onChange={setImage}
+          aspectRatio="21/9"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="banner-layout">Layout</Label>
-          <Select id="banner-layout" value={layout} onChange={(e) => setLayout(e.target.value as BannerLayout)}>
+          <Select
+            id="banner-layout"
+            value={layout}
+            onChange={(e) => setLayout(e.target.value as BannerLayout)}
+          >
             <option value="split">Split (text + image side by side)</option>
             <option value="full-bleed">Full-bleed (text over image)</option>
           </Select>
         </div>
         <div>
           <Label htmlFor="banner-theme">Text theme</Label>
-          <Select id="banner-theme" value={theme} onChange={(e) => setTheme(e.target.value as BannerTheme)}>
+          <Select
+            id="banner-theme"
+            value={theme}
+            onChange={(e) => setTheme(e.target.value as BannerTheme)}
+          >
             <option value="dark">Dark background, light text</option>
             <option value="light">Light background, dark text</option>
           </Select>
@@ -243,7 +276,9 @@ function BannerForm({
             <Select
               id="banner-image-position"
               value={imagePosition}
-              onChange={(e) => setImagePosition(e.target.value as BannerImagePosition)}
+              onChange={(e) =>
+                setImagePosition(e.target.value as BannerImagePosition)
+              }
             >
               <option value="right">Right</option>
               <option value="left">Left</option>
@@ -253,7 +288,11 @@ function BannerForm({
 
         <div>
           <Label htmlFor="banner-position">Position on homepage</Label>
-          <Select id="banner-position" value={position} onChange={(e) => setPosition(Number(e.target.value))}>
+          <Select
+            id="banner-position"
+            value={position}
+            onChange={(e) => setPosition(Number(e.target.value))}
+          >
             {HOME_SLOTS.map((slot) => (
               <option key={slot.value} value={slot.value}>
                 {slot.label}
@@ -273,7 +312,11 @@ function BannerForm({
         </div>
         <div>
           <Label htmlFor="banner-title">Title</Label>
-          <Input id="banner-title" required value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input
+            id="banner-title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
         <div className="col-span-2">
           <Label htmlFor="banner-description">Description</Label>
@@ -304,11 +347,19 @@ function BannerForm({
         </div>
         <div className="col-span-2">
           <Label htmlFor="banner-alt">Image alt text</Label>
-          <Input id="banner-alt" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} />
+          <Input
+            id="banner-alt"
+            value={imageAlt}
+            onChange={(e) => setImageAlt(e.target.value)}
+          />
         </div>
         <div className="flex items-end pb-2.5">
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+            />
             Active (visible on storefront)
           </label>
         </div>

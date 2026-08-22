@@ -1,18 +1,18 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from "mongoose";
 
 export type BannerDocument = Banner & Document;
 
-export type BannerLayout = 'split' | 'full-bleed';
-export type BannerImagePosition = 'left' | 'right';
-export type BannerTheme = 'dark' | 'light';
+export type BannerLayout = "split" | "full-bleed";
+export type BannerImagePosition = "left" | "right";
+export type BannerTheme = "dark" | "light";
 
 @Schema({ timestamps: true })
 export class Banner {
   @Prop({ trim: true })
   eyebrow?: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ trim: true })
   title: string;
 
   @Prop({ trim: true })
@@ -27,19 +27,19 @@ export class Banner {
   @Prop({ required: true })
   image: string;
 
-  @Prop({ default: '' })
+  @Prop({ default: "" })
   imageAlt: string;
 
   // 'split': text on one side, image on the other, on a solid/gradient background.
   // 'full-bleed': image fills the whole banner with text overlaid on top.
-  @Prop({ default: 'split', enum: ['split', 'full-bleed'] })
+  @Prop({ default: "split", enum: ["split", "full-bleed"] })
   layout: BannerLayout;
 
   // Only relevant for the 'split' layout.
-  @Prop({ default: 'right', enum: ['left', 'right'] })
+  @Prop({ default: "right", enum: ["left", "right"] })
   imagePosition: BannerImagePosition;
 
-  @Prop({ default: 'dark', enum: ['dark', 'light'] })
+  @Prop({ default: "dark", enum: ["dark", "light"] })
   theme: BannerTheme;
 
   // Where this banner sits relative to the fixed homepage rows. Rows are
