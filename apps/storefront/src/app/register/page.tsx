@@ -15,6 +15,7 @@ import { setAccessToken } from "@/lib/token";
 import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 const schema = z.object({
   name: z.string().min(2, "Enter your full name"),
@@ -80,6 +81,15 @@ export default function RegisterPage() {
           {isSubmitting ? "Creating account…" : "Create account"}
         </Button>
       </form>
+
+      <div className="flex items-center gap-3 my-6">
+        <div className="h-px flex-1 bg-line" />
+        <span className="text-xs text-muted uppercase tracking-wide">or</span>
+        <div className="h-px flex-1 bg-line" />
+      </div>
+
+      <GoogleAuthButton redirect="/account" text="signup_with" onError={setServerError} />
+
       <p className="text-center text-sm text-muted mt-6">
         Already have an account?{" "}
         <Link href="/login" className="text-ink underline underline-offset-4">

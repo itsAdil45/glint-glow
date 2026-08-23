@@ -15,6 +15,7 @@ import { setAccessToken } from "@/lib/token";
 import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -77,6 +78,15 @@ export default function LoginPage() {
           {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
       </form>
+
+      <div className="flex items-center gap-3 my-6">
+        <div className="h-px flex-1 bg-line" />
+        <span className="text-xs text-muted uppercase tracking-wide">or</span>
+        <div className="h-px flex-1 bg-line" />
+      </div>
+
+      <GoogleAuthButton redirect={redirect} text="signin_with" onError={setServerError} />
+
       <p className="text-center text-sm text-muted mt-6">
         Don&apos;t have an account?{" "}
         <Link href="/register" className="text-ink underline underline-offset-4">

@@ -26,6 +26,14 @@ export async function loginUser(data: { email: string; password: string }): Prom
   });
 }
 
+export async function googleAuth(idToken: string): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/google", {
+    method: "POST",
+    auth: false,
+    body: JSON.stringify({ idToken }),
+  });
+}
+
 export async function logoutUser(): Promise<{ message: string }> {
   return apiFetch("/auth/logout", { method: "POST", auth: false });
 }

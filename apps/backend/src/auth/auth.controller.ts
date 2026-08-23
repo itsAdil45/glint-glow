@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RequestOtpDto, VerifyOtpDto } from './dto/otp.dto';
 import { JwtRefreshGuard } from '../common/guards/jwt-refresh.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -48,6 +49,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken } = await this.authService.login(dto);
+    this.setRefreshCookie(res, refreshToken);
+    return { accessToken };
+  }
+
+  @Post('google')
+  async google(@Body() dto: GoogleAuthDto, @Res({ passthrough: true }) res: Response) {
+    const { accessToken, refreshToken } = await this.authService.googleAuth(dto.idToken);
     this.setRefreshCookie(res, refreshToken);
     return { accessToken };
   }

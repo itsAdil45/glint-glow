@@ -30,7 +30,32 @@ export class UsersService {
   }
 
   async validatePassword(user: UserDocument, plain: string) {
+    // Google-only accounts have no passwordHash — bcrypt.compare would
+    // throw on undefined, so fail closed instead (same "invalid email or
+    // password" the user sees for any other wrong-credentials case, rather
+    // than leaking that this account has no password set).
+    if (!user.passwordHash) return false;
     return bcrypt.compare(plain, user.passwordHash);
+  }
+
+  findByGoogleId(googleId: string) {
+    return this.userModel.findOne({ googleId }).exec();
+  }
+
+  async createFromGoogle(data: { name: string; email: string; googleId: string }) {
+    const user = new this.userModel({
+      name: data.name,
+      email: data.email.toLowerCase(),
+      googleId: data.googleId,
+      // Google has already verified this address (checked by the caller
+      // before ever reaching here), so there's no OTP step to gate on.
+      isEmailVerified: true,
+    });
+    return user.save();
+  }
+
+  linkGoogleId(userId: string, googleId: string) {
+    return this.userModel.findByIdAndUpdate(userId, { googleId, isEmailVerified: true }, { new: true }).exec();
   }
 
   async updateProfile(userId: string, data: Partial<{ name: string; phone: string }>) {

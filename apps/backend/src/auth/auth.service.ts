@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { OAuth2Client } from 'google-auth-library';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { UsersService } from '../users/users.service';
@@ -15,12 +16,16 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
+  private googleClient: OAuth2Client;
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
     private config: ConfigService,
     private mailService: MailService,
-  ) {}
+  ) {
+    this.googleClient = new OAuth2Client(this.config.get<string>('google.clientId'));
+  }
 
   private async issueTokens(user: { _id: any; email: string; role: string }) {
     const payload = { sub: user._id.toString(), email: user.email, role: user.role };
@@ -56,6 +61,55 @@ export class AuthService {
   async refresh(userId: string) {
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException();
+    return this.issueTokens(user);
+  }
+
+  async googleAuth(idToken: string) {
+    const clientId = this.config.get<string>('google.clientId');
+    if (!clientId) {
+      // Fails loudly rather than silently accepting tokens with no
+      // audience check, which would be a much worse failure mode.
+      throw new BadRequestException('Google sign-in is not configured');
+    }
+
+    let payload;
+    try {
+      const ticket = await this.googleClient.verifyIdToken({ idToken, audience: clientId });
+      payload = ticket.getPayload();
+    } catch {
+      throw new UnauthorizedException('Invalid Google sign-in — please try again');
+    }
+    if (!payload?.email) {
+      throw new UnauthorizedException('Invalid Google sign-in — please try again');
+    }
+    // Google itself gates whether an account can reach this state (email
+    // changes, unverified addresses, etc.), so this is the one signal that
+    // actually matters for deciding whether to trust the email for
+    // auto-linking — everything else in the payload is just profile data.
+    if (!payload.email_verified) {
+      throw new UnauthorizedException('Your Google email is not verified');
+    }
+
+    const googleId = payload.sub;
+    const email = payload.email.toLowerCase();
+    const name = payload.name || email.split('@')[0];
+
+    let user = await this.usersService.findByGoogleId(googleId);
+
+    if (!user) {
+      const existingByEmail = await this.usersService.findByEmail(email);
+      if (existingByEmail) {
+        // Auto-link: Google has already verified ownership of this inbox,
+        // so a pre-existing password account with the same address is the
+        // same person signing in through a different door — not a
+        // collision to reject.
+        user = await this.usersService.linkGoogleId(existingByEmail._id.toString(), googleId);
+      } else {
+        user = await this.usersService.createFromGoogle({ name, email, googleId });
+      }
+    }
+
+    if (!user) throw new UnauthorizedException('Could not sign in with Google');
     return this.issueTokens(user);
   }
 

@@ -23,8 +23,18 @@ export class User {
   @Prop({ required: true, unique: true, lowercase: true, trim: true, index: true })
   email: string;
 
-  @Prop({ required: true, select: false })
-  passwordHash: string;
+  // Optional because a Google-only account (no password ever set) has
+  // nothing to hash. Every write path that creates/updates a password
+  // still goes through bcrypt as before — this only relaxes the schema
+  // requirement for accounts that never had one.
+  @Prop({ select: false })
+  passwordHash?: string;
+
+  // Sparse + unique: most users won't have this, and Mongo's unique index
+  // ignores documents missing the field entirely (sparse), so multiple
+  // password-only accounts with no googleId don't collide with each other.
+  @Prop({ index: true, sparse: true, unique: true })
+  googleId?: string;
 
   @Prop({ trim: true })
   phone?: string;
