@@ -41,11 +41,16 @@ export default function LoginPage() {
 
   async function completeSignIn(accessToken: string) {
     setAccessToken(accessToken);
-    const profile = await fetchProfile();
-    setUser(profile);
-    const cart = await mergeGuestCart();
-    setCart(cart);
-    router.push(redirect);
+    try {
+      const profile = await fetchProfile();
+      setUser(profile);
+      const cart = await mergeGuestCart();
+      setCart(cart);
+      router.push(redirect);
+    } catch (err) {
+      setAccessToken(null);
+      throw err;
+    }
   }
 
   async function onSubmit(data: FormData) {

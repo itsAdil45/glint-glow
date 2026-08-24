@@ -55,11 +55,16 @@ export default function RegisterPage() {
 
   async function completeSignIn(accessToken: string) {
     setAccessToken(accessToken);
-    const profile = await fetchProfile();
-    setUser(profile);
-    const cart = await mergeGuestCart();
-    setCart(cart);
-    router.push("/account");
+    try {
+      const profile = await fetchProfile();
+      setUser(profile);
+      const cart = await mergeGuestCart();
+      setCart(cart);
+      router.push("/account");
+    } catch (err) {
+      setAccessToken(null);
+      throw err;
+    }
   }
 
   if (step === "verify") {

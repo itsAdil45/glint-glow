@@ -28,11 +28,24 @@ export function VerifyEmailOtp({
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    let accessToken: string;
     try {
-      const { accessToken } = await verifyRegistrationOtp(email, otp);
-      await onVerified(accessToken);
+      const result = await verifyRegistrationOtp(email, otp);
+      accessToken = result.accessToken;
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Invalid or expired code");
+      setLoading(false);
+      return;
+    }
+
+    // The code was accepted and the account now exists — a failure past
+    // this point (e.g. loading the profile) shouldn't be reported as an
+    // invalid code, since retrying the same code would just fail again.
+    try {
+      await onVerified(accessToken);
+    } catch {
+      setError("Your account was verified, but we couldn't finish signing you in. Please log in.");
     } finally {
       setLoading(false);
     }
