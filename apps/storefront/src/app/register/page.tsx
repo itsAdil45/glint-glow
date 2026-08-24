@@ -17,6 +17,7 @@ import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { VerifyEmailOtp } from "@/components/auth/verify-email-otp";
+import { User, Mail, Phone, Lock } from "lucide-react";
 
 const schema = z.object({
   name: z.string().min(2, "Enter your full name"),
@@ -81,21 +82,28 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <Label htmlFor="name">Full name</Label>
-          <Input id="name" {...registerField("name")} error={errors.name?.message} />
+          <Input id="name" icon={<User size={16} />} {...registerField("name")} error={errors.name?.message} />
         </div>
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" {...registerField("email")} error={errors.email?.message} />
+          <Input
+            id="email"
+            type="email"
+            icon={<Mail size={16} />}
+            {...registerField("email")}
+            error={errors.email?.message}
+          />
         </div>
         <div>
           <Label htmlFor="phone">Phone (optional)</Label>
-          <Input id="phone" {...registerField("phone")} error={errors.phone?.message} />
+          <Input id="phone" icon={<Phone size={16} />} {...registerField("phone")} error={errors.phone?.message} />
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
+            icon={<Lock size={16} />}
             {...registerField("password")}
             error={errors.password?.message}
           />

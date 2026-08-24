@@ -8,6 +8,7 @@ import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { requestPasswordResetOtp, verifyPasswordResetOtp } from "@/lib/api-auth";
 import { ApiError } from "@/lib/api";
+import { Mail, Lock } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -60,6 +61,7 @@ export default function ForgotPasswordPage() {
             <Input
               id="email"
               type="email"
+              icon={<Mail size={16} />}
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -91,6 +93,7 @@ export default function ForgotPasswordPage() {
             maxLength={6}
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
+            className="text-center text-lg tracking-[0.5em] font-medium"
           />
         </div>
         <div>
@@ -98,6 +101,7 @@ export default function ForgotPasswordPage() {
           <Input
             id="newPassword"
             type="password"
+            icon={<Lock size={16} />}
             required
             minLength={8}
             value={newPassword}

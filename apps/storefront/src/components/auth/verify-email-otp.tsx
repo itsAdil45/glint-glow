@@ -64,6 +64,7 @@ export function VerifyEmailOtp({
             maxLength={6}
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
+            className="text-center text-lg tracking-[0.5em] font-medium"
           />
         </div>
         {error && <p className="text-sm text-danger">{error}</p>}

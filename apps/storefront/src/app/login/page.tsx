@@ -17,6 +17,7 @@ import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { VerifyEmailOtp } from "@/components/auth/verify-email-otp";
+import { Mail, Lock } from "lucide-react";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -78,7 +79,13 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" {...register("email")} error={errors.email?.message} />
+          <Input
+            id="email"
+            type="email"
+            icon={<Mail size={16} />}
+            {...register("email")}
+            error={errors.email?.message}
+          />
         </div>
         <div>
           <div className="flex justify-between items-baseline">
@@ -90,6 +97,7 @@ export default function LoginPage() {
           <Input
             id="password"
             type="password"
+            icon={<Lock size={16} />}
             {...register("password")}
             error={errors.password?.message}
           />
