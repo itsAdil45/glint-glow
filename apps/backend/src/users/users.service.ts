@@ -29,6 +29,29 @@ export class UsersService {
     return user.save();
   }
 
+  // A previous, never-verified signup attempt for this email retrying
+  // register — overwrite the pending details rather than creating a
+  // second document (email is unique) or rejecting the retry outright.
+  async updatePendingRegistration(
+    userId: string,
+    data: { name: string; email: string; password: string; phone?: string },
+  ) {
+    const passwordHash = await bcrypt.hash(data.password, 10);
+    return this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { name: data.name, passwordHash, phone: data.phone },
+        { new: true },
+      )
+      .exec();
+  }
+
+  async markEmailVerified(userId: string) {
+    return this.userModel
+      .findByIdAndUpdate(userId, { isEmailVerified: true, otp: null }, { new: true })
+      .exec();
+  }
+
   async validatePassword(user: UserDocument, plain: string) {
     // Google-only accounts have no passwordHash — bcrypt.compare would
     // throw on undefined, so fail closed instead (same "invalid email or

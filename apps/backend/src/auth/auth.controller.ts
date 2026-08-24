@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
-import { RequestOtpDto, VerifyOtpDto } from './dto/otp.dto';
+import { RequestOtpDto, VerifyOtpDto, VerifyRegistrationOtpDto, ResendRegistrationOtpDto } from './dto/otp.dto';
 import { JwtRefreshGuard } from '../common/guards/jwt-refresh.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -39,11 +39,27 @@ export class AuthController {
     });
   }
 
+  // Starts (or restarts, if never verified) email/password signup — sends
+  // an OTP but does not create a usable/loggable-in account yet. The
+  // account only becomes real once verifyRegisterOtp succeeds.
   @Post('register')
-  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
-    const { accessToken, refreshToken } = await this.authService.register(dto);
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
+
+  @Post('register/verify')
+  async verifyRegisterOtp(@Body() dto: VerifyRegistrationOtpDto, @Res({ passthrough: true }) res: Response) {
+    const { accessToken, refreshToken } = await this.authService.verifyRegistrationOtp(
+      dto.email,
+      dto.otp,
+    );
     this.setRefreshCookie(res, refreshToken);
     return { accessToken };
+  }
+
+  @Post('register/resend')
+  async resendRegisterOtp(@Body() dto: ResendRegistrationOtpDto) {
+    return this.authService.resendRegistrationOtp(dto.email);
   }
 
   @Post('login')

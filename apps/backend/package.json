@@ -8,7 +8,8 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "seed": "ts-node src/seed.ts",
-    "seed:data": "ts-node src/seed-data.ts"
+    "seed:data": "ts-node src/seed-data.ts",
+    "migrate:verify-existing-users": "ts-node src/backfill-verified-users.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.0",

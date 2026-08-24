@@ -42,10 +42,63 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const existing = await this.usersService.findByEmail(dto.email);
-    if (existing) throw new ConflictException('Email is already registered');
+    if (existing?.isEmailVerified) {
+      throw new ConflictException('Email is already registered');
+    }
 
-    const user = await this.usersService.create(dto);
+    // No account yet, or a previous attempt for this email was never
+    // verified — either way, (re)write the pending signup and send a fresh
+    // code. The account itself isn't created (in the sense of being usable
+    // to log in) until that code is confirmed in verifyRegistrationOtp.
+    const user = existing
+      ? await this.usersService.updatePendingRegistration(existing._id.toString(), dto)
+      : await this.usersService.create(dto);
+    if (!user) throw new BadRequestException('Could not start registration');
+
+    await this.sendEmailVerificationOtp(user);
+    return { message: 'We sent a verification code to your email.', email: user.email };
+  }
+
+  async verifyRegistrationOtp(email: string, otp: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new BadRequestException('Invalid or expired code');
+
+    if (!user.isEmailVerified) {
+      if (!user.otp || user.otp.purpose !== 'email_verify') {
+        throw new BadRequestException('Invalid or expired code');
+      }
+      if (user.otp.expiresAt.getTime() < Date.now()) {
+        throw new BadRequestException('Code has expired, please request a new one');
+      }
+      const valid = await bcrypt.compare(otp, user.otp.codeHash);
+      if (!valid) throw new BadRequestException('Invalid code');
+
+      await this.usersService.markEmailVerified(user._id.toString());
+    }
+
     return this.issueTokens(user);
+  }
+
+  async resendRegistrationOtp(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('No pending signup found for this email — please sign up again');
+    }
+    if (user.isEmailVerified) {
+      throw new ConflictException('This email is already verified — please log in');
+    }
+
+    await this.sendEmailVerificationOtp(user);
+    return { message: 'We sent a new verification code to your email.' };
+  }
+
+  private async sendEmailVerificationOtp(user: { _id: any; email: string }) {
+    const code = crypto.randomInt(100000, 999999).toString();
+    const codeHash = await bcrypt.hash(code, 10);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await this.usersService.setOtp(user._id.toString(), codeHash, 'email_verify', expiresAt);
+    await this.mailService.sendOtp(user.email, code, 'email_verify');
   }
 
   async login(dto: LoginDto) {
@@ -54,6 +107,13 @@ export class AuthService {
 
     const valid = await this.usersService.validatePassword(user, dto.password);
     if (!valid) throw new UnauthorizedException('Invalid email or password');
+
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException({
+        code: 'EMAIL_NOT_VERIFIED',
+        message: 'Please verify your email before logging in',
+      });
+    }
 
     return this.issueTokens(user);
   }

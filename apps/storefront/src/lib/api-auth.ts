@@ -5,16 +5,37 @@ export interface AuthResponse {
   accessToken: string;
 }
 
+export interface RegisterStartResponse {
+  message: string;
+  email: string;
+}
+
 export async function registerUser(data: {
   name: string;
   email: string;
   password: string;
   phone?: string;
-}): Promise<AuthResponse> {
-  return apiFetch<AuthResponse>("/auth/register", {
+}): Promise<RegisterStartResponse> {
+  return apiFetch<RegisterStartResponse>("/auth/register", {
     method: "POST",
     auth: false,
     body: JSON.stringify(data),
+  });
+}
+
+export async function verifyRegistrationOtp(email: string, otp: string): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/register/verify", {
+    method: "POST",
+    auth: false,
+    body: JSON.stringify({ email, otp }),
+  });
+}
+
+export async function resendRegistrationOtp(email: string): Promise<{ message: string }> {
+  return apiFetch("/auth/register/resend", {
+    method: "POST",
+    auth: false,
+    body: JSON.stringify({ email }),
   });
 }
 

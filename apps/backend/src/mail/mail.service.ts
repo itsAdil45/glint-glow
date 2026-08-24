@@ -31,9 +31,17 @@ export class MailService {
 
   async sendOtp(to: string, code: string, purpose: string) {
     const subject =
-      purpose === 'password_reset' ? 'Your password reset code' : 'Your verification code';
+      purpose === 'password_reset'
+        ? 'Your password reset code'
+        : purpose === 'email_verify'
+          ? 'Verify your email to finish signing up'
+          : 'Your verification code';
+    const intro =
+      purpose === 'email_verify'
+        ? '<p>Use this code to verify your email and finish creating your account:</p>'
+        : '<p>Your one-time code is:</p>';
     const html = `
-      <p>Your one-time code is:</p>
+      ${intro}
       <h2 style="letter-spacing:4px">${code}</h2>
       <p>This code expires in 10 minutes. If you did not request this, you can ignore this email.</p>
     `;

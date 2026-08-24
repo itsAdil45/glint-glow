@@ -23,3 +23,16 @@ export class VerifyOtpDto {
   @MinLength(8)
   newPassword: string;
 }
+
+export class VerifyRegistrationOtpDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  otp: string;
+}
+
+export class ResendRegistrationOtpDto {
+  @IsEmail()
+  email: string;
+}

@@ -16,6 +16,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { VerifyEmailOtp } from "@/components/auth/verify-email-otp";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -28,6 +29,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/account";
   const [serverError, setServerError] = useState("");
+  const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const setUser = useAuthStore((s) => s.setUser);
   const setCart = useCartStore((s) => s.setCart);
 
@@ -37,19 +39,38 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  async function completeSignIn(accessToken: string) {
+    setAccessToken(accessToken);
+    const profile = await fetchProfile();
+    setUser(profile);
+    const cart = await mergeGuestCart();
+    setCart(cart);
+    router.push(redirect);
+  }
+
   async function onSubmit(data: FormData) {
     setServerError("");
     try {
       const { accessToken } = await loginUser(data);
-      setAccessToken(accessToken);
-      const profile = await fetchProfile();
-      setUser(profile);
-      const cart = await mergeGuestCart();
-      setCart(cart);
-      router.push(redirect);
+      await completeSignIn(accessToken);
     } catch (err) {
+      if (err instanceof ApiError && (err.body as { code?: string })?.code === "EMAIL_NOT_VERIFIED") {
+        setUnverifiedEmail(data.email);
+        return;
+      }
       setServerError(err instanceof ApiError ? err.message : "Something went wrong");
     }
+  }
+
+  if (unverifiedEmail) {
+    return (
+      <VerifyEmailOtp
+        email={unverifiedEmail}
+        infoMessage="Your email isn't verified yet. Enter the code we sent when you signed up, or resend a new one."
+        onVerified={completeSignIn}
+        onBack={() => setUnverifiedEmail("")}
+      />
+    );
   }
 
   return (

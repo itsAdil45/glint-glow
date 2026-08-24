@@ -16,6 +16,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { VerifyEmailOtp } from "@/components/auth/verify-email-otp";
 
 const schema = z.object({
   name: z.string().min(2, "Enter your full name"),
@@ -27,6 +28,9 @@ type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [step, setStep] = useState<"details" | "verify">("details");
+  const [email, setEmail] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
   const [serverError, setServerError] = useState("");
   const setUser = useAuthStore((s) => s.setUser);
   const setCart = useCartStore((s) => s.setCart);
@@ -40,16 +44,36 @@ export default function RegisterPage() {
   async function onSubmit(data: FormData) {
     setServerError("");
     try {
-      const { accessToken } = await registerUser(data);
-      setAccessToken(accessToken);
-      const profile = await fetchProfile();
-      setUser(profile);
-      const cart = await mergeGuestCart();
-      setCart(cart);
-      router.push("/account");
+      const res = await registerUser(data);
+      setEmail(res.email);
+      setInfoMessage(res.message);
+      setStep("verify");
     } catch (err) {
       setServerError(err instanceof ApiError ? err.message : "Something went wrong");
     }
+  }
+
+  async function completeSignIn(accessToken: string) {
+    setAccessToken(accessToken);
+    const profile = await fetchProfile();
+    setUser(profile);
+    const cart = await mergeGuestCart();
+    setCart(cart);
+    router.push("/account");
+  }
+
+  if (step === "verify") {
+    return (
+      <VerifyEmailOtp
+        email={email}
+        infoMessage={infoMessage}
+        onVerified={completeSignIn}
+        onBack={() => {
+          setStep("details");
+          setServerError("");
+        }}
+      />
+    );
   }
 
   return (
@@ -78,7 +102,7 @@ export default function RegisterPage() {
         </div>
         {serverError && <p className="text-sm text-danger">{serverError}</p>}
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Creating account…" : "Create account"}
+          {isSubmitting ? "Sending code…" : "Create account"}
         </Button>
       </form>
 
