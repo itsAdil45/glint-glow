@@ -4,6 +4,7 @@ import { fetchProductBySlug } from "@/lib/api-products";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { AddToCartPanel } from "@/components/product/add-to-cart-panel";
 import { ProductRail } from "@/components/product/product-rail";
+import { ProductReviews } from "@/components/product/product-reviews";
 import { Product } from "@/types";
 
 interface PageProps {
@@ -102,6 +103,12 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        <ProductReviews
+          productId={product._id}
+          ratingsAvg={product.ratingsAvg}
+          ratingsCount={product.ratingsCount}
+        />
       </div>
 
       {relatedProducts.length > 0 && (

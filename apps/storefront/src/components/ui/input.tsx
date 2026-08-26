@@ -35,3 +35,25 @@ Input.displayName = "Input";
 export const Label = ({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
   <label className={cn("mb-1.5 block text-xs font-medium tracking-wide text-ink-soft", className)} {...props} />
 );
+
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  error?: string;
+}
+
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, error, ...props }, ref) => (
+    <div className="w-full">
+      <textarea
+        ref={ref}
+        className={cn(
+          "w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-muted focus:border-accent-ink outline-none transition-colors resize-none",
+          error && "border-danger",
+          className,
+        )}
+        {...props}
+      />
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
+    </div>
+  ),
+);
+Textarea.displayName = "Textarea";

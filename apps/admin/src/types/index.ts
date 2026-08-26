@@ -105,3 +105,18 @@ export interface AdminUser {
   email: string;
   role: "customer" | "admin";
 }
+
+export type ReviewStatus = "pending" | "approved" | "rejected";
+
+export interface Review {
+  _id: string;
+  productId: { _id: string; title: string; slug: string; images: ProductImage[] } | string;
+  userId: { _id: string; name: string; email: string } | string;
+  orderId: string;
+  rating: number;
+  title?: string;
+  comment: string;
+  status: ReviewStatus;
+  rejectionReason?: string;
+  createdAt: string;
+}

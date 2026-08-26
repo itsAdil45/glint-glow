@@ -219,4 +219,11 @@ export class ProductsService {
       await this.productModel.updateOne({ _id: productId }, { $inc: { stock: -quantity } });
     }
   }
+
+  /** Recomputed by ReviewsService whenever a review's approved/rejected/removed. */
+  async updateRatingSummary(productId: string, avg: number, count: number) {
+    return this.productModel
+      .findByIdAndUpdate(productId, { ratingsAvg: avg, ratingsCount: count }, { new: true })
+      .exec();
+  }
 }

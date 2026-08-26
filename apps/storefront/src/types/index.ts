@@ -129,3 +129,23 @@ export interface Order {
   paymentMethod: string;
   placedAt: string;
 }
+
+export type ReviewStatus = "pending" | "approved" | "rejected";
+
+export interface Review {
+  _id: string;
+  productId: string | Pick<Product, "_id" | "title" | "slug" | "images">;
+  userId: string | { _id: string; name: string; email?: string };
+  orderId: string;
+  rating: number;
+  title?: string;
+  comment: string;
+  status: ReviewStatus;
+  rejectionReason?: string;
+  createdAt: string;
+}
+
+export type ReviewEligibility =
+  | { canReview: true; orderId: string }
+  | { canReview: false; reason: "already_reviewed"; status: ReviewStatus }
+  | { canReview: false; reason: "not_delivered" };
