@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { cn, resolveImageUrl } from "@/lib/utils";
 
 export function PromoBanner({ banner }: { banner: Banner }) {
-  if (banner.layout === "full-bleed") return <FullBleedBanner banner={banner} />;
+  if (banner.layout === "full-bleed")
+    return <FullBleedBanner banner={banner} />;
   return <SplitBanner banner={banner} />;
 }
 
@@ -18,7 +19,7 @@ function SplitBanner({ banner }: { banner: Banner }) {
       <div
         className={cn(
           "rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-2 items-stretch",
-          light ? "bg-accent-soft text-ink" : "bg-ink text-paper",
+          light ? "bg-accent-soft text-ink" : "bg-white text-paper",
         )}
       >
         <div
@@ -37,9 +38,16 @@ function SplitBanner({ banner }: { banner: Banner }) {
               {banner.eyebrow}
             </span>
           )}
-          <h3 className="font-display text-3xl sm:text-4xl max-w-md">{banner.title}</h3>
+          <h3 className="font-display text-3xl sm:text-4xl max-w-md text-black">
+            {banner.title}
+          </h3>
           {banner.description && (
-            <p className={cn("max-w-md text-sm sm:text-base", light ? "text-ink/75" : "text-paper/85")}>
+            <p
+              className={cn(
+                "max-w-md text-sm sm:text-base",
+                light ? "text-ink/75" : "text-black",
+              )}
+            >
               {banner.description}
             </p>
           )}
@@ -100,7 +108,12 @@ function FullBleedBanner({ banner }: { banner: Banner }) {
           {banner.title}
         </h3>
         {banner.description && (
-          <p className={cn("max-w-lg text-sm sm:text-base", light ? "text-ink/75" : "text-paper/90")}>
+          <p
+            className={cn(
+              "max-w-lg text-sm sm:text-base",
+              light ? "text-ink/75" : "text-paper/90",
+            )}
+          >
             {banner.description}
           </p>
         )}
