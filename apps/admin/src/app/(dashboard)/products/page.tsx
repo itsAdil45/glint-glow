@@ -6,24 +6,18 @@ import Image from "next/image";
 import { Plus } from "lucide-react";
 import { fetchAdminProducts, deleteProduct, updateProduct } from "@/lib/api-products";
 import { Product } from "@/types";
-import { formatPrice, cn } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { API_URL } from "@/lib/api";
+import { HomeSectionsCell, HomeSectionField } from "@/components/products/home-sections-cell";
 
 function resolveUrl(url: string) {
   if (url.startsWith("http")) return url;
   return `${API_URL.replace(/\/api$/, "")}${url}`;
 }
 
-type ToggleField =
-  | "isPublished"
-  | "isFeatured"
-  | "isFragrance"
-  | "isSkinCare"
-  | "isMakeupAccessory"
-  | "isMakeup"
-  | "isLingerie";
+type ToggleField = "isPublished" | "isFeatured" | HomeSectionField;
 
 const TOGGLE_LABELS: Record<ToggleField, string> = {
   isPublished: "published",
@@ -35,20 +29,11 @@ const TOGGLE_LABELS: Record<ToggleField, string> = {
   isLingerie: "lingerie row",
 };
 
-// Homepage row placement — kept separate from Published/Best Seller since a
-// product can belong to none, one, or several of these at once.
-const HOME_SECTION_TOGGLES: { field: ToggleField; label: string }[] = [
-  { field: "isFragrance", label: "Fragrances" },
-  { field: "isSkinCare", label: "Skin Care" },
-  { field: "isMakeupAccessory", label: "Makeup Accessories" },
-  { field: "isMakeup", label: "Makeup" },
-  { field: "isLingerie", label: "Lingerie" },
-];
-
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [openSectionsId, setOpenSectionsId] = useState<string | null>(null);
 
   function load() {
     fetchAdminProducts()
@@ -162,29 +147,13 @@ export default function ProductsPage() {
                     />
                   </td>
                   <td className="px-5 py-3">
-                    <div className="flex flex-wrap gap-1.5 max-w-[220px]">
-                      {HOME_SECTION_TOGGLES.map(({ field, label }) => {
-                        const active = product[field];
-                        return (
-                          <button
-                            key={field}
-                            type="button"
-                            onClick={() => handleToggle(product, field)}
-                            disabled={pendingId === product._id}
-                            aria-pressed={active}
-                            aria-label={`Toggle ${label} row for ${product.title}`}
-                            className={cn(
-                              "text-[11px] leading-none px-2 py-1 rounded-full border transition-colors disabled:opacity-50",
-                              active
-                                ? "bg-ink text-white border-ink"
-                                : "bg-transparent text-muted border-line hover:border-ink hover:text-ink",
-                            )}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <HomeSectionsCell
+                      product={product}
+                      isOpen={openSectionsId === product._id}
+                      onOpenChange={(open) => setOpenSectionsId(open ? product._id : null)}
+                      onToggleField={(field) => handleToggle(product, field)}
+                      disabled={pendingId === product._id}
+                    />
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex justify-end gap-3">
