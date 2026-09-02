@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Upload, X } from "lucide-react";
 import { uploadImage } from "@/lib/api-products";
 import { API_URL } from "@/lib/api";
+import { MediaPickerModal } from "@/components/media/media-picker-modal";
 
 function resolveUrl(url: string) {
   if (!url) return "";
@@ -26,6 +27,7 @@ export function SingleImageUploader({
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(files: FileList | null) {
@@ -80,6 +82,21 @@ export function SingleImageUploader({
         onChange={(e) => handleFile(e.target.files)}
       />
       {error && <p className="text-xs text-danger mt-1">{error}</p>}
+
+      <button
+        type="button"
+        onClick={() => setPickerOpen(true)}
+        className="mt-2 text-xs text-muted underline underline-offset-4 hover:text-ink"
+      >
+        Choose from library instead
+      </button>
+
+      <MediaPickerModal
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        mode="single"
+        onSelect={(urls) => urls[0] && onChange(urls[0])}
+      />
     </div>
   );
 }

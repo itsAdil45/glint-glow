@@ -16,6 +16,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/schemas/user.schema';
+import { MediaAssetsService } from '../media/media-assets.service';
 
 // Sensible default folder — keeps product images grouped and easy to find/
 // manage from the Cloudinary dashboard, separate from any other asset types
@@ -28,7 +29,10 @@ const CLOUDINARY_FOLDER = 'glint-glow/products';
 export class UploadsController {
   private readonly logger = new Logger(UploadsController.name);
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly mediaAssetsService: MediaAssetsService,
+  ) {
     cloudinary.config({
       cloud_name: this.configService.get<string>('cloudinary.cloudName'),
       api_key: this.configService.get<string>('cloudinary.apiKey'),
@@ -105,6 +109,16 @@ export class UploadsController {
     // uploadImage() call site and the rest of the product-image flow don't
     // need to change at all — only the values are now absolute Cloudinary
     // URLs instead of "/uploads/...".
+    await this.mediaAssetsService.create({
+      url: optimized.secure_url,
+      thumbnailUrl: thumb.secure_url,
+      publicId: result.public_id,
+      filename: file.originalname,
+      width: optimized.width,
+      height: optimized.height,
+      bytes: result.bytes,
+    });
+
     return {
       url: optimized.secure_url,
       thumbnailUrl: thumb.secure_url,

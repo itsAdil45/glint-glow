@@ -2,10 +2,11 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { X, Upload, GripVertical } from "lucide-react";
+import { X, Upload, GripVertical, Library } from "lucide-react";
 import { ProductImage } from "@/types";
 import { uploadImage } from "@/lib/api-products";
 import { API_URL } from "@/lib/api";
+import { MediaPickerModal } from "@/components/media/media-picker-modal";
 
 function resolveUrl(url: string) {
   if (url.startsWith("http")) return url;
@@ -22,6 +23,7 @@ export function ImageUploader({
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dragIndex = useRef<number | null>(null);
 
@@ -104,6 +106,15 @@ export function ImageUploader({
           <Upload size={18} />
           <span className="text-xs">{uploading ? "Uploading…" : "Add image"}</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          className="aspect-square border border-dashed border-line rounded-md flex flex-col items-center justify-center gap-1 text-muted hover:border-ink hover:text-ink transition-colors"
+        >
+          <Library size={18} />
+          <span className="text-xs">Choose existing</span>
+        </button>
       </div>
       <input
         ref={inputRef}
@@ -114,6 +125,13 @@ export function ImageUploader({
         onChange={(e) => handleFiles(e.target.files)}
       />
       {error && <p className="text-xs text-danger">{error}</p>}
+
+      <MediaPickerModal
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        mode="multi"
+        onSelect={(urls) => onChange([...images, ...urls.map((url) => ({ url, alt: "" }))])}
+      />
     </div>
   );
 }
