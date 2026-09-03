@@ -36,6 +36,19 @@ export async function fetchProducts(query: ProductQuery = {}): Promise<ProductLi
   return apiFetch<ProductListResponse>(`/products${qs ? `?${qs}` : ""}`, { auth: false });
 }
 
+// Walks every page (the backend caps `limit` at 100/page) — for callers
+// like the sitemap that need the full published catalog, not one page of it.
+export async function fetchAllProducts(): Promise<Product[]> {
+  const PAGE_SIZE = 100;
+  const first = await fetchProducts({ limit: PAGE_SIZE, page: 1 });
+  const rest = await Promise.all(
+    Array.from({ length: first.totalPages - 1 }, (_, i) =>
+      fetchProducts({ limit: PAGE_SIZE, page: i + 2 }).then((r) => r.items),
+    ),
+  );
+  return [...first.items, ...rest.flat()];
+}
+
 export async function fetchProductBySlug(slug: string): Promise<Product> {
   return apiFetch<Product>(`/products/${slug}`, { auth: false });
 }
