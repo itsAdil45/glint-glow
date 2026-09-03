@@ -75,4 +75,29 @@ export class MailService {
     `;
     await this.send(adminEmail, `New Order — #${orderNumber}`, html);
   }
+
+  async sendContactMessageNotification(
+    adminEmail: string,
+    data: { name: string; email: string; phone?: string; subject?: string; message: string },
+  ) {
+    const html = `
+      <p>New message from the contact form:</p>
+      <ul>
+        <li>Name: ${data.name}</li>
+        <li>Email: ${data.email}</li>
+        ${data.phone ? `<li>Phone: ${data.phone}</li>` : ''}
+        ${data.subject ? `<li>Subject: ${data.subject}</li>` : ''}
+      </ul>
+      <p style="white-space:pre-wrap">${data.message}</p>
+    `;
+    await this.send(adminEmail, `Contact form: ${data.subject || 'New message'}`, html);
+  }
+
+  async sendContactMessageConfirmation(to: string, name: string) {
+    const html = `
+      <p>Hi ${name},</p>
+      <p>Thanks for reaching out — we've received your message and will get back to you as soon as we can.</p>
+    `;
+    await this.send(to, "We've received your message", html);
+  }
 }

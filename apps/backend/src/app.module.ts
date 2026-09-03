@@ -14,6 +14,7 @@ import { MailModule } from './mail/mail.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { HeroSlidesModule } from './hero-slides/hero-slides.module';
 import { BannersModule } from './banners/banners.module';
+import { ContactModule } from './contact/contact.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { MediaModule } from './media/media.module';
 
@@ -36,6 +37,7 @@ import { MediaModule } from './media/media.module';
     UploadsModule,
     HeroSlidesModule,
     BannersModule,
+    ContactModule,
     ReviewsModule,
     MediaModule,
   ],
