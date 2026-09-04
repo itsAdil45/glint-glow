@@ -9,7 +9,7 @@ export class MailService {
   private from: string;
 
   constructor(private config: ConfigService) {
-    this.from = this.config.get<string>('mail.from') || 'Store <no-reply@example.com>';
+    this.from = this.config.get<string>('mail.from') || 'GLOWN <no-reply@example.com>';
     this.transporter = nodemailer.createTransport({
       host: this.config.get('mail.host'),
       port: this.config.get('mail.port'),

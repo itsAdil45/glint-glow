@@ -31,7 +31,7 @@ export function AuthLayout({
             className="absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-accent-soft/10 blur-3xl"
           />
           <Link href="/" className="relative font-display text-3xl tracking-tight">
-            Glint Glow
+            GLOWN
           </Link>
           <div className="relative">
             <p className="font-display text-2xl leading-snug max-w-xs">
@@ -53,7 +53,7 @@ export function AuthLayout({
         {/* Form panel */}
         <div className="bg-surface p-7 sm:p-10 flex flex-col justify-center">
           <Link href="/" className="font-display text-2xl tracking-tight lg:hidden mb-6 inline-block">
-            Glint Glow
+            GLOWN
           </Link>
           <h1 className="font-display text-3xl">{title}</h1>
           {subtitle && <p className="text-sm text-muted mt-2">{subtitle}</p>}

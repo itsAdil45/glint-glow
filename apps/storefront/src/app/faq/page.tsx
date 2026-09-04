@@ -5,7 +5,7 @@ import { FaqAccordion, FaqItem } from "@/components/faq/faq-accordion";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Answers to common questions about ordering, payment, shipping, and returns at Glint Glow.",
+  description: "Answers to common questions about ordering, payment, shipping, and returns at GLOWN.",
 };
 
 const FAQ_GROUPS: { title: string; items: FaqItem[] }[] = [

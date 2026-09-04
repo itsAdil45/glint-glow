@@ -3,7 +3,7 @@ import { PageHero } from "@/components/layout/page-hero";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "The terms and conditions that govern your use of Glint Glow and any orders placed with us.",
+  description: "The terms and conditions that govern your use of GLOWN and any orders placed with us.",
 };
 
 const LAST_UPDATED = "September 2026";
@@ -82,7 +82,7 @@ export default function TermsPage() {
           <PolicySection title="7. Intellectual property">
             <p>
               All content on this site — including product photography, text, logos, and
-              design — belongs to Glint Glow or our licensors and is protected by applicable
+              design — belongs to GLOWN or our licensors and is protected by applicable
               intellectual property laws. You may not reproduce, distribute, or use it
               commercially without our written permission.
             </p>
@@ -100,7 +100,7 @@ export default function TermsPage() {
 
           <PolicySection title="9. Limitation of liability">
             <p>
-              To the fullest extent permitted by law, Glint Glow is not liable for any indirect,
+              To the fullest extent permitted by law, GLOWN is not liable for any indirect,
               incidental, or consequential damages arising from your use of the site or products
               purchased through it. Our total liability for any claim is limited to the amount
               you paid for the relevant order.

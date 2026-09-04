@@ -11,7 +11,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Store Admin",
+  title: "GLOWN Admin",
   description: "Manage products, orders, and categories.",
   robots: { index: false, follow: false },
 };

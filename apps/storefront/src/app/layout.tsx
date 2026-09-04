@@ -20,8 +20,8 @@ const jost = Jost({
 
 export const metadata: Metadata = {
   title: {
-    default: "Store — beauty & essentials",
-    template: "%s — Store",
+    default: "GLOWN — beauty & essentials",
+    template: "%s — GLOWN",
   },
   description: "Cosmetics and intimates, chosen with care.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),

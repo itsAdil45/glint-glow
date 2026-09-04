@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Glint Glow is a curated home for makeup, skincare, fragrances, and lingerie — chosen with care, delivered with cash on delivery, everywhere.",
+    "GLOWN is a curated home for makeup, skincare, fragrances, and lingerie — chosen with care, delivered with cash on delivery, everywhere.",
 };
 
 const VALUES = [
@@ -37,7 +37,7 @@ export default function AboutPage() {
   return (
     <div>
       <PageHero
-        title="About Glint Glow"
+        title="About GLOWN"
         subtitle="A curated home for makeup, skincare, fragrances, and lingerie — chosen with care."
         breadcrumbItems={[{ label: "Home", href: "/" }, { label: "About" }]}
       />
@@ -46,7 +46,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto space-y-6">
           <h2 className="font-display text-3xl">Our story</h2>
           <p className="text-muted leading-relaxed">
-            Glint Glow started from a simple frustration: finding genuinely good beauty and
+            GLOWN started from a simple frustration: finding genuinely good beauty and
             intimates products online usually meant wading through hundreds of near-identical
             listings, unclear sourcing, and prices that didn&apos;t match what showed up at the
             door. We wanted something simpler — a store where every product on the shelf is

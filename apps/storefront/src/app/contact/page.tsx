@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/contact/contact-form";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with the Glint Glow team — questions about an order, a product, or anything else.",
+  description: "Get in touch with the GLOWN team — questions about an order, a product, or anything else.",
 };
 
 export default function ContactPage() {

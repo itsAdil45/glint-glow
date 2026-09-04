@@ -1,10 +1,5 @@
-import {
-  Phone,
-  Globe,
-  MessageCircle,
-  AtSign,
-  Image as ImageIcon,
-} from "lucide-react";
+import { Phone } from "lucide-react";
+import { FacebookIcon, InstagramIcon, XIcon, PinterestIcon } from "@/components/icons/social-icons";
 
 export function TopBar() {
   return (
@@ -28,28 +23,28 @@ export function TopBar() {
             aria-label="Facebook"
             className="hover:text-accent-ink transition-colors"
           >
-            <Globe size={14} />
+            <FacebookIcon size={14} />
           </a>
           <a
             href="#"
-            aria-label="Twitter"
+            aria-label="X (Twitter)"
             className="hover:text-accent-ink transition-colors"
           >
-            <MessageCircle size={14} />
+            <XIcon size={14} />
           </a>
           <a
             href="#"
             aria-label="Pinterest"
             className="hover:text-accent-ink transition-colors"
           >
-            <ImageIcon size={14} />
+            <PinterestIcon size={14} />
           </a>
           <a
             href="#"
             aria-label="Instagram"
             className="hover:text-accent-ink transition-colors"
           >
-            <AtSign size={14} />
+            <InstagramIcon size={14} />
           </a>
         </div>
       </div>

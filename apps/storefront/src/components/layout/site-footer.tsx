@@ -1,81 +1,70 @@
 import Link from "next/link";
-import { AtSign, MessageCircle, Send } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
+import { FacebookIcon, InstagramIcon, XIcon, PinterestIcon } from "@/components/icons/social-icons";
 
-const CUSTOMER_LINKS = [
-  { href: "/contact", label: "Contact us" },
-  { href: "/faq", label: "FAQ" },
-];
-
-const COMPANY_LINKS = [
+const SHOP_LINKS = [
   { href: "/about", label: "About" },
   { href: "/collections", label: "Shop all" },
   { href: "/privacy", label: "Privacy policy" },
   { href: "/terms", label: "Terms of service" },
 ];
 
+const CUSTOMER_LINKS = [
+  { href: "/contact", label: "Contact us" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/account/orders", label: "Track an order" },
+];
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-line mt-24 bg-accent-soft/30">
-      <div className="container-page py-14 grid grid-cols-2 gap-10 lg:grid-cols-5">
+      <div className="container-page grid grid-cols-2 gap-10 py-14 lg:grid-cols-4">
         <div className="col-span-2">
-          <span className="font-display text-2xl">Store</span>
-          <p className="mt-3 text-sm text-muted max-w-xs">
+          <span className="font-display text-2xl">GLOWN</span>
+          <p className="mt-3 max-w-xs text-sm text-muted">
             Cosmetics and intimates, chosen with care. New arrivals every week.
           </p>
-          <div className="flex items-center gap-3 mt-5">
+
+          <div className="mt-5 space-y-2">
             <a
-              href="#"
-              aria-label="Instagram"
-              className="hover:text-accent-ink"
+              href="mailto:support@glintglow.pk"
+              className="flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors"
             >
-              <AtSign size={18} />
+              <Mail size={15} />
+              support@glintglow.pk
             </a>
             <a
-              href="#"
-              aria-label="Chat with us"
-              className="hover:text-accent-ink"
+              href="tel:+923047629941"
+              className="flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors"
             >
-              <MessageCircle size={18} />
+              <Phone size={15} />
+              +92 304 7629941
             </a>
-            <a
-              href="#"
-              aria-label="Newsletter"
-              className="hover:text-accent-ink"
-            >
-              <Send size={18} />
+          </div>
+
+          <div className="mt-5 flex items-center gap-3">
+            <a href="#" aria-label="Facebook" className="hover:text-accent-ink transition-colors">
+              <FacebookIcon size={18} />
+            </a>
+            <a href="#" aria-label="Instagram" className="hover:text-accent-ink transition-colors">
+              <InstagramIcon size={18} />
+            </a>
+            <a href="#" aria-label="X (Twitter)" className="hover:text-accent-ink transition-colors">
+              <XIcon size={18} />
+            </a>
+            <a href="#" aria-label="Pinterest" className="hover:text-accent-ink transition-colors">
+              <PinterestIcon size={18} />
             </a>
           </div>
         </div>
 
-        <FooterCol title="Shop" links={COMPANY_LINKS} />
+        <FooterCol title="Shop" links={SHOP_LINKS} />
         <FooterCol title="Customer service" links={CUSTOMER_LINKS} />
-
-        {/* <div>
-          <h4 className="text-xs font-medium tracking-wide text-ink-soft uppercase mb-3">
-            Newsletter
-          </h4>
-          <p className="text-sm text-muted mb-3">
-            Get news on new arrivals and offers.
-          </p>
-          <form className="flex gap-2">
-            <input
-              type="email"
-              placeholder="Email address"
-              className="h-10 w-full rounded-full border border-line bg-surface px-4 text-sm outline-none focus:border-accent-ink"
-            />
-            <button
-              type="submit"
-              className="h-10 px-5 rounded-full bg-ink text-paper text-sm shrink-0"
-            >
-              Join
-            </button>
-          </form>
-        </div> */}
       </div>
 
       <div className="border-t border-line">
-        <div className="container-page py-5 flex flex-col sm:flex-row justify-between gap-2 text-xs text-muted">
-          <span>© {new Date().getFullYear()} Store. All rights reserved.</span>
+        <div className="container-page flex flex-col justify-between gap-2 py-5 text-xs text-muted sm:flex-row">
+          <span>© {new Date().getFullYear()} GLOWN. All rights reserved.</span>
           <span>Cash on delivery available on all orders.</span>
         </div>
       </div>

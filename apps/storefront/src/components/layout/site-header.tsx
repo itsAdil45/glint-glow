@@ -37,7 +37,7 @@ export function SiteHeader() {
         </button>
 
         <Link href="/" className="font-display text-2xl tracking-tight shrink-0">
-          Glint Glow
+          GLOWN
         </Link>
 
         <nav className="hidden lg:flex items-center gap-7">

@@ -3,7 +3,7 @@ import { PageHero } from "@/components/layout/page-hero";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How Glint Glow collects, uses, and protects your personal information.",
+  description: "How GLOWN collects, uses, and protects your personal information.",
 };
 
 const LAST_UPDATED = "September 2026";
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       <section className="container-page py-16">
         <div className="max-w-3xl mx-auto space-y-10">
           <p className="text-muted leading-relaxed">
-            This Privacy Policy explains how Glint Glow (&quot;we&quot;, &quot;us&quot;, or
+            This Privacy Policy explains how GLOWN (&quot;we&quot;, &quot;us&quot;, or
             &quot;our&quot;) collects, uses, discloses, and safeguards your information when you
             visit our website or place an order with us. By using our site, you agree to the
             practices described here.

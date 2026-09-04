@@ -14,7 +14,7 @@ export default () => ({
     port: parseInt(process.env.SMTP_PORT || '587', 10),
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    from: process.env.MAIL_FROM || 'Store <no-reply@example.com>',
+    from: process.env.MAIL_FROM || 'GLOWN <no-reply@example.com>',
     adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL,
   },
   storefrontUrl: process.env.STOREFRONT_URL || 'http://localhost:3000',

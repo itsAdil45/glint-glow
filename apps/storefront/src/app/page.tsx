@@ -174,13 +174,13 @@ export default async function HomePage() {
               View all
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* Horizontal scroll rail below sm (avoids a grid with an
+              orphaned single item on the last row); grid from sm up. */}
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 lg:grid-cols-5 [&::-webkit-scrollbar]:hidden">
             {categories.slice(0, 5).map((category) => (
-              <CategoryCard
-                key={category._id}
-                category={category}
-                sizes="20vw"
-              />
+              <div key={category._id} className="w-[42%] shrink-0 snap-start sm:w-auto">
+                <CategoryCard category={category} sizes="(min-width: 640px) 20vw, 42vw" />
+              </div>
             ))}
           </div>
         </section>

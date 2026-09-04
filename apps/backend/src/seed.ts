@@ -10,7 +10,7 @@ dotenv.config();
 
 const ADMIN_EMAIL = 'admin@example.com';
 const ADMIN_PASSWORD = 'ChangeMe123!';
-const ADMIN_NAME = 'Store Admin';
+const ADMIN_NAME = 'GLOWN Admin';
 
 async function seed() {
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce';

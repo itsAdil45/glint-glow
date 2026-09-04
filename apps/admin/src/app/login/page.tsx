@@ -50,7 +50,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg px-4">
       <div className="w-full max-w-sm bg-surface border border-line rounded-lg p-8">
-        <h1 className="text-xl font-semibold text-center">Store Admin</h1>
+        <h1 className="text-xl font-semibold text-center">GLOWN Admin</h1>
         <p className="text-sm text-muted text-center mt-1">Sign in to manage your store.</p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">

@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { NavCategory } from "@/lib/mega-menu-data";
 import { cn } from "@/lib/utils";
 
+const MEGA_MENU_WIDTH = 560;
+const SIMPLE_MENU_WIDTH = 256; // w-64
+
 export function NavItem({ category }: { category: NavCategory }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [alignRight, setAlignRight] = useState(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   const hasMenu = !!(category.megaMenu || category.simpleMenu);
 
@@ -20,10 +25,23 @@ export function NavItem({ category }: { category: NavCategory }) {
     );
   }
 
+  const menuWidth = category.megaMenu ? MEGA_MENU_WIDTH : SIMPLE_MENU_WIDTH;
+
+  function handleOpen() {
+    // Nav items near the right edge (e.g. the last one or two links) would
+    // otherwise render a left-anchored menu that overflows the viewport and
+    // puts a horizontal scrollbar on the whole page. Anchor to the trigger's
+    // right edge instead whenever there isn't room to grow rightward.
+    const rect = triggerRef.current?.getBoundingClientRect();
+    setAlignRight(!!rect && rect.left + menuWidth > window.innerWidth - 16);
+    setOpen(true);
+  }
+
   return (
     <div
+      ref={triggerRef}
       className="relative"
-      onMouseEnter={() => setOpen(true)}
+      onMouseEnter={handleOpen}
       onMouseLeave={() => {
         setOpen(false);
         setActiveIndex(0);
@@ -38,7 +56,12 @@ export function NavItem({ category }: { category: NavCategory }) {
       </Link>
 
       {open && category.megaMenu && (
-        <div className="absolute left-0 top-full z-50 flex w-[560px] overflow-hidden rounded-2xl border border-line bg-surface shadow-lg">
+        <div
+          className={cn(
+            "absolute top-full z-50 flex w-[560px] overflow-hidden rounded-2xl border border-line bg-surface shadow-lg",
+            alignRight ? "right-0" : "left-0",
+          )}
+        >
           <div className="w-44 shrink-0 border-r border-line bg-accent-soft/30 py-2">
             {category.megaMenu.map((sub, i) => (
               <button
@@ -81,7 +104,12 @@ export function NavItem({ category }: { category: NavCategory }) {
       )}
 
       {open && category.simpleMenu && (
-        <div className="absolute left-0 top-full z-50 w-64 rounded-2xl border border-line bg-surface p-4 shadow-lg">
+        <div
+          className={cn(
+            "absolute top-full z-50 w-64 rounded-2xl border border-line bg-surface p-4 shadow-lg",
+            alignRight ? "right-0" : "left-0",
+          )}
+        >
           <div className="grid grid-cols-1 gap-1">
             {category.simpleMenu.map((link) => (
               <Link

@@ -34,7 +34,7 @@ export function Sidebar() {
   return (
     <aside className="w-60 shrink-0 border-r border-line bg-surface flex flex-col h-screen sticky top-0">
       <div className="h-16 flex items-center px-5 border-b border-line">
-        <span className="font-semibold tracking-tight">Store Admin</span>
+        <span className="font-semibold tracking-tight">GLOWN Admin</span>
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
