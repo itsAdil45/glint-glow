@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --color-paper: #fdf7f4;
+  --color-paper: #ffff;
   --color-surface: #ffffff;
   --color-ink: #3d2732;
   --color-ink-soft: #5a3d47;
