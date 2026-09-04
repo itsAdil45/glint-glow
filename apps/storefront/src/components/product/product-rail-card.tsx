@@ -22,9 +22,13 @@ export function ProductRailCard({ product }: { product: Product }) {
     : product.basePrice;
   const compareAt = product.hasVariations ? undefined : product.compareAtPrice;
   const discountPct =
-    compareAt && compareAt > price ? Math.round((1 - price / compareAt) * 100) : null;
+    compareAt && compareAt > price
+      ? Math.round((1 - price / compareAt) * 100)
+      : null;
 
-  const colorAttr = product.attributes.find((a) => a.name.toLowerCase() === "color");
+  const colorAttr = product.attributes.find(
+    (a) => a.name.toLowerCase() === "color",
+  );
 
   // Variation products need a size/color picked on the PDP — quick-add only
   // makes sense for simple products, so the button behaves as a shortcut to
@@ -46,7 +50,7 @@ export function ProductRailCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="group block w-[200px] sm:w-[220px] shrink-0"
+      className="group block w-[200px] sm:w-[220px] shrink-0  rounded "
     >
       <div className="relative aspect-square bg-paper">
         {primaryImage ? (
@@ -83,21 +87,29 @@ export function ProductRailCard({ product }: { product: Product }) {
               status !== "idle" && "opacity-100 translate-y-0",
             )}
           >
-            {status === "adding" && <Loader2 size={13} className="animate-spin" />}
+            {status === "adding" && (
+              <Loader2 size={13} className="animate-spin" />
+            )}
             {status === "added" && <Check size={13} />}
             {status === "added" ? "Added" : "Add To Cart"}
           </button>
         )}
       </div>
 
-      <div className="pt-3">
+      <div className="pt-3 px-2">
         {product.brand && (
-          <p className="text-[11px] text-muted uppercase tracking-wide">{product.brand}</p>
+          <p className="text-[11px] text-muted uppercase tracking-wide">
+            {product.brand}
+          </p>
         )}
-        <h3 className="text-sm font-semibold text-ink mt-0.5 truncate">{product.title}</h3>
+        <h3 className="text-sm font-semibold text-ink mt-0.5 truncate">
+          {product.title}
+        </h3>
 
         <div className="mt-1 flex items-baseline gap-1.5">
-          {product.hasVariations && <span className="text-xs text-muted">From</span>}
+          {product.hasVariations && (
+            <span className="text-xs text-muted">From</span>
+          )}
           <PriceTag amount={price} compareAt={compareAt} size="sm" />
         </div>
 

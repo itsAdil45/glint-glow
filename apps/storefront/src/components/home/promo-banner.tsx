@@ -87,7 +87,7 @@ function FullBleedBanner({ banner }: { banner: Banner }) {
         sizes="100vw"
         className="object-cover"
       />
-      {!light && <div className="absolute inset-0 bg-ink/25" />}
+      {/* {!light && <div className="absolute inset-0 bg-ink/25" />} */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 gap-3">
         {banner.eyebrow && (
           <span

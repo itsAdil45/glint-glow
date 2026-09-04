@@ -47,7 +47,7 @@ export function HeroSlider() {
   }
 
   const slide = slides[index];
-
+  console.log("slides", slides);
   return (
     <div className="container-page pt-6">
       <div className="relative aspect-[16/9] sm:aspect-[16/6] overflow-hidden rounded-3xl card-shadow">
@@ -59,19 +59,21 @@ export function HeroSlider() {
               i === index ? "opacity-100" : "opacity-0 pointer-events-none",
             )}
           >
-            <Image
-              src={resolveImageUrl(s.image)}
-              alt={s.imageAlt}
-              fill
-              priority={i === 0}
-              sizes="100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/25 to-transparent" />
+            <a href={slide.ctaHref} target="_blank" rel="noopener noreferrer">
+              <Image
+                src={resolveImageUrl(s.image)}
+                alt={s.imageAlt}
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </a>
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/25 to-transparent" /> */}
           </div>
         ))}
 
-        <div className="relative h-full flex items-center px-8 sm:px-14">
+        {/* <div className="relative h-full flex items-center px-8 sm:px-14">
           <div className="max-w-md">
             <span className="font-body text-xs tracking-widest text-paper/80 uppercase">
               {slide.eyebrow}
@@ -79,12 +81,14 @@ export function HeroSlider() {
             <h2 className="font-display text-4xl sm:text-6xl text-paper leading-[1.05] mt-2">
               {slide.title}
             </h2>
-            <p className="text-paper/85 mt-4 max-w-sm text-sm sm:text-base">{slide.subtitle}</p>
+            <p className="text-paper/85 mt-4 max-w-sm text-sm sm:text-base">
+              {slide.subtitle}
+            </p>
             <Button variant="accent" size="lg" className="mt-6" asChild>
               <Link href={slide.ctaHref}>{slide.ctaLabel}</Link>
             </Button>
           </div>
-        </div>
+        </div> */}
 
         {slides.length > 1 && (
           <>
@@ -111,7 +115,9 @@ export function HeroSlider() {
                   onClick={() => handleManualNav(i)}
                   className={cn(
                     "h-2 rounded-full transition-all",
-                    i === index ? "w-7 bg-paper" : "w-2 bg-paper/50 hover:bg-paper/75",
+                    i === index
+                      ? "w-7 bg-paper"
+                      : "w-2 bg-paper/50 hover:bg-paper/75",
                   )}
                 />
               ))}
