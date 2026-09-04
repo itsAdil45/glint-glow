@@ -68,7 +68,7 @@ function SplitBanner({ banner }: { banner: Banner }) {
             alt={banner.imageAlt}
             fill
             sizes="(min-width: 768px) 50vw, 100vw"
-            className="object-cover"
+            className="object-contain"
           />
         </div>
       </div>

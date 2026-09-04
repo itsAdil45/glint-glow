@@ -18,16 +18,23 @@ export function ProductCard({ product }: { product: Product }) {
     : product.basePrice;
   const compareAt = product.hasVariations ? undefined : product.compareAtPrice;
   const discountPct =
-    compareAt && compareAt > price ? Math.round((1 - price / compareAt) * 100) : null;
+    compareAt && compareAt > price
+      ? Math.round((1 - price / compareAt) * 100)
+      : null;
 
   // This is a Server Component re-evaluated per request (not statically
   // cached), so comparing against the current time here is safe.
   const isNew =
     // eslint-disable-next-line react-hooks/purity
-    Date.now() - new Date(product.createdAt).getTime() < NEW_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+    Date.now() - new Date(product.createdAt).getTime() <
+    NEW_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
-  const colorAttr = product.attributes.find((a) => a.name.toLowerCase() === "color");
-  const otherAttrCount = product.attributes.filter((a) => a.name.toLowerCase() !== "color").length;
+  const colorAttr = product.attributes.find(
+    (a) => a.name.toLowerCase() === "color",
+  );
+  const otherAttrCount = product.attributes.filter(
+    (a) => a.name.toLowerCase() !== "color",
+  ).length;
 
   return (
     <Link
@@ -76,14 +83,16 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        <span className="pointer-events-none absolute inset-x-3 bottom-3 translate-y-3 rounded-full bg-surface/95 text-ink text-center text-xs font-medium py-2.5 opacity-0 shadow-md transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="pointer-events-none absolute inset-x-3 bottom-3 translate-y-3 rounded-full bg-accent text-white text-center text-xs font-medium py-2.5 opacity-0 shadow-md transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           View product
         </span>
       </div>
 
       <div className="p-4">
         {product.brand && (
-          <p className="text-[11px] text-muted uppercase tracking-wide">{product.brand}</p>
+          <p className="text-[11px] text-muted uppercase tracking-wide">
+            {product.brand}
+          </p>
         )}
         <h3 className="font-display text-lg leading-snug mt-0.5 group-hover:text-accent-ink transition-colors">
           {product.title}
@@ -104,13 +113,17 @@ export function ProductCard({ product }: { product: Product }) {
                 />
               ))}
             </div>
-            <span className="text-[11px] text-muted">({product.ratingsCount})</span>
+            <span className="text-[11px] text-muted">
+              ({product.ratingsCount})
+            </span>
           </div>
         )}
 
         <div className="mt-1.5 flex items-baseline gap-1.5">
           <PriceTag amount={price} compareAt={compareAt} size="sm" />
-          {product.hasVariations && <span className="text-xs text-muted">from</span>}
+          {product.hasVariations && (
+            <span className="text-xs text-muted">from</span>
+          )}
         </div>
 
         {(colorAttr || otherAttrCount > 0) && (

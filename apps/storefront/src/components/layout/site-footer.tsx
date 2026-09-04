@@ -3,9 +3,7 @@ import { AtSign, MessageCircle, Send } from "lucide-react";
 
 const CUSTOMER_LINKS = [
   { href: "/contact", label: "Contact us" },
-  { href: "/returns", label: "Returns & exchanges" },
   { href: "/faq", label: "FAQ" },
-  { href: "/shipping", label: "Shipping" },
 ];
 
 const COMPANY_LINKS = [
@@ -25,13 +23,25 @@ export function SiteFooter() {
             Cosmetics and intimates, chosen with care. New arrivals every week.
           </p>
           <div className="flex items-center gap-3 mt-5">
-            <a href="#" aria-label="Instagram" className="hover:text-accent-ink">
+            <a
+              href="#"
+              aria-label="Instagram"
+              className="hover:text-accent-ink"
+            >
               <AtSign size={18} />
             </a>
-            <a href="#" aria-label="Chat with us" className="hover:text-accent-ink">
+            <a
+              href="#"
+              aria-label="Chat with us"
+              className="hover:text-accent-ink"
+            >
               <MessageCircle size={18} />
             </a>
-            <a href="#" aria-label="Newsletter" className="hover:text-accent-ink">
+            <a
+              href="#"
+              aria-label="Newsletter"
+              className="hover:text-accent-ink"
+            >
               <Send size={18} />
             </a>
           </div>
@@ -40,22 +50,27 @@ export function SiteFooter() {
         <FooterCol title="Shop" links={COMPANY_LINKS} />
         <FooterCol title="Customer service" links={CUSTOMER_LINKS} />
 
-        <div>
+        {/* <div>
           <h4 className="text-xs font-medium tracking-wide text-ink-soft uppercase mb-3">
             Newsletter
           </h4>
-          <p className="text-sm text-muted mb-3">Get news on new arrivals and offers.</p>
+          <p className="text-sm text-muted mb-3">
+            Get news on new arrivals and offers.
+          </p>
           <form className="flex gap-2">
             <input
               type="email"
               placeholder="Email address"
               className="h-10 w-full rounded-full border border-line bg-surface px-4 text-sm outline-none focus:border-accent-ink"
             />
-            <button type="submit" className="h-10 px-5 rounded-full bg-ink text-paper text-sm shrink-0">
+            <button
+              type="submit"
+              className="h-10 px-5 rounded-full bg-ink text-paper text-sm shrink-0"
+            >
               Join
             </button>
           </form>
-        </div>
+        </div> */}
       </div>
 
       <div className="border-t border-line">
@@ -68,14 +83,25 @@ export function SiteFooter() {
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+function FooterCol({
+  title,
+  links,
+}: {
+  title: string;
+  links: { href: string; label: string }[];
+}) {
   return (
     <div>
-      <h4 className="text-xs font-medium tracking-wide text-ink-soft uppercase mb-3">{title}</h4>
+      <h4 className="text-xs font-medium tracking-wide text-ink-soft uppercase mb-3">
+        {title}
+      </h4>
       <ul className="space-y-2">
         {links.map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="text-sm text-muted hover:text-ink transition-colors">
+            <Link
+              href={link.href}
+              className="text-sm text-muted hover:text-ink transition-colors"
+            >
               {link.label}
             </Link>
           </li>
