@@ -33,34 +33,60 @@ async function resolveBrandSlug(slug: string): Promise<string | undefined> {
   return brands.find((b) => slugify(b) === slug);
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug: slugParts } = await params;
+  const sp = await searchParams;
   const [first, second] = slugParts || [];
 
   if (first === "brand") {
     const brandName = second ? await resolveBrandSlug(second) : undefined;
     if (!brandName) return { title: "Brand" };
+    const { total } = await fetchProducts({ brand: brandName, limit: 1 }).catch(() => ({ total: 0 }));
+    const plural = total === 1 ? "product" : "products";
     return {
-      title: `${brandName} — Shop All`,
-      description: `Shop everything from ${brandName}.`,
+      title: `${brandName} — Shop All (${total})`,
+      description: `Explore ${total} ${plural} from ${brandName} at GLOWN — genuine, quality-checked items with easy returns and cash on delivery across Pakistan.`,
       alternates: { canonical: `/collections/brand/${second}` },
     };
   }
 
   if (!first) {
+    // A "View All" link from a homepage flag row (e.g. /collections?fragrance=true)
+    // still deserves its own title/description rather than the generic
+    // "Shop All" one, even though it has no path segment of its own.
+    const activeFlagRow = FLAG_ROW_TITLES.find(([key]) => sp[key] === "true");
+    if (activeFlagRow) {
+      const [key, label] = activeFlagRow;
+      const { total } = await fetchProducts({ [key]: true, limit: 1 } as ProductQuery).catch(() => ({
+        total: 0,
+      }));
+      const plural = total === 1 ? "product" : "products";
+      return {
+        title: `${label} (${total})`,
+        description: `Browse ${total} ${plural} in our ${label} edit at GLOWN — genuine picks with easy returns and cash on delivery across Pakistan.`,
+        alternates: { canonical: "/collections" },
+      };
+    }
+
+    const { total } = await fetchProducts({ limit: 1 }).catch(() => ({ total: 0 }));
+    const plural = total === 1 ? "product" : "products";
     return {
-      title: "Shop all products",
-      description: "Browse the full collection — filter by category, price, and more.",
+      title: "Shop All Products — Makeup, Skincare & Fragrance",
+      description: `Browse our full range of ${total} ${plural} — makeup, skincare, fragrance, and lingerie — at GLOWN. Genuine products with cash on delivery across Pakistan.`,
       alternates: { canonical: "/collections" },
     };
   }
 
   try {
     const category = await fetchCategoryBySlug(first);
+    const { total } = await fetchProducts({ category: first, limit: 1 }).catch(() => ({ total: 0 }));
+    const plural = total === 1 ? "product" : "products";
+    const pluralTitleCase = total === 1 ? "Product" : "Products";
     return {
-      title: category.seo?.title || category.name,
+      title: category.seo?.title || `${category.name} (${total} ${pluralTitleCase})`,
       description:
-        category.seo?.description || `Shop ${category.name} — new arrivals and best sellers.`,
+        category.seo?.description ||
+        `Explore ${total} ${plural} in ${category.name} at GLOWN — genuine beauty and lifestyle picks, with easy returns and cash on delivery across Pakistan.`,
       alternates: { canonical: `/collections/${first}` },
     };
   } catch {
