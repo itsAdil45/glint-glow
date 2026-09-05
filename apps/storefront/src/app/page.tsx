@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { fetchProducts, ProductQuery } from "@/lib/api-products";
 import { fetchCategories } from "@/lib/api-categories";
 import { fetchBanners } from "@/lib/banners-data";
@@ -6,6 +7,14 @@ import { CategoryCard } from "@/components/category/category-card";
 import { HeroSlider } from "@/components/layout/hero-slider";
 import { ProductRail } from "@/components/product/product-rail";
 import { PromoBanner } from "@/components/home/promo-banner";
+
+// Bypasses the root layout's "%s — GLOWN" title template (via `absolute`)
+// since this is the one page where that would just repeat the brand name.
+export const metadata: Metadata = {
+  title: { absolute: "GLOWN — Beauty, Skincare & Fragrance Online in Pakistan" },
+  description:
+    "Shop makeup, skincare, fragrances, and lingerie at GLOWN. Genuine products with cash on delivery across Pakistan.",
+};
 
 export const revalidate = 60;
 
