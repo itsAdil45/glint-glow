@@ -4,6 +4,7 @@ import CartView from "./cart-view";
 export const metadata: Metadata = {
   title: "Your Cart",
   description: "Review the items in your cart before checking out.",
+  alternates: { canonical: "/cart" },
 };
 
 export default function Page() {

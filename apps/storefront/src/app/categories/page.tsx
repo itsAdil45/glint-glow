@@ -6,9 +6,10 @@ import { PageHero } from "@/components/layout/page-hero";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Shop by Category",
+  title: "Shop Beauty Products by Category at GLOWN",
   description:
-    "Browse every category — from skincare essentials to the latest makeup drops.",
+    "Explore skincare, makeup, beauty essentials, and more. Find your favorite products and discover something new for your beauty routine.",
+  alternates: { canonical: "/categories" },
 };
 
 export default async function CategoriesPage() {

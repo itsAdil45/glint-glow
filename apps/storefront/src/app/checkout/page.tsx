@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Complete your order with cash on delivery.",
   // Requires being logged in — no search value, and one customer's
   // checkout state has nothing to do with another's.
+  alternates: { canonical: "/checkout" },
+
   robots: NOINDEX_NOFOLLOW,
 };
 

@@ -23,10 +23,12 @@ const jost = Jost({
 export const metadata: Metadata = {
   title: {
     default: "GLOWN — beauty & essentials",
-    template: "%s — GLOWN",
+    template: "%s",
   },
   description: "Cosmetics and intimates, chosen with care.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ),
   // Site-wide default — index/follow only on the real production domain
   // (glown.pk), noindex/nofollow everywhere else (local, staging,
   // previews). Auth pages and anything auth-dependent override this
@@ -34,9 +36,16 @@ export const metadata: Metadata = {
   robots: defaultRobots(),
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${jost.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${jost.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <Providers>
           <SiteHeader />

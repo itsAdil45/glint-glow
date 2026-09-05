@@ -5,8 +5,10 @@ import { PageHero } from "@/components/layout/page-hero";
 import { ContactForm } from "@/components/contact/contact-form";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Get in touch with the GLOWN team — questions about an order, a product, or anything else.",
+  title: "Contact Us | Beauty, Skincare & Makeup Support",
+  description:
+    "Get in touch with the GLOWN team — questions about an order, a product, or anything else.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
@@ -22,7 +24,10 @@ export default function ContactPage() {
         <div className="max-w-4xl mx-auto grid gap-10 lg:grid-cols-[1fr_1.4fr]">
           <div className="space-y-6">
             <InfoRow icon={Mail} title="Email us">
-              <a href="mailto:support@glintglow.pk" className="text-accent-ink underline underline-offset-4">
+              <a
+                href="mailto:support@glintglow.pk"
+                className="text-accent-ink underline underline-offset-4"
+              >
                 support@glintglow.pk
               </a>
             </InfoRow>
@@ -30,8 +35,12 @@ export default function ContactPage() {
               We typically reply within 1–2 business days.
             </InfoRow>
             <InfoRow icon={MessageCircleQuestion} title="Quick answers">
-              For common questions about orders, shipping, and returns, check our{" "}
-              <Link href="/faq" className="text-accent-ink underline underline-offset-4">
+              For common questions about orders, shipping, and returns, check
+              our{" "}
+              <Link
+                href="/faq"
+                className="text-accent-ink underline underline-offset-4"
+              >
                 FAQ
               </Link>{" "}
               first — you might find what you need right away.

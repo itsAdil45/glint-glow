@@ -11,9 +11,12 @@ import { PromoBanner } from "@/components/home/promo-banner";
 // Bypasses the root layout's "%s — GLOWN" title template (via `absolute`)
 // since this is the one page where that would just repeat the brand name.
 export const metadata: Metadata = {
-  title: { absolute: "GLOWN — Beauty, Skincare & Fragrance Online in Pakistan" },
+  title: {
+    absolute: "GLOWN — Beauty, Skincare & Fragrance Online in Pakistan",
+  },
   description:
     "Shop makeup, skincare, fragrances, and lingerie at GLOWN. Genuine products with cash on delivery across Pakistan.",
+  alternates: { canonical: "/" },
 };
 
 export const revalidate = 60;
@@ -187,8 +190,14 @@ export default async function HomePage() {
               orphaned single item on the last row); grid from sm up. */}
           <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 lg:grid-cols-5 [&::-webkit-scrollbar]:hidden">
             {categories.slice(0, 5).map((category) => (
-              <div key={category._id} className="w-[42%] shrink-0 snap-start sm:w-auto">
-                <CategoryCard category={category} sizes="(min-width: 640px) 20vw, 42vw" />
+              <div
+                key={category._id}
+                className="w-[42%] shrink-0 snap-start sm:w-auto"
+              >
+                <CategoryCard
+                  category={category}
+                  sizes="(min-width: 640px) 20vw, 42vw"
+                />
               </div>
             ))}
           </div>

@@ -11,18 +11,23 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   try {
     const product = await fetchProductBySlug(slug);
     return {
       title: product.seo?.title || product.title,
       description:
-        product.seo?.description || product.shortDescription || product.description.slice(0, 160),
+        product.seo?.description ||
+        product.shortDescription ||
+        product.description.slice(0, 160),
       openGraph: {
         title: product.seo?.title || product.title,
         images: product.images.map((img) => ({ url: img.url })),
       },
+      alternates: { canonical: `/product/${product.slug}` },
     };
   } catch {
     return { title: "Product" };
@@ -49,7 +54,9 @@ export default async function ProductPage({ params }: PageProps) {
     name: product.title,
     description: product.shortDescription || product.description,
     image: product.images.map((img) => img.url),
-    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    brand: product.brand
+      ? { "@type": "Brand", name: product.brand }
+      : undefined,
     aggregateRating:
       product.ratingsCount > 0
         ? {
@@ -64,12 +71,13 @@ export default async function ProductPage({ params }: PageProps) {
       price: product.hasVariations
         ? Math.min(...product.variations.map((v) => v.price))
         : product.basePrice,
-      availability:
-        (product.hasVariations
+      availability: (
+        product.hasVariations
           ? product.variations.some((v) => v.stock > 0)
-          : product.stock > 0)
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+          : product.stock > 0
+      )
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
     },
   };
 
@@ -85,7 +93,11 @@ export default async function ProductPage({ params }: PageProps) {
           <ProductGallery images={product.images} title={product.title} />
 
           <div>
-            {product.brand && <p className="text-xs text-muted uppercase tracking-wide">{product.brand}</p>}
+            {product.brand && (
+              <p className="text-xs text-muted uppercase tracking-wide">
+                {product.brand}
+              </p>
+            )}
             <h1 className="font-display text-3xl mt-1">{product.title}</h1>
             {product.shortDescription && (
               <p className="text-muted mt-2">{product.shortDescription}</p>
@@ -112,7 +124,11 @@ export default async function ProductPage({ params }: PageProps) {
       </div>
 
       {relatedProducts.length > 0 && (
-        <ProductRail title="You May Also Like" viewAllHref="/collections" products={relatedProducts} />
+        <ProductRail
+          title="You May Also Like"
+          viewAllHref="/collections"
+          products={relatedProducts}
+        />
       )}
     </div>
   );

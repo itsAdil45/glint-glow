@@ -33,7 +33,10 @@ async function resolveBrandSlug(slug: string): Promise<string | undefined> {
   return brands.find((b) => slugify(b) === slug);
 }
 
-export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps): Promise<Metadata> {
   const { slug: slugParts } = await params;
   const sp = await searchParams;
   const [first, second] = slugParts || [];
@@ -41,11 +44,17 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   if (first === "brand") {
     const brandName = second ? await resolveBrandSlug(second) : undefined;
     if (!brandName) return { title: "Brand" };
-    const { total } = await fetchProducts({ brand: brandName, limit: 1 }).catch(() => ({ total: 0 }));
+    const { total } = await fetchProducts({ brand: brandName, limit: 1 }).catch(
+      () => ({ total: 0 }),
+    );
     const plural = total === 1 ? "product" : "products";
     return {
-      title: `${brandName} — Shop All (${total})`,
-      description: `Explore ${total} ${plural} from ${brandName} at GLOWN — genuine, quality-checked items with easy returns and cash on delivery across Pakistan.`,
+      title: `
+      Buy Best ${brandName} Products In Pakistan | ${brandName} Makeup | GLOWN Cosmetics
+      `,
+      description: `Explore ${total} ${plural} in ${brandName} at GLOWN. 
+         GLOWN brings stunning cosmetics best in Pakistan with nationwide delivery and easy returns.
+        `,
       alternates: { canonical: `/collections/brand/${second}` },
     };
   }
@@ -57,18 +66,26 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     const activeFlagRow = FLAG_ROW_TITLES.find(([key]) => sp[key] === "true");
     if (activeFlagRow) {
       const [key, label] = activeFlagRow;
-      const { total } = await fetchProducts({ [key]: true, limit: 1 } as ProductQuery).catch(() => ({
+      const { total } = await fetchProducts({
+        [key]: true,
+        limit: 1,
+      } as ProductQuery).catch(() => ({
         total: 0,
       }));
       const plural = total === 1 ? "product" : "products";
       return {
-        title: `${label} (${total})`,
-        description: `Browse ${total} ${plural} in our ${label} edit at GLOWN — genuine picks with easy returns and cash on delivery across Pakistan.`,
+        title: `Buy Best ${label} Products In Pakistan | ${label} Makeup | GLOWN Cosmetics`,
+
+        description: `Explore ${total} ${plural} in ${label} at GLOWN. 
+         GLOWN brings stunning cosmetics best in Pakistan with nationwide delivery and easy returns.
+        `,
         alternates: { canonical: "/collections" },
       };
     }
 
-    const { total } = await fetchProducts({ limit: 1 }).catch(() => ({ total: 0 }));
+    const { total } = await fetchProducts({ limit: 1 }).catch(() => ({
+      total: 0,
+    }));
     const plural = total === 1 ? "product" : "products";
     return {
       title: "Shop All Products — Makeup, Skincare & Fragrance",
@@ -79,14 +96,20 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
   try {
     const category = await fetchCategoryBySlug(first);
-    const { total } = await fetchProducts({ category: first, limit: 1 }).catch(() => ({ total: 0 }));
+    const { total } = await fetchProducts({ category: first, limit: 1 }).catch(
+      () => ({ total: 0 }),
+    );
     const plural = total === 1 ? "product" : "products";
     const pluralTitleCase = total === 1 ? "Product" : "Products";
     return {
-      title: category.seo?.title || `${category.name} (${total} ${pluralTitleCase})`,
+      title:
+        category.seo?.title ||
+        `Buy Best ${category.name} Products In Pakistan | ${category.name} | GLOWN Cosmetics`,
       description:
         category.seo?.description ||
-        `Explore ${total} ${plural} in ${category.name} at GLOWN — genuine beauty and lifestyle picks, with easy returns and cash on delivery across Pakistan.`,
+        `Explore ${total} ${plural} in ${category.name} at GLOWN. 
+         GLOWN brings stunning cosmetics best in Pakistan with nationwide delivery and easy returns.
+        `,
       alternates: { canonical: `/collections/${first}` },
     };
   } catch {
@@ -94,7 +117,10 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   }
 }
 
-export default async function CollectionsPage({ params, searchParams }: PageProps) {
+export default async function CollectionsPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { slug: slugParts } = await params;
   const [first, second] = slugParts || [];
   const sp = await searchParams;
@@ -139,7 +165,9 @@ export default async function CollectionsPage({ params, searchParams }: PageProp
     fetchBrands().catch(() => []),
   ]);
 
-  const activeFlagRow = FLAG_ROW_TITLES.find(([key]) => sp[key as string] === "true");
+  const activeFlagRow = FLAG_ROW_TITLES.find(
+    ([key]) => sp[key as string] === "true",
+  );
 
   const heroTitle = category
     ? category.name
@@ -159,14 +187,26 @@ export default async function CollectionsPage({ params, searchParams }: PageProp
       : `${result.total} product${result.total === 1 ? "" : "s"} — beauty essentials and intimates, curated with care.`;
 
   const breadcrumbItems = category
-    ? [{ label: "Home", href: "/" }, { label: "Shop", href: "/collections" }, { label: category.name }]
+    ? [
+        { label: "Home", href: "/" },
+        { label: "Shop", href: "/collections" },
+        { label: category.name },
+      ]
     : brandName
-      ? [{ label: "Home", href: "/" }, { label: "Shop", href: "/collections" }, { label: brandName }]
+      ? [
+          { label: "Home", href: "/" },
+          { label: "Shop", href: "/collections" },
+          { label: brandName },
+        ]
       : [{ label: "Home", href: "/" }, { label: "Shop" }];
 
   return (
     <div>
-      <PageHero title={heroTitle} subtitle={heroSubtitle} breadcrumbItems={breadcrumbItems} />
+      <PageHero
+        title={heroTitle}
+        subtitle={heroSubtitle}
+        breadcrumbItems={breadcrumbItems}
+      />
 
       <div className="container-page py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">

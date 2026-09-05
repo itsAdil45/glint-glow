@@ -5,7 +5,9 @@ import { FaqAccordion, FaqItem } from "@/components/faq/faq-accordion";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Answers to common questions about ordering, payment, shipping, and returns at GLOWN.",
+  description:
+    "Answers to common questions about ordering, payment, shipping, and returns at GLOWN.",
+  alternates: { canonical: "/faq" },
 };
 
 const FAQ_GROUPS: { title: string; items: FaqItem[] }[] = [
@@ -90,7 +92,7 @@ const FAQ_GROUPS: { title: string; items: FaqItem[] }[] = [
       {
         question: "How do I reset my password?",
         answer:
-          "From the login page, select \"Forgot password?\" and we'll send a one-time code to your email so you can set a new one.",
+          'From the login page, select "Forgot password?" and we\'ll send a one-time code to your email so you can set a new one.',
       },
       {
         question: "Can I sign in with Google?",
@@ -121,7 +123,10 @@ export default function FaqPage() {
 
           <p className="text-center text-sm text-muted pt-4">
             Still have a question?{" "}
-            <Link href="/about" className="text-accent-ink underline underline-offset-4">
+            <Link
+              href="/about"
+              className="text-accent-ink underline underline-offset-4"
+            >
               Learn more about us
             </Link>{" "}
             or reach out — a dedicated contact page is coming soon.
