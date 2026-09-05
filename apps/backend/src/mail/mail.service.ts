@@ -52,7 +52,7 @@ export class MailService {
     const html = `
       <p>Thank you for your order!</p>
       <p>Your order <strong>#${orderNumber}</strong> has been placed successfully.</p>
-      <p>Total: <strong>${total.toFixed(2)}</strong></p>
+      <p>Total: <strong>Rs ${Math.round(total).toLocaleString('en-US')}</strong></p>
       <p>Payment method: Cash on Delivery</p>
     `;
     await this.send(to, `Order Confirmation — #${orderNumber}`, html);
@@ -70,7 +70,7 @@ export class MailService {
       <ul>
         <li>Order #: ${orderNumber}</li>
         <li>Customer: ${customerName} (${customerEmail})</li>
-        <li>Total: ${total.toFixed(2)}</li>
+        <li>Total: Rs ${Math.round(total).toLocaleString('en-US')}</li>
       </ul>
     `;
     await this.send(adminEmail, `New Order — #${orderNumber}`, html);

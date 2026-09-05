@@ -60,7 +60,7 @@ export default async function ProductPage({ params }: PageProps) {
         : undefined,
     offers: {
       "@type": "Offer",
-      priceCurrency: "USD",
+      priceCurrency: "PKR",
       price: product.hasVariations
         ? Math.min(...product.variations.map((v) => v.price))
         : product.basePrice,

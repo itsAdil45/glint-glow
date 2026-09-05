@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { WhatsAppButton } from "@/components/layout/whatsapp-button";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
+          <WhatsAppButton />
         </Providers>
       </body>
     </html>

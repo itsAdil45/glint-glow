@@ -5,12 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(amount: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(amount);
+// Prices are always PKR — formatted manually (plain grouped number + a
+// fixed "Rs" prefix) rather than via Intl's currency style, since relying
+// on a runtime's ICU data to resolve the PKR symbol correctly isn't
+// guaranteed consistent across every deployment environment.
+export function formatPrice(amount: number) {
+  return `Rs ${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)}`;
 }
 
 export function slugify(input: string) {
