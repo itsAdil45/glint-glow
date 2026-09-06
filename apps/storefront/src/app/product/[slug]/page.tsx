@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { fetchProductBySlug } from "@/lib/api-products";
+import { fetchCategories } from "@/lib/api-categories";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { AddToCartPanel } from "@/components/product/add-to-cart-panel";
 import { ProductRail } from "@/components/product/product-rail";
 import { ProductReviews } from "@/components/product/product-reviews";
+import { Breadcrumb } from "@/components/layout/breadcrumb";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildBreadcrumbJsonLd } from "@/lib/seo";
 import { Product } from "@/types";
 
 interface PageProps {
@@ -48,6 +52,22 @@ export default async function ProductPage({ params }: PageProps) {
     (p) => typeof p === "object" && p?.slug,
   );
 
+  // categoryIds only carries ids, not names — resolve one against the
+  // (small, already-cheap-to-fetch-everywhere-else) categories list so the
+  // breadcrumb can show a real category instead of skipping straight from
+  // "Shop" to the product title.
+  const categories = await fetchCategories().catch(() => []);
+  const productCategory = categories.find((c) => product.categoryIds.includes(c._id));
+
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: "Shop", href: "/collections" },
+    ...(productCategory
+      ? [{ label: productCategory.name, href: `/collections/${productCategory.slug}` }]
+      : []),
+    { label: product.title },
+  ];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -87,8 +107,11 @@ export default async function ProductPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbItems)} />
 
       <div className="container-page py-10 pb-28 lg:pb-10">
+        <Breadcrumb items={breadcrumbItems} className="mb-6" />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <ProductGallery images={product.images} title={product.title} />
 

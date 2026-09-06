@@ -1,4 +1,6 @@
 import { Breadcrumb, BreadcrumbItem } from "./breadcrumb";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildBreadcrumbJsonLd } from "@/lib/seo";
 
 export function PageHero({
   title,
@@ -11,6 +13,7 @@ export function PageHero({
 }) {
   return (
     <section className="relative bg-gradient-to-br from-accent-soft via-paper to-gold-soft/50 border-b border-line overflow-hidden">
+      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbItems)} />
       <div className="pointer-events-none absolute -top-16 -right-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-gold/10 blur-3xl" />
       <div className="container-page py-14 lg:py-20 text-center relative">

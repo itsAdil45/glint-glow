@@ -5,7 +5,8 @@ import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { WhatsAppButton } from "@/components/layout/whatsapp-button";
-import { defaultRobots } from "@/lib/seo";
+import { defaultRobots, buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -47,6 +48,8 @@ export default function RootLayout({
       className={`${cormorant.variable} ${jost.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <JsonLd data={buildOrganizationJsonLd()} />
+        <JsonLd data={buildWebSiteJsonLd()} />
         <Providers>
           <SiteHeader />
           <main className="flex-1">{children}</main>
