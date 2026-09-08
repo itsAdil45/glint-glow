@@ -2,7 +2,7 @@ import { WhatsAppIcon } from "@/components/icons/social-icons";
 
 // Matches the phone number already used in the top bar and footer.
 // wa.me requires the full international number with no "+" or spaces.
-const WHATSAPP_NUMBER = "923047629941";
+const WHATSAPP_NUMBER = "923324458225";
 
 export function WhatsAppButton() {
   return (

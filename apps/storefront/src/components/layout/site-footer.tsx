@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
-import { FacebookIcon, InstagramIcon, XIcon, PinterestIcon } from "@/components/icons/social-icons";
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TikTokIcon,
+} from "@/components/icons/social-icons";
 
 const SHOP_LINKS = [
   { href: "/about", label: "About" },
@@ -20,7 +24,9 @@ export function SiteFooter() {
     <footer className="border-t border-line mt-24 bg-accent-soft/30">
       <div className="container-page grid grid-cols-2 gap-10 py-14 lg:grid-cols-4">
         <div className="col-span-2">
-          <span className="font-display text-2xl">GLOWN</span>
+          <span className="font-display text-2xl">
+            <img src="/logo.png" alt="GLOWN logo" width={250} height={50} />
+          </span>
           <p className="mt-3 max-w-xs text-sm text-muted">
             Cosmetics and intimates, chosen with care. New arrivals every week.
           </p>
@@ -34,26 +40,38 @@ export function SiteFooter() {
               support@glintglow.pk
             </a>
             <a
-              href="tel:+923047629941"
+              href="tel:+9232 4458225"
               className="flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors"
             >
               <Phone size={15} />
-              +92 304 7629941
+              +92 332 4458225
             </a>
           </div>
 
           <div className="mt-5 flex items-center gap-3">
-            <a href="#" aria-label="Facebook" className="hover:text-accent-ink transition-colors">
+            <a
+              href="https://www.facebook.com/Glown.pk/"
+              aria-label="Facebook"
+              className="hover:text-accent-ink transition-colors"
+              target="_blank"
+            >
               <FacebookIcon size={18} />
             </a>
-            <a href="#" aria-label="Instagram" className="hover:text-accent-ink transition-colors">
+            <a
+              href="https://www.instagram.com/glown.pk"
+              aria-label="Instagram"
+              className="hover:text-accent-ink transition-colors"
+              target="_blank"
+            >
               <InstagramIcon size={18} />
             </a>
-            <a href="#" aria-label="X (Twitter)" className="hover:text-accent-ink transition-colors">
-              <XIcon size={18} />
-            </a>
-            <a href="#" aria-label="Pinterest" className="hover:text-accent-ink transition-colors">
-              <PinterestIcon size={18} />
+            <a
+              href="https://www.tiktok.com/@glown.pk"
+              aria-label="TikTok"
+              className="hover:text-accent-ink transition-colors"
+              target="_blank"
+            >
+              <TikTokIcon size={18} />
             </a>
           </div>
         </div>

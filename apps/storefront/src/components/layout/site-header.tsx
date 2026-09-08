@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Search, ShoppingBag, User, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Search,
+  ShoppingBag,
+  User,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { AccountMenu } from "./account-menu";
@@ -32,12 +40,19 @@ export function SiteHeader() {
       <TopBar />
 
       <div className="container-page flex h-20 items-center justify-between gap-4">
-        <button className="lg:hidden" aria-label="Toggle menu" onClick={() => setMobileOpen((v) => !v)}>
+        <button
+          className="lg:hidden"
+          aria-label="Toggle menu"
+          onClick={() => setMobileOpen((v) => !v)}
+        >
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
 
-        <Link href="/" className="font-display text-2xl tracking-tight shrink-0">
-          GLOWN
+        <Link
+          href="/"
+          className="font-display text-2xl tracking-tight shrink-0"
+        >
+          <img src="/logo.png" alt="GLOWN logo" width={200} height={50} />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-7">
@@ -55,7 +70,9 @@ export function SiteHeader() {
             >
               <Search size={19} />
             </button>
-            {searchOpen && <SearchPopover onClose={() => setSearchOpen(false)} />}
+            {searchOpen && (
+              <SearchPopover onClose={() => setSearchOpen(false)} />
+            )}
           </div>
 
           <AccountMenu user={user}>
@@ -94,20 +111,32 @@ export function SiteHeader() {
             const isExpanded = expandedMobile === category.label;
 
             return (
-              <div key={category.label} className="border-b border-line last:border-0">
+              <div
+                key={category.label}
+                className="border-b border-line last:border-0"
+              >
                 <div className="flex items-center justify-between py-2.5">
-                  <Link href={category.href} className="text-sm" onClick={() => setMobileOpen(false)}>
+                  <Link
+                    href={category.href}
+                    className="text-sm"
+                    onClick={() => setMobileOpen(false)}
+                  >
                     {category.label}
                   </Link>
                   {items && items.length > 0 && (
                     <button
                       aria-label={`Toggle ${category.label} submenu`}
-                      onClick={() => setExpandedMobile(isExpanded ? null : category.label)}
+                      onClick={() =>
+                        setExpandedMobile(isExpanded ? null : category.label)
+                      }
                       className="p-1"
                     >
                       <ChevronDown
                         size={16}
-                        className={cn("transition-transform", isExpanded && "rotate-180")}
+                        className={cn(
+                          "transition-transform",
+                          isExpanded && "rotate-180",
+                        )}
                       />
                     </button>
                   )}

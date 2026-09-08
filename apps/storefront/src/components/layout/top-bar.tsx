@@ -1,16 +1,20 @@
 import { Phone } from "lucide-react";
-import { FacebookIcon, InstagramIcon, XIcon, PinterestIcon } from "@/components/icons/social-icons";
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TikTokIcon,
+} from "@/components/icons/social-icons";
 
 export function TopBar() {
   return (
     <div className="hidden sm:block bg-accent text-white border-b border-line">
       <div className="container-page flex h-10 items-center justify-between text-xs">
         <a
-          href="tel:+923047629941"
+          href="tel:+9232 4458225"
           className="flex items-center gap-1.5 hover:text-accent-ink transition-colors"
         >
           <Phone size={13} />
-          +92 304 7629941
+          +92 332 4458225
         </a>
 
         <p className="text-white font-medium">
@@ -19,30 +23,27 @@ export function TopBar() {
 
         <div className="flex items-center gap-3">
           <a
-            href="#"
+            href="https://www.facebook.com/Glown.pk/"
             aria-label="Facebook"
             className="hover:text-accent-ink transition-colors"
+            target="_blank"
           >
             <FacebookIcon size={14} />
           </a>
           <a
-            href="#"
-            aria-label="X (Twitter)"
+            href="https://www.tiktok.com/@glown.pk"
+            aria-label="TikTok"
             className="hover:text-accent-ink transition-colors"
+            target="_blank"
           >
-            <XIcon size={14} />
+            <TikTokIcon size={14} />
           </a>
+
           <a
-            href="#"
-            aria-label="Pinterest"
-            className="hover:text-accent-ink transition-colors"
-          >
-            <PinterestIcon size={14} />
-          </a>
-          <a
-            href="#"
+            href="https://www.instagram.com/glown.pk"
             aria-label="Instagram"
             className="hover:text-accent-ink transition-colors"
+            target="_blank"
           >
             <InstagramIcon size={14} />
           </a>
