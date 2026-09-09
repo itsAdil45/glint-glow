@@ -58,11 +58,7 @@ export function buildBreadcrumbJsonLd(items: BreadcrumbSchemaItem[]) {
 }
 
 /**
- * Sitewide Organization schema, rendered once in the root layout. `sameAs`
- * (social profile links) and `logo` are intentionally left out for now —
- * there are no real social URLs or a logo image asset anywhere in the
- * project yet, and emitting placeholder/fake values would be worse than
- * omitting them. Add both once real assets/accounts exist.
+ * Sitewide Organization schema, rendered once in the root layout.
  */
 export function buildOrganizationJsonLd() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -71,6 +67,12 @@ export function buildOrganizationJsonLd() {
     "@type": "Organization",
     name: "GLOWN",
     url: siteUrl,
+    logo: `${siteUrl}/logo.png`,
+    sameAs: [
+      "https://www.facebook.com/Glown.pk/",
+      "https://www.instagram.com/glown.pk",
+      "https://www.tiktok.com/@glown.pk",
+    ],
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+92-304-7629941",
