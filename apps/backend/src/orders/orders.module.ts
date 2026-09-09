@@ -8,6 +8,7 @@ import { AddressesModule } from '../addresses/addresses.module';
 import { ProductsModule } from '../products/products.module';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from '../mail/mail.module';
+import { ShippingSettingsModule } from '../shipping-settings/shipping-settings.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { MailModule } from '../mail/mail.module';
     ProductsModule,
     UsersModule,
     MailModule,
+    ShippingSettingsModule,
   ],
   providers: [OrdersService],
   controllers: [OrdersController],

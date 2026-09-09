@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { fetchAddresses } from "@/lib/api-addresses";
 import { placeOrder } from "@/lib/api-orders";
+import { fetchShippingSettings, estimateShippingFee, ShippingSettings } from "@/lib/api-shipping";
 import { Address } from "@/types";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,13 @@ export default function CheckoutPage() {
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
+  const [shippingSettings, setShippingSettings] = useState<ShippingSettings | null>(null);
+
+  useEffect(() => {
+    fetchShippingSettings()
+      .then(setShippingSettings)
+      .catch(() => null);
+  }, []);
 
   useEffect(() => {
     if (!isHydrating && !user) {
@@ -85,6 +93,8 @@ export default function CheckoutPage() {
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
+  const shippingFee = shippingSettings ? estimateShippingFee(shippingSettings, subtotal) : null;
+  const total = subtotal + (shippingFee || 0);
 
   return (
     <div className="container-page py-10">
@@ -168,9 +178,19 @@ export default function CheckoutPage() {
             <span className="text-sm text-muted">Subtotal</span>
             <PriceTag amount={subtotal} size="sm" />
           </div>
+          <div className="flex justify-between items-baseline mb-2">
+            <span className="text-sm text-muted">Shipping</span>
+            {shippingFee === null ? (
+              <span className="text-sm text-muted">Calculating…</span>
+            ) : shippingFee === 0 ? (
+              <span className="text-sm font-medium text-accent-ink">Free</span>
+            ) : (
+              <PriceTag amount={shippingFee} size="sm" />
+            )}
+          </div>
           <div className="flex justify-between items-baseline mb-6">
             <span className="font-medium">Total</span>
-            <PriceTag amount={subtotal} size="md" />
+            <PriceTag amount={total} size="md" />
           </div>
           <p className="text-xs text-muted mb-4">
             Payment: Cash on delivery. You&apos;ll pay when your order arrives.

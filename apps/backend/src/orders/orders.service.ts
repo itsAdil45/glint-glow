@@ -8,6 +8,7 @@ import { AddressesService } from '../addresses/addresses.service';
 import { ProductsService } from '../products/products.service';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
+import { ShippingSettingsService } from '../shipping-settings/shipping-settings.service';
 import { PlaceOrderDto } from './dto/order.dto';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class OrdersService {
     private productsService: ProductsService,
     private usersService: UsersService,
     private mailService: MailService,
+    private shippingSettingsService: ShippingSettingsService,
     private config: ConfigService,
   ) {}
 
@@ -62,7 +64,11 @@ export class OrdersService {
     }
 
     const subtotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const shippingFee = 0; // flat/free — adjust as needed
+    // Server-computed, authoritative — never trust a client-supplied
+    // shipping fee. The storefront shows its own estimate using the same
+    // settings (GET /shipping-settings) purely for display before the
+    // order exists.
+    const shippingFee = await this.shippingSettingsService.calculateFee(subtotal);
     const total = subtotal + shippingFee;
 
     const orderNumber = await this.generateOrderNumber();

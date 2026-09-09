@@ -16,6 +16,7 @@ import { HeroSlidesModule } from './hero-slides/hero-slides.module';
 import { BannersModule } from './banners/banners.module';
 import { ContactModule } from './contact/contact.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { ShippingSettingsModule } from './shipping-settings/shipping-settings.module';
 import { MediaModule } from './media/media.module';
 
 @Module({
@@ -40,6 +41,7 @@ import { MediaModule } from './media/media.module';
     ContactModule,
     ReviewsModule,
     MediaModule,
+    ShippingSettingsModule,
   ],
 })
 export class AppModule {}

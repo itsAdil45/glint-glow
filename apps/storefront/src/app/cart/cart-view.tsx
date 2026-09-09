@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
 import { resolveImageUrl } from "@/lib/utils";
+import { fetchShippingSettings, estimateShippingFee, ShippingSettings } from "@/lib/api-shipping";
 
 export default function CartPage() {
   const { cart, isLoading, load, updateItem, removeItem } = useCartStore();
@@ -16,14 +17,19 @@ export default function CartPage() {
   const isHydrating = useAuthStore((s) => s.isHydrating);
   const router = useRouter();
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [shippingSettings, setShippingSettings] = useState<ShippingSettings | null>(null);
 
   useEffect(() => {
     load();
+    fetchShippingSettings()
+      .then(setShippingSettings)
+      .catch(() => null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
+  const shippingFee = shippingSettings ? estimateShippingFee(shippingSettings, subtotal) : null;
 
   function key(productId: string, variationSku: string | null) {
     return `${productId}::${variationSku || ""}`;
@@ -146,13 +152,19 @@ export default function CartPage() {
               <span className="text-muted">Subtotal</span>
               <PriceTag amount={subtotal} size="sm" />
             </div>
-            <div className="flex justify-between text-sm mb-4 text-muted">
-              <span>Shipping</span>
-              <span>Calculated at checkout</span>
+            <div className="flex justify-between text-sm mb-4">
+              <span className="text-muted">Shipping</span>
+              {shippingFee === null ? (
+                <span className="text-muted">Calculated at checkout</span>
+              ) : shippingFee === 0 ? (
+                <span className="font-medium text-accent-ink">Free</span>
+              ) : (
+                <PriceTag amount={shippingFee} size="sm" />
+              )}
             </div>
             <div className="border-t border-line pt-4 flex justify-between items-baseline mb-6">
               <span className="font-medium">Total</span>
-              <PriceTag amount={subtotal} size="md" />
+              <PriceTag amount={subtotal + (shippingFee || 0)} size="md" />
             </div>
             <Button size="lg" className="w-full" onClick={handleCheckout}>
               Proceed to checkout
