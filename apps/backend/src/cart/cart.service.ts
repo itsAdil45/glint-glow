@@ -146,7 +146,11 @@ export class CartService {
     await this.cartModel.deleteOne({ _id: guestCart._id }).exec();
   }
 
-  async clearCart(userId: string) {
-    await this.cartModel.updateOne({ userId }, { items: [] }).exec();
+  async clearCart(userId: string | null, sessionId: string | null = null) {
+    if (userId) {
+      await this.cartModel.updateOne({ userId }, { items: [] }).exec();
+    } else if (sessionId) {
+      await this.cartModel.updateOne({ sessionId }, { items: [] }).exec();
+    }
   }
 }

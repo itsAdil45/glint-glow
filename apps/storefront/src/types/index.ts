@@ -119,6 +119,8 @@ export interface OrderItem {
 export interface Order {
   _id: string;
   orderNumber: string;
+  userId?: string;
+  guestEmail?: string;
   items: OrderItem[];
   subtotal: number;
   shippingFee: number;

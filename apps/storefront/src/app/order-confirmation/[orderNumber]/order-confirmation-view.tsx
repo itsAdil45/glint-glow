@@ -2,24 +2,25 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { fetchMyOrders } from "@/lib/api-orders";
+import { useParams, useSearchParams } from "next/navigation";
+import { fetchOrderConfirmation } from "@/lib/api-orders";
 import { Order } from "@/types";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
 
 export default function OrderConfirmationPage() {
   const params = useParams<{ orderNumber: string }>();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || undefined;
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMyOrders()
-      .then((orders) => {
-        setOrder(orders.find((o) => o.orderNumber === params.orderNumber) || null);
-      })
+    fetchOrderConfirmation(params.orderNumber, email)
+      .then(setOrder)
+      .catch(() => setOrder(null))
       .finally(() => setLoading(false));
-  }, [params.orderNumber]);
+  }, [params.orderNumber, email]);
 
   return (
     <div className="container-page py-16 max-w-lg mx-auto text-center">

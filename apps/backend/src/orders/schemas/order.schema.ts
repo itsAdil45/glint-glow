@@ -54,8 +54,14 @@ export class Order {
   @Prop({ required: true, unique: true, index: true })
   orderNumber: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
-  userId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', index: true })
+  userId?: Types.ObjectId;
+
+  // Set only when there's no userId — the contact point for order
+  // confirmation and the /order-confirmation lookup when a guest has no
+  // account to authenticate with.
+  @Prop({ trim: true, lowercase: true })
+  guestEmail?: string;
 
   @Prop({ type: [OrderItemSchema], required: true })
   items: OrderItem[];
