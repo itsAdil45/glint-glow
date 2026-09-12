@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart-store";
-import { useAuthStore } from "@/store/auth-store";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
 import { resolveImageUrl } from "@/lib/utils";
@@ -13,8 +12,6 @@ import { fetchShippingSettings, estimateShippingFee, ShippingSettings } from "@/
 
 export default function CartPage() {
   const { cart, isLoading, load, updateItem, removeItem } = useCartStore();
-  const user = useAuthStore((s) => s.user);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
   const router = useRouter();
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [shippingSettings, setShippingSettings] = useState<ShippingSettings | null>(null);
@@ -55,11 +52,7 @@ export default function CartPage() {
   }
 
   function handleCheckout() {
-    if (!user && !isHydrating) {
-      router.push("/login?redirect=/checkout");
-    } else {
-      router.push("/checkout");
-    }
+    router.push("/checkout");
   }
 
   return (
