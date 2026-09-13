@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { fetchOrderConfirmation } from "@/lib/api-orders";
 import { Order } from "@/types";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
+import { trackPurchase } from "@/lib/gtm";
 
 export default function OrderConfirmationPage() {
   const params = useParams<{ orderNumber: string }>();
@@ -14,6 +15,7 @@ export default function OrderConfirmationPage() {
   const email = searchParams.get("email") || undefined;
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const trackedPurchaseRef = useRef(false);
 
   useEffect(() => {
     fetchOrderConfirmation(params.orderNumber, email)
@@ -21,6 +23,26 @@ export default function OrderConfirmationPage() {
       .catch(() => setOrder(null))
       .finally(() => setLoading(false));
   }, [params.orderNumber, email]);
+
+  useEffect(() => {
+    if (!order || trackedPurchaseRef.current) return;
+    trackedPurchaseRef.current = true;
+    trackPurchase({
+      transactionId: order.orderNumber,
+      value: order.total,
+      shipping: order.shippingFee,
+      items: order.items.map((item) => ({
+        item_id: item.variationSku || item.productId,
+        item_name: item.title,
+        price: item.price,
+        item_variant:
+          item.attributes && Object.keys(item.attributes).length > 0
+            ? Object.values(item.attributes).join(" / ")
+            : undefined,
+        quantity: item.quantity,
+      })),
+    });
+  }, [order]);
 
   return (
     <div className="container-page py-16 max-w-lg mx-auto text-center">

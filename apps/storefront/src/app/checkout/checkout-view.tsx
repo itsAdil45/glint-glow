@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/cart-store";
 import { fetchAddresses } from "@/lib/api-addresses";
 import { placeOrder } from "@/lib/api-orders";
 import { fetchShippingSettings, estimateShippingFee, ShippingSettings } from "@/lib/api-shipping";
+import { trackBeginCheckout } from "@/lib/gtm";
 import { Address } from "@/types";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
@@ -134,6 +135,25 @@ export default function CheckoutPage() {
       setPlacing(false);
     }
   }
+
+  const trackedCheckoutRef = useRef(false);
+  useEffect(() => {
+    const items = cart?.items || [];
+    if (trackedCheckoutRef.current || items.length === 0) return;
+    trackedCheckoutRef.current = true;
+    trackBeginCheckout(
+      items.map((item) => ({
+        item_id: item.variationSku || item.productId,
+        item_name: item.title,
+        price: item.unitPrice,
+        item_variant: item.attributes
+          ? Object.values(item.attributes).join(" / ")
+          : undefined,
+        quantity: item.quantity,
+      })),
+      cart?.subtotal || 0,
+    );
+  }, [cart]);
 
   if (isHydrating) return null;
 

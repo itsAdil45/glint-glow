@@ -9,6 +9,7 @@ import { ProductReviews } from "@/components/product/product-reviews";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
+import { ViewItemTracker } from "@/components/product/view-item-tracker";
 import { Product } from "@/types";
 
 interface PageProps {
@@ -108,6 +109,7 @@ export default async function ProductPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <JsonLd data={buildBreadcrumbJsonLd(breadcrumbItems)} />
+      <ViewItemTracker product={product} />
 
       <div className="container-page py-10 pb-28 lg:pb-10">
         <Breadcrumb items={breadcrumbItems} className="mb-6" />

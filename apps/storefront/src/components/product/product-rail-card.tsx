@@ -9,6 +9,7 @@ import { PriceTag } from "@/components/ui/price-tag";
 import { colorToHex } from "@/lib/colors";
 import { cn, resolveImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/store/cart-store";
+import { trackAddToCart } from "@/lib/gtm";
 
 const MAX_SWATCHES = 3;
 
@@ -40,6 +41,13 @@ export function ProductRailCard({ product }: { product: Product }) {
     setStatus("adding");
     try {
       await addItem(product._id, 1);
+      trackAddToCart({
+        item_id: product._id,
+        item_name: product.title,
+        price,
+        item_brand: product.brand,
+        quantity: 1,
+      });
       setStatus("added");
       setTimeout(() => setStatus("idle"), 1800);
     } catch {

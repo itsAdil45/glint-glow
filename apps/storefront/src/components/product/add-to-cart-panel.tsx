@@ -6,6 +6,7 @@ import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart-store";
 import { useAuthStore } from "@/store/auth-store";
+import { trackAddToCart } from "@/lib/gtm";
 
 export function AddToCartPanel({ product }: { product: Product }) {
   const [selected, setSelected] = useState<Record<string, string>>(() => {
@@ -38,6 +39,16 @@ export function AddToCartPanel({ product }: { product: Product }) {
     setErrorMessage("");
     try {
       await addItem(product._id, quantity, matchedVariation?.sku);
+      trackAddToCart({
+        item_id: matchedVariation?.sku || product._id,
+        item_name: product.title,
+        price,
+        item_brand: product.brand,
+        item_variant: matchedVariation
+          ? Object.values(matchedVariation.attributes).join(" / ")
+          : undefined,
+        quantity,
+      });
       setStatus("added");
       setTimeout(() => setStatus("idle"), 2000);
     } catch (err) {
