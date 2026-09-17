@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { fetchCategories } from "@/lib/api-categories";
 import { CategoryCard } from "@/components/category/category-card";
 import { PageHero } from "@/components/layout/page-hero";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
   description:
     "Explore skincare, makeup, beauty essentials, and more. Find your favorite products and discover something new for your beauty routine.",
   alternates: { canonical: "/categories" },
+  openGraph: buildOpenGraph({ title: "Shop by Category", url: "/categories" }),
+  twitter: buildTwitter(),
 };
 
 export default async function CategoriesPage() {

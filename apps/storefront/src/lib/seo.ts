@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 // Whether this deployment is the real production site (glown.pk), as
 // opposed to a local, staging, or preview build. Deliberately checks the
 // configured site URL's hostname rather than NODE_ENV — hosts like Vercel
@@ -100,5 +102,56 @@ export function buildWebSiteJsonLd() {
       target: `${siteUrl}/collections?search={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
+  };
+}
+
+// ---- Open Graph / Twitter Card helpers ----
+//
+// openGraph is a shallow-merged key in Next's metadata resolution: if a
+// page defines its own `openGraph` object at all, it fully replaces
+// anything set in a parent layout rather than merging field-by-field. So
+// putting siteName/type/locale only in the root layout wouldn't actually
+// reach any page that sets its own openGraph (which is every content page,
+// since each needs its own image) — every call site goes through this
+// helper instead, which is the single place those shared fields live.
+//
+// title/description are deliberately NOT set here even though the type
+// allows it: Next.js already fills openGraph.title/description from the
+// same metadata object's top-level title/description when the field is
+// left out, so setting it twice would just be a maintenance hazard if the
+// two ever drifted.
+const SITE_NAME = "GLOWN";
+const DEFAULT_OG_IMAGE_PATH = "/api/og";
+
+export function buildOpenGraph(
+  options: {
+    /** Rendered into the shared fallback card via /api/og?title=; ignored if images is provided. */
+    title?: string;
+    /** Page path, e.g. "/about" — resolves against metadataBase. */
+    url?: string;
+    /** Real photos for a page that has them (currently only product pages) — bypasses the generated fallback card entirely. */
+    images?: { url: string; width?: number; height?: number }[];
+  } = {},
+): NonNullable<Metadata["openGraph"]> {
+  const { title, url, images } = options;
+  return {
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "en_US",
+    ...(url ? { url } : {}),
+    images: images ?? [
+      {
+        url: title ? `${DEFAULT_OG_IMAGE_PATH}?title=${encodeURIComponent(title)}` : DEFAULT_OG_IMAGE_PATH,
+        width: 1200,
+        height: 630,
+      },
+    ],
+  };
+}
+
+export function buildTwitter(images?: { url: string }[]): NonNullable<Metadata["twitter"]> {
+  return {
+    card: "summary_large_image",
+    ...(images ? { images } : {}),
   };
 }

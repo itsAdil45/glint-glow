@@ -6,7 +6,8 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductFilters } from "@/components/product/product-filters";
 import { Pagination } from "@/components/product/pagination";
 import { PageHero } from "@/components/layout/page-hero";
-import { slugify } from "@/lib/utils";
+import { slugify, resolveImageUrl } from "@/lib/utils";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ slug?: string[] }>;
@@ -56,6 +57,8 @@ export async function generateMetadata({
          GLOWN brings stunning cosmetics best in Pakistan with nationwide delivery and easy returns.
         `,
       alternates: { canonical: `/collections/brand/${second}` },
+      openGraph: buildOpenGraph({ title: `${brandName} at GLOWN`, url: `/collections/brand/${second}` }),
+      twitter: buildTwitter(),
     };
   }
 
@@ -80,6 +83,8 @@ export async function generateMetadata({
          GLOWN brings stunning cosmetics best in Pakistan with nationwide delivery and easy returns.
         `,
         alternates: { canonical: "/collections" },
+        openGraph: buildOpenGraph({ title: `${label} at GLOWN`, url: "/collections" }),
+        twitter: buildTwitter(),
       };
     }
 
@@ -91,6 +96,8 @@ export async function generateMetadata({
       title: "Shop All Products — Makeup, Skincare & Fragrance",
       description: `Browse our full range of ${total} ${plural} — makeup, skincare, fragrance, and lingerie — at GLOWN. Genuine products with cash on delivery across Pakistan.`,
       alternates: { canonical: "/collections" },
+      openGraph: buildOpenGraph({ title: "Shop All Products", url: "/collections" }),
+      twitter: buildTwitter(),
     };
   }
 
@@ -111,9 +118,19 @@ export async function generateMetadata({
          GLOWN brings stunning cosmetics best in Pakistan with nationwide delivery and easy returns.
         `,
       alternates: { canonical: `/collections/${first}` },
+      openGraph: buildOpenGraph({
+        title: category.seo?.title || `${category.name} at GLOWN`,
+        url: `/collections/${first}`,
+        // No width/height asserted — a category image is whatever it was
+        // uploaded at (4:5 via the admin uploader), not 1200x630 like the
+        // generated fallback card. Declaring a wrong size is worse than
+        // omitting it.
+        images: category.image ? [{ url: resolveImageUrl(category.image) }] : undefined,
+      }),
+      twitter: buildTwitter(),
     };
   } catch {
-    return { title: "Collection" };
+    return { title: "Collection", openGraph: buildOpenGraph({ title: "Collection" }), twitter: buildTwitter() };
   }
 }
 

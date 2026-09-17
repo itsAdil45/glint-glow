@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/layout/page-hero";
 import { FaqAccordion, FaqItem } from "@/components/faq/faq-accordion";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "FAQ",
   description:
     "Answers to common questions about ordering, payment, shipping, and returns at GLOWN.",
   alternates: { canonical: "/faq" },
+  openGraph: buildOpenGraph({ title: "Frequently Asked Questions", url: "/faq" }),
+  twitter: buildTwitter(),
 };
 
 const FAQ_GROUPS: { title: string; items: FaqItem[] }[] = [

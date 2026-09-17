@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/layout/page-hero";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
     "The terms and conditions that govern your use of GLOWN and any orders placed with us.",
   alternates: { canonical: "/terms" },
+  openGraph: buildOpenGraph({ title: "Terms of Service", url: "/terms" }),
+  twitter: buildTwitter(),
 };
 
 const LAST_UPDATED = "September 2026";

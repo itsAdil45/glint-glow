@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CheckoutView from "./checkout-view";
-import { NOINDEX_NOFOLLOW } from "@/lib/seo";
+import { NOINDEX_NOFOLLOW, buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/checkout" },
 
   robots: NOINDEX_NOFOLLOW,
+  openGraph: buildOpenGraph({ title: "Checkout" }),
+  twitter: buildTwitter(),
 };
 
 export default function Page() {

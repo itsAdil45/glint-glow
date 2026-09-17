@@ -7,6 +7,7 @@ import { CategoryCard } from "@/components/category/category-card";
 import { HeroSlider } from "@/components/layout/hero-slider";
 import { ProductRail } from "@/components/product/product-rail";
 import { PromoBanner } from "@/components/home/promo-banner";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 // Bypasses the root layout's "%s — GLOWN" title template (via `absolute`)
 // since this is the one page where that would just repeat the brand name.
@@ -17,6 +18,8 @@ export const metadata: Metadata = {
   description:
     "Shop makeup, skincare, fragrances, and lingerie at GLOWN. Genuine products with cash on delivery across Pakistan.",
   alternates: { canonical: "/" },
+  openGraph: buildOpenGraph({ title: "Effortless Radiance", url: "/" }),
+  twitter: buildTwitter(),
 };
 
 export const revalidate = 60;

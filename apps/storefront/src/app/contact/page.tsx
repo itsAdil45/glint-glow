@@ -3,12 +3,15 @@ import Link from "next/link";
 import { Mail, Clock, MessageCircleQuestion } from "lucide-react";
 import { PageHero } from "@/components/layout/page-hero";
 import { ContactForm } from "@/components/contact/contact-form";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Contact Us | Beauty, Skincare & Makeup Support",
   description:
     "Get in touch with the GLOWN team — questions about an order, a product, or anything else.",
   alternates: { canonical: "/contact" },
+  openGraph: buildOpenGraph({ title: "Contact Us", url: "/contact" }),
+  twitter: buildTwitter(),
 };
 
 export default function ContactPage() {

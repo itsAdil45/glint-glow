@@ -6,7 +6,7 @@ import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { WhatsAppButton } from "@/components/layout/whatsapp-button";
-import { defaultRobots, buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/seo";
+import { defaultRobots, buildOrganizationJsonLd, buildWebSiteJsonLd, buildOpenGraph, buildTwitter } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
 
 const cormorant = Cormorant_Garamond({
@@ -36,11 +36,23 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   ),
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
   // Site-wide default — index/follow only on the real production domain
   // (glown.pk), noindex/nofollow everywhere else (local, staging,
   // previews). Auth pages and anything auth-dependent override this
   // explicitly with an unconditional noindex regardless of environment.
   robots: defaultRobots(),
+  // Safety net only: every page below sets its own openGraph (it has to,
+  // to get its own image/url), which fully replaces this rather than
+  // merging with it — see the comment in lib/seo.ts. This just means a
+  // page someone adds later without remembering that doesn't end up with
+  // no preview at all.
+  openGraph: buildOpenGraph({ url: "/" }),
+  twitter: buildTwitter(),
 };
 
 export default function RootLayout({

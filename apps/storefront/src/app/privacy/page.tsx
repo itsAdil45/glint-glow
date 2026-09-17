@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/layout/page-hero";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "How GLOWN collects, uses, and protects your personal information.",
   alternates: { canonical: "/privacy" },
+  openGraph: buildOpenGraph({ title: "Privacy Policy", url: "/privacy" }),
+  twitter: buildTwitter(),
 };
 
 const LAST_UPDATED = "September 2026";

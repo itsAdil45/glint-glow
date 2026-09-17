@@ -3,12 +3,15 @@ import Link from "next/link";
 import { Sparkles, Truck, ShieldCheck, Heart } from "lucide-react";
 import { PageHero } from "@/components/layout/page-hero";
 import { Button } from "@/components/ui/button";
+import { buildOpenGraph, buildTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "About Us | Quality Skincare, Makeup & Beauty Essentials",
   description:
     "GLOWN is a curated home for makeup, skincare, fragrances, and lingerie — chosen with care, delivered with cash on delivery, everywhere.",
   alternates: { canonical: "/about" },
+  openGraph: buildOpenGraph({ title: "About GLOWN", url: "/about" }),
+  twitter: buildTwitter(),
 };
 
 const VALUES = [

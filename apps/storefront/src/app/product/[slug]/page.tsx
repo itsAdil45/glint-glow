@@ -8,7 +8,8 @@ import { ProductRail } from "@/components/product/product-rail";
 import { ProductReviews } from "@/components/product/product-reviews";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildBreadcrumbJsonLd } from "@/lib/seo";
+import { buildBreadcrumbJsonLd, buildOpenGraph, buildTwitter } from "@/lib/seo";
+import { resolveImageUrl } from "@/lib/utils";
 import { ViewItemTracker } from "@/components/product/view-item-tracker";
 import { Product } from "@/types";
 
@@ -22,20 +23,28 @@ export async function generateMetadata({
   const { slug } = await params;
   try {
     const product = await fetchProductBySlug(slug);
+    // No width/height asserted here — unlike the generated /api/og card
+    // (always exactly 1200x630), real product photos are whatever
+    // dimensions they were uploaded at, and declaring a wrong size in
+    // og:image:width/height is worse than omitting it (crawlers fetch the
+    // image to check when dimensions aren't provided).
+    const ogImages = product.images.map((img) => ({ url: resolveImageUrl(img.url) }));
     return {
       title: product.seo?.title || product.title,
       description:
         product.seo?.description ||
         product.shortDescription ||
         product.description.slice(0, 160),
-      openGraph: {
+      openGraph: buildOpenGraph({
         title: product.seo?.title || product.title,
-        images: product.images.map((img) => ({ url: img.url })),
-      },
+        url: `/product/${product.slug}`,
+        images: ogImages,
+      }),
+      twitter: buildTwitter(ogImages),
       alternates: { canonical: `/product/${product.slug}` },
     };
   } catch {
-    return { title: "Product" };
+    return { title: "Product", openGraph: buildOpenGraph({ title: "Product" }), twitter: buildTwitter() };
   }
 }
 
