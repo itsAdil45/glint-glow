@@ -13,9 +13,7 @@ import { ApiError } from "@/lib/api";
 // Public by design — a Google OAuth web client ID is meant to ship in
 // client-side JS (unlike a client secret, which never leaves the server).
 // The env var lets each deployment override it without a code change.
-const GOOGLE_CLIENT_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-  "139428633191-rq4gannb13sto2c007lu25r0i8fvjlu6.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 declare global {
   interface Window {
@@ -68,7 +66,11 @@ export function GoogleAuthButton({
         setCart(cart);
         router.push(redirect);
       } catch (err) {
-        onError?.(err instanceof ApiError ? err.message : "Could not sign in with Google");
+        onError?.(
+          err instanceof ApiError
+            ? err.message
+            : "Could not sign in with Google",
+        );
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- router/setUser/setCart are stable; onError is passed once per page and re-including it here would just re-init the same button on every parent re-render
@@ -97,7 +99,10 @@ export function GoogleAuthButton({
         strategy="afterInteractive"
         onLoad={() => setScriptLoaded(true)}
       />
-      <div ref={containerRef} className="w-full flex justify-center [&>div]:w-full" />
+      <div
+        ref={containerRef}
+        className="w-full flex justify-center [&>div]:w-full"
+      />
     </>
   );
 }
