@@ -5,7 +5,13 @@ import Image from "next/image";
 import { ProductImage } from "@/types";
 import { cn, resolveImageUrl } from "@/lib/utils";
 
-export function ProductGallery({ images, title }: { images: ProductImage[]; title: string }) {
+export function ProductGallery({
+  images,
+  title,
+}: {
+  images: ProductImage[];
+  title: string;
+}) {
   const [active, setActive] = useState(0);
   const current = images[active];
 
@@ -21,11 +27,17 @@ export function ProductGallery({ images, title }: { images: ProductImage[]; titl
               i === active ? "border-accent-ink" : "border-transparent",
             )}
           >
-            <Image src={resolveImageUrl(img.url)} alt={img.alt || title} fill sizes="64px" className="object-cover" />
+            <Image
+              src={resolveImageUrl(img.url)}
+              alt={img.alt || title}
+              fill
+              sizes="64px"
+              className="object-cover"
+            />
           </button>
         ))}
       </div>
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-accent-soft card-shadow">
+      <div className="relative aspect-[4/4] overflow-hidden rounded-2xl bg-accent-soft card-shadow">
         {current ? (
           <Image
             src={resolveImageUrl(current.url)}
@@ -33,7 +45,7 @@ export function ProductGallery({ images, title }: { images: ProductImage[]; titl
             fill
             priority
             sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover"
+            className="object-contain"
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-muted text-sm">

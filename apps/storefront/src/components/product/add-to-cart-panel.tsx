@@ -17,7 +17,9 @@ export function AddToCartPanel({ product }: { product: Product }) {
     return initial;
   });
   const [quantity, setQuantity] = useState(1);
-  const [status, setStatus] = useState<"idle" | "adding" | "added" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "adding" | "added" | "error">(
+    "idle",
+  );
   const [errorMessage, setErrorMessage] = useState("");
 
   const addItem = useCartStore((s) => s.addItem);
@@ -26,12 +28,18 @@ export function AddToCartPanel({ product }: { product: Product }) {
   const matchedVariation: ProductVariation | undefined = useMemo(() => {
     if (!product.hasVariations) return undefined;
     return product.variations.find((v) =>
-      product.attributes.every((attr) => v.attributes[attr.name] === selected[attr.name]),
+      product.attributes.every(
+        (attr) => v.attributes[attr.name] === selected[attr.name],
+      ),
     );
   }, [product, selected]);
 
-  const price = product.hasVariations ? matchedVariation?.price ?? product.basePrice : product.basePrice;
-  const stock = product.hasVariations ? matchedVariation?.stock ?? 0 : product.stock;
+  const price = product.hasVariations
+    ? (matchedVariation?.price ?? product.basePrice)
+    : product.basePrice;
+  const stock = product.hasVariations
+    ? (matchedVariation?.stock ?? 0)
+    : product.stock;
   const inStock = stock > 0;
 
   async function handleAddToCart() {
@@ -53,18 +61,25 @@ export function AddToCartPanel({ product }: { product: Product }) {
       setTimeout(() => setStatus("idle"), 2000);
     } catch (err) {
       setStatus("error");
-      setErrorMessage(err instanceof Error ? err.message : "Could not add to cart");
+      setErrorMessage(
+        err instanceof Error ? err.message : "Could not add to cart",
+      );
     }
   }
 
   return (
     <div className="space-y-6">
-      <PriceTag amount={price} compareAt={product.hasVariations ? undefined : product.compareAtPrice} size="lg" />
+      <PriceTag
+        amount={price}
+        compareAt={product.hasVariations ? undefined : product.compareAtPrice}
+        size="lg"
+      />
 
       {product.attributes.map((attr) => (
         <div key={attr.name}>
           <span className="text-xs font-medium tracking-wide text-ink-soft uppercase">
-            {attr.name}: <span className="text-ink normal-case">{selected[attr.name]}</span>
+            {attr.name}:{" "}
+            <span className="text-ink normal-case">{selected[attr.name]}</span>
           </span>
           <div className="flex flex-wrap gap-2 mt-2">
             {attr.values.map((value) => {
@@ -72,7 +87,9 @@ export function AddToCartPanel({ product }: { product: Product }) {
               return (
                 <button
                   key={value}
-                  onClick={() => setSelected((prev) => ({ ...prev, [attr.name]: value }))}
+                  onClick={() =>
+                    setSelected((prev) => ({ ...prev, [attr.name]: value }))
+                  }
                   className={`h-10 min-w-10 px-4 rounded-full border text-sm transition-colors ${
                     isActive
                       ? "border-accent-ink bg-accent-ink text-paper"
@@ -112,13 +129,19 @@ export function AddToCartPanel({ product }: { product: Product }) {
 
       <Button
         size="lg"
-        className="w-full"
+        className="w-full bg-accent hover:bg-accent/30 "
         disabled={!inStock || status === "adding" || isHydrating}
         onClick={handleAddToCart}
       >
-        {status === "adding" ? "Adding…" : status === "added" ? "Added to cart" : "Add to cart"}
+        {status === "adding"
+          ? "Adding…"
+          : status === "added"
+            ? "Added to cart"
+            : "Add to cart"}
       </Button>
-      {status === "error" && <p className="text-sm text-danger">{errorMessage}</p>}
+      {status === "error" && (
+        <p className="text-sm text-danger">{errorMessage}</p>
+      )}
 
       {/* Sticky mobile add-to-cart bar */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-paper border-t border-line p-3 flex items-center gap-3">

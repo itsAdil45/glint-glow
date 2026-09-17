@@ -95,7 +95,9 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         )}
         <h3 className="font-display text-lg leading-snug mt-0.5 group-hover:text-accent-ink transition-colors">
-          {product.title}
+          {product.title.length > 50
+            ? product.title.slice(0, 50) + "…"
+            : product.title}
         </h3>
 
         {product.ratingsCount > 0 && (

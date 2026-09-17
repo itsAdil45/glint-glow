@@ -28,7 +28,9 @@ export async function generateMetadata({
     // dimensions they were uploaded at, and declaring a wrong size in
     // og:image:width/height is worse than omitting it (crawlers fetch the
     // image to check when dimensions aren't provided).
-    const ogImages = product.images.map((img) => ({ url: resolveImageUrl(img.url) }));
+    const ogImages = product.images.map((img) => ({
+      url: resolveImageUrl(img.url),
+    }));
     return {
       title: product.seo?.title || product.title,
       description:
@@ -44,7 +46,11 @@ export async function generateMetadata({
       alternates: { canonical: `/product/${product.slug}` },
     };
   } catch {
-    return { title: "Product", openGraph: buildOpenGraph({ title: "Product" }), twitter: buildTwitter() };
+    return {
+      title: "Product",
+      openGraph: buildOpenGraph({ title: "Product" }),
+      twitter: buildTwitter(),
+    };
   }
 }
 
@@ -67,13 +73,20 @@ export default async function ProductPage({ params }: PageProps) {
   // breadcrumb can show a real category instead of skipping straight from
   // "Shop" to the product title.
   const categories = await fetchCategories().catch(() => []);
-  const productCategory = categories.find((c) => product.categoryIds.includes(c._id));
+  const productCategory = categories.find((c) =>
+    product.categoryIds.includes(c._id),
+  );
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     { label: "Shop", href: "/collections" },
     ...(productCategory
-      ? [{ label: productCategory.name, href: `/collections/${productCategory.slug}` }]
+      ? [
+          {
+            label: productCategory.name,
+            href: `/collections/${productCategory.slug}`,
+          },
+        ]
       : []),
     { label: product.title },
   ];
@@ -140,16 +153,14 @@ export default async function ProductPage({ params }: PageProps) {
             <div className="mt-6">
               <AddToCartPanel product={product} />
             </div>
-
-            <div className="mt-10 border-t border-line pt-6">
-              <h2 className="font-display text-lg mb-3">Description</h2>
-              <p className="text-sm text-ink-soft whitespace-pre-line leading-relaxed">
-                {product.description}
-              </p>
-            </div>
           </div>
         </div>
-
+        <div className="mt-10 border-t border-line pt-6">
+          <h2 className="font-display text-lg mb-3">Description</h2>
+          <p className="text-sm text-ink-soft whitespace-pre-line leading-relaxed">
+            {product.description}
+          </p>
+        </div>
         <ProductReviews
           productId={product._id}
           ratingsAvg={product.ratingsAvg}
