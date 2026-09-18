@@ -79,6 +79,13 @@ export function GoogleAuthButton({
 
   useEffect(() => {
     if (!scriptLoaded || !window.google || !containerRef.current) return;
+    if (!GOOGLE_CLIENT_ID) {
+      // Fails loudly in the console rather than crashing or silently
+      // rendering a broken button — this only happens if
+      // NEXT_PUBLIC_GOOGLE_CLIENT_ID isn't set for this deployment.
+      console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set — Google sign-in is disabled.");
+      return;
+    }
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleCredential,
