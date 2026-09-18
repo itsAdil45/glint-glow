@@ -31,6 +31,13 @@ export class Cart {
 
   @Prop({ type: [CartItemSchema], default: [] })
   items: CartItem[];
+
+  // Persisted so it survives a page refresh and carries through to
+  // checkout — re-validated live every time the cart is read (see
+  // CartService.withDetails), since a coupon can expire or hit its usage
+  // limit between being applied and checkout.
+  @Prop({ type: String, default: null })
+  appliedCouponCode: string | null;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);

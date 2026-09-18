@@ -75,6 +75,10 @@ export interface CartResponse {
   id: string;
   items: CartLineItem[];
   subtotal: number;
+  couponCode: string | null;
+  discountAmount: number;
+  total: number;
+  couponError: string | null;
 }
 
 export interface Address {

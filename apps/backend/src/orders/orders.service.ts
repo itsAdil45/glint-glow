@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Order, OrderDocument, OrderStatus } from './schemas/order.schema';
 import { CartService } from '../cart/cart.service';
@@ -9,6 +9,7 @@ import { ProductsService } from '../products/products.service';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
 import { ShippingSettingsService } from '../shipping-settings/shipping-settings.service';
+import { CouponsService } from '../coupons/coupons.service';
 import { PlaceOrderDto } from './dto/order.dto';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class OrdersService {
     private usersService: UsersService,
     private mailService: MailService,
     private shippingSettingsService: ShippingSettingsService,
+    private couponsService: CouponsService,
     private config: ConfigService,
   ) {}
 
@@ -114,12 +116,50 @@ export class OrdersService {
     }
 
     const subtotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+    // The cart's own coupon field was already validated once when
+    // fetched above, but only with whatever identity was available then —
+    // a guest cart has no email until right here (dto.email), and a
+    // logged-in cart's own check used userId already. Re-running it now
+    // with the concrete, final identity is what actually enforces a
+    // per-user usage limit for a guest; skipping this and trusting the
+    // cart's already-computed number would silently let a guest reuse a
+    // single-use coupon simply because the cart couldn't have known who
+    // they were yet.
+    let couponCode: string | null = null;
+    let couponObjectId: Types.ObjectId | null = null;
+    let discountAmount = 0;
+    if (cart.couponCode) {
+      try {
+        const result = await this.couponsService.validate(
+          cart.couponCode,
+          subtotal,
+          userId,
+          userId ? null : guestEmail || null,
+        );
+        couponCode = result.coupon.code;
+        couponObjectId = result.coupon._id as Types.ObjectId;
+        discountAmount = result.discountAmount;
+      } catch (err) {
+        // Fails the whole order rather than silently dropping the
+        // discount — the customer saw a specific total on the cart page,
+        // and charging them a different one without telling them why
+        // would be a worse experience than asking them to remove it and
+        // retry.
+        const message =
+          err instanceof BadRequestException ? (err.getResponse() as any).message : 'Coupon is no longer valid';
+        throw new BadRequestException(`${message} — please remove it from your cart and try again.`);
+      }
+    }
+
     // Server-computed, authoritative — never trust a client-supplied
     // shipping fee. The storefront shows its own estimate using the same
     // settings (GET /shipping-settings) purely for display before the
-    // order exists.
+    // order exists. Shipping is calculated on the pre-discount subtotal —
+    // a "free shipping over X" threshold is about cart value, not what's
+    // finally paid after a coupon.
     const shippingFee = await this.shippingSettingsService.calculateFee(subtotal);
-    const total = subtotal + shippingFee;
+    const total = subtotal - discountAmount + shippingFee;
 
     const orderNumber = await this.generateOrderNumber();
 
@@ -129,6 +169,8 @@ export class OrdersService {
       guestEmail: userId ? undefined : guestEmail,
       items: orderItems,
       subtotal,
+      couponCode,
+      discountAmount,
       shippingFee,
       total,
       shippingAddress: {
@@ -140,6 +182,16 @@ export class OrdersService {
       paymentMethod: 'cod',
     });
     await order.save();
+
+    if (couponCode && couponObjectId) {
+      await this.couponsService.recordRedemption(
+        couponObjectId,
+        order._id as any,
+        userId,
+        userId ? null : guestEmail || null,
+        discountAmount,
+      );
+    }
 
     // Decrement stock per line item
     for (const item of orderItems) {

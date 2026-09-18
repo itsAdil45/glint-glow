@@ -15,6 +15,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { HeroSlidesModule } from './hero-slides/hero-slides.module';
 import { BannersModule } from './banners/banners.module';
 import { ContactModule } from './contact/contact.module';
+import { CouponsModule } from './coupons/coupons.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ShippingSettingsModule } from './shipping-settings/shipping-settings.module';
 import { MediaModule } from './media/media.module';
@@ -39,6 +40,7 @@ import { MediaModule } from './media/media.module';
     HeroSlidesModule,
     BannersModule,
     ContactModule,
+    CouponsModule,
     ReviewsModule,
     MediaModule,
     ShippingSettingsModule,

@@ -44,3 +44,18 @@ export async function mergeGuestCart(): Promise<CartResponse> {
     withSession: true,
   });
 }
+
+export async function applyCartCoupon(code: string): Promise<CartResponse> {
+  return apiFetch<CartResponse>("/cart/coupon", {
+    method: "POST",
+    withSession: true,
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function removeCartCoupon(): Promise<CartResponse> {
+  return apiFetch<CartResponse>("/cart/coupon", {
+    method: "DELETE",
+    withSession: true,
+  });
+}

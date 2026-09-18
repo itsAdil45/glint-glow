@@ -4,17 +4,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Tag, X } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { resolveImageUrl } from "@/lib/utils";
 import { fetchShippingSettings, estimateShippingFee, ShippingSettings } from "@/lib/api-shipping";
+import { ApiError } from "@/lib/api";
 
 export default function CartPage() {
-  const { cart, isLoading, load, updateItem, removeItem } = useCartStore();
+  const { cart, isLoading, load, updateItem, removeItem, applyCoupon, removeCoupon } = useCartStore();
   const router = useRouter();
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [shippingSettings, setShippingSettings] = useState<ShippingSettings | null>(null);
+  const [couponInput, setCouponInput] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   useEffect(() => {
     load();
@@ -26,7 +32,12 @@ export default function CartPage() {
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
+  const discountAmount = cart?.discountAmount || 0;
+  // Shipping is estimated on the pre-discount subtotal, matching how the
+  // backend actually calculates it at checkout — a free-shipping
+  // threshold is about cart value, not what's finally paid after a coupon.
   const shippingFee = shippingSettings ? estimateShippingFee(shippingSettings, subtotal) : null;
+  const total = Math.max(subtotal - discountAmount, 0) + (shippingFee || 0);
 
   function key(productId: string, variationSku: string | null) {
     return `${productId}::${variationSku || ""}`;
@@ -48,6 +59,30 @@ export default function CartPage() {
       await removeItem(productId, variationSku || undefined);
     } finally {
       setBusyKey(null);
+    }
+  }
+
+  async function handleApplyCoupon(e: React.FormEvent) {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+    setApplyingCoupon(true);
+    setCouponError("");
+    try {
+      await applyCoupon(couponInput.trim());
+      setCouponInput("");
+    } catch (err) {
+      setCouponError(err instanceof ApiError ? err.message : "Could not apply this coupon");
+    } finally {
+      setApplyingCoupon(false);
+    }
+  }
+
+  async function handleRemoveCoupon() {
+    setApplyingCoupon(true);
+    try {
+      await removeCoupon();
+    } finally {
+      setApplyingCoupon(false);
     }
   }
 
@@ -141,10 +176,55 @@ export default function CartPage() {
 
           <div className="rounded-2xl bg-surface card-shadow p-6 h-fit">
             <h2 className="font-display text-lg mb-4">Order summary</h2>
+
+            {cart?.couponError && (
+              <p className="text-xs text-danger bg-danger/10 rounded-lg px-3 py-2 mb-4">
+                {cart.couponError}
+              </p>
+            )}
+
+            {cart?.couponCode ? (
+              <div className="flex items-center justify-between rounded-lg border border-line bg-accent-soft/40 px-3 py-2 mb-4">
+                <span className="flex items-center gap-1.5 text-sm font-medium">
+                  <Tag size={14} className="text-accent-ink" />
+                  {cart.couponCode}
+                </span>
+                <button
+                  onClick={handleRemoveCoupon}
+                  disabled={applyingCoupon}
+                  aria-label="Remove coupon"
+                  className="text-muted hover:text-danger disabled:opacity-40"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleApplyCoupon} className="flex gap-2 mb-4">
+                <Input
+                  placeholder="Coupon code"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  className="uppercase"
+                />
+                <Button type="submit" variant="outline" disabled={applyingCoupon || !couponInput.trim()}>
+                  {applyingCoupon ? "…" : "Apply"}
+                </Button>
+              </form>
+            )}
+            {couponError && <p className="text-xs text-danger -mt-2 mb-4">{couponError}</p>}
+
             <div className="flex justify-between text-sm mb-2">
               <span className="text-muted">Subtotal</span>
               <PriceTag amount={subtotal} size="sm" />
             </div>
+            {discountAmount > 0 && (
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-muted">Discount</span>
+                <span className="font-medium text-accent-ink flex items-center gap-1">
+                  −<PriceTag amount={discountAmount} size="sm" />
+                </span>
+              </div>
+            )}
             <div className="flex justify-between text-sm mb-4">
               <span className="text-muted">Shipping</span>
               {shippingFee === null ? (
@@ -157,7 +237,7 @@ export default function CartPage() {
             </div>
             <div className="border-t border-line pt-4 flex justify-between items-baseline mb-6">
               <span className="font-medium">Total</span>
-              <PriceTag amount={subtotal + (shippingFee || 0)} size="md" />
+              <PriceTag amount={total} size="md" />
             </div>
             <Button size="lg" className="w-full" onClick={handleCheckout}>
               Proceed to checkout

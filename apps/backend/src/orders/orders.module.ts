@@ -9,6 +9,7 @@ import { ProductsModule } from '../products/products.module';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from '../mail/mail.module';
 import { ShippingSettingsModule } from '../shipping-settings/shipping-settings.module';
+import { CouponsModule } from '../coupons/coupons.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ShippingSettingsModule } from '../shipping-settings/shipping-settings.m
     UsersModule,
     MailModule,
     ShippingSettingsModule,
+    CouponsModule,
   ],
   providers: [OrdersService],
   controllers: [OrdersController],

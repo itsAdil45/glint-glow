@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
@@ -159,8 +160,11 @@ export default function CheckoutPage() {
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
+  const discountAmount = cart?.discountAmount || 0;
+  // Shipping is estimated on the pre-discount subtotal, matching how the
+  // backend actually calculates it when the order is placed.
   const shippingFee = shippingSettings ? estimateShippingFee(shippingSettings, subtotal) : null;
-  const total = subtotal + (shippingFee || 0);
+  const total = Math.max(subtotal - discountAmount, 0) + (shippingFee || 0);
 
   return (
     <div className="container-page py-10">
@@ -332,6 +336,20 @@ export default function CheckoutPage() {
             <span className="text-sm text-muted">Subtotal</span>
             <PriceTag amount={subtotal} size="sm" />
           </div>
+          {cart?.couponCode && (
+            <div className="flex justify-between items-baseline mb-2">
+              <span className="flex items-center gap-1.5 text-sm text-muted">
+                <Tag size={13} className="text-accent-ink" />
+                {cart.couponCode}
+                <Link href="/cart" className="text-xs underline underline-offset-4">
+                  Change
+                </Link>
+              </span>
+              <span className="text-sm font-medium text-accent-ink flex items-center gap-1">
+                −<PriceTag amount={discountAmount} size="sm" />
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-baseline mb-2">
             <span className="text-sm text-muted">Shipping</span>
             {shippingFee === null ? (

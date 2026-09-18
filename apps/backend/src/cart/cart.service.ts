@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Cart, CartDocument } from './schemas/cart.schema';
 import { ProductsService } from '../products/products.service';
+import { CouponsService } from '../coupons/coupons.service';
 import { AddCartItemDto, UpdateCartItemDto } from './dto/cart.dto';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class CartService {
   constructor(
     @InjectModel(Cart.name) private cartModel: Model<CartDocument>,
     private productsService: ProductsService,
+    private couponsService: CouponsService,
   ) {}
 
   private async findOrCreateCart(userId: string | null, sessionId: string | null) {
@@ -57,7 +59,68 @@ export class CartService {
     );
     const validItems = items.filter(Boolean);
     const subtotal = validItems.reduce((sum, i: any) => sum + i.lineTotal, 0);
-    return { id: cart._id, items: validItems, subtotal };
+
+    let couponCode: string | null = null;
+    let discountAmount = 0;
+    let couponError: string | null = null;
+
+    if (cart.appliedCouponCode) {
+      try {
+        // Re-validated on every read, not just when first applied — a
+        // coupon can expire, get deactivated, or hit its usage limit
+        // between being applied and the cart being viewed again.
+        const userId = cart.userId ? cart.userId.toString() : null;
+        const result = await this.couponsService.validate(cart.appliedCouponCode, subtotal, userId, null);
+        couponCode = result.coupon.code;
+        discountAmount = result.discountAmount;
+      } catch (err) {
+        // Self-healing: an invalid coupon doesn't just silently fail to
+        // discount, it gets cleared so it doesn't keep re-failing on
+        // every future read. Reported back via couponError so the
+        // storefront can tell the person what happened.
+        couponError = err instanceof BadRequestException ? (err.getResponse() as any).message : 'This coupon is no longer valid';
+        cart.appliedCouponCode = null;
+        await cart.save();
+      }
+    }
+
+    const total = Math.max(subtotal - discountAmount, 0);
+    return { id: cart._id, items: validItems, subtotal, couponCode, discountAmount, total, couponError };
+  }
+
+  async applyCoupon(userId: string | null, sessionId: string | null, code: string) {
+    const cart = await this.findOrCreateCart(userId, sessionId);
+    const subtotal = await this.computeSubtotal(cart);
+    // Throws with a customer-facing message on failure — surfaced as-is
+    // to the caller, no need to catch here.
+    await this.couponsService.validate(code, subtotal, userId, null);
+    cart.appliedCouponCode = code.toUpperCase().trim();
+    await cart.save();
+    return this.withDetails(cart);
+  }
+
+  async removeCoupon(userId: string | null, sessionId: string | null) {
+    const cart = await this.findOrCreateCart(userId, sessionId);
+    cart.appliedCouponCode = null;
+    await cart.save();
+    return this.withDetails(cart);
+  }
+
+  /** Subtotal only, without the full product-detail enrichment — used just to validate a coupon before applying it. */
+  private async computeSubtotal(cart: CartDocument): Promise<number> {
+    let subtotal = 0;
+    for (const item of cart.items) {
+      try {
+        const { price } = await this.productsService.resolveVariant(
+          item.productId.toString(),
+          item.variationSku,
+        );
+        subtotal += price * item.quantity;
+      } catch {
+        // product/variation no longer exists — excluded, matching withDetails
+      }
+    }
+    return subtotal;
   }
 
   async addItem(userId: string | null, sessionId: string | null, dto: AddCartItemDto) {
@@ -142,15 +205,22 @@ export class CartService {
         userCart.items.push(gItem);
       }
     }
+    // Only carries over if the user's own cart didn't already have one
+    // applied — their own choice always wins. Re-validated on next read
+    // regardless (see withDetails), so a coupon that turns out to violate
+    // this specific user's per-user limit self-heals rather than sticking.
+    if (guestCart.appliedCouponCode && !userCart.appliedCouponCode) {
+      userCart.appliedCouponCode = guestCart.appliedCouponCode;
+    }
     await userCart.save();
     await this.cartModel.deleteOne({ _id: guestCart._id }).exec();
   }
 
   async clearCart(userId: string | null, sessionId: string | null = null) {
     if (userId) {
-      await this.cartModel.updateOne({ userId }, { items: [] }).exec();
+      await this.cartModel.updateOne({ userId }, { items: [], appliedCouponCode: null }).exec();
     } else if (sessionId) {
-      await this.cartModel.updateOne({ sessionId }, { items: [] }).exec();
+      await this.cartModel.updateOne({ sessionId }, { items: [], appliedCouponCode: null }).exec();
     }
   }
 }

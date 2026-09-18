@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { CartResponse } from "@/types";
-import { fetchCart, addCartItem, updateCartItem, removeCartItem } from "@/lib/api-cart";
+import {
+  fetchCart,
+  addCartItem,
+  updateCartItem,
+  removeCartItem,
+  applyCartCoupon,
+  removeCartCoupon,
+} from "@/lib/api-cart";
 
 interface CartState {
   cart: CartResponse | null;
@@ -10,6 +17,8 @@ interface CartState {
   addItem: (productId: string, quantity: number, variationSku?: string) => Promise<void>;
   updateItem: (productId: string, quantity: number, variationSku?: string) => Promise<void>;
   removeItem: (productId: string, variationSku?: string) => Promise<void>;
+  applyCoupon: (code: string) => Promise<void>;
+  removeCoupon: () => Promise<void>;
   setCart: (cart: CartResponse) => void;
 }
 
@@ -46,6 +55,19 @@ export const useCartStore = create<CartState>((set) => ({
 
   removeItem: async (productId, variationSku) => {
     const cart = await removeCartItem(productId, variationSku);
+    set({ cart, itemCount: countItems(cart) });
+  },
+
+  applyCoupon: async (code) => {
+    // Deliberately no try/catch here — a rejected code needs to reach the
+    // cart page so it can show the specific reason next to the input,
+    // same as every other cart mutation above.
+    const cart = await applyCartCoupon(code);
+    set({ cart, itemCount: countItems(cart) });
+  },
+
+  removeCoupon: async () => {
+    const cart = await removeCartCoupon();
     set({ cart, itemCount: countItems(cart) });
   },
 }));

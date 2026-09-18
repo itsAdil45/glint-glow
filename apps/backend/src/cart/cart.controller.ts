@@ -15,6 +15,7 @@ import { Request } from 'express';
 import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard';
 import { CartService } from './cart.service';
 import { AddCartItemDto, UpdateCartItemDto } from './dto/cart.dto';
+import { ApplyCouponDto } from '../coupons/dto/coupon.dto';
 
 @Controller('cart')
 @UseGuards(OptionalJwtAuthGuard)
@@ -63,6 +64,22 @@ export class CartController {
   ) {
     const { userId, sessionId: sid } = this.ids(req, sessionId);
     return this.cartService.removeItem(userId, sid, productId, variationSku);
+  }
+
+  @Post('coupon')
+  applyCoupon(
+    @Req() req: Request,
+    @Headers('x-session-id') sessionId: string,
+    @Body() dto: ApplyCouponDto,
+  ) {
+    const { userId, sessionId: sid } = this.ids(req, sessionId);
+    return this.cartService.applyCoupon(userId, sid, dto.code);
+  }
+
+  @Delete('coupon')
+  removeCoupon(@Req() req: Request, @Headers('x-session-id') sessionId: string) {
+    const { userId, sessionId: sid } = this.ids(req, sessionId);
+    return this.cartService.removeCoupon(userId, sid);
   }
 
   // Called by the frontend immediately after a successful login
