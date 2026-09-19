@@ -7,7 +7,7 @@ import { AuthLayout } from "@/components/layout/auth-layout";
 import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { requestPasswordResetOtp, verifyPasswordResetOtp } from "@/lib/api-auth";
-import { ApiError } from "@/lib/api";
+import { showApiError, showSuccess } from "@/lib/toast";
 import { Mail, Lock } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -17,19 +17,17 @@ export default function ForgotPasswordPage() {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   async function handleRequest(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError("");
     try {
       const res = await requestPasswordResetOtp(email);
       setMessage((res as { message: string }).message);
       setStep("verify");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      showApiError(err, "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -38,12 +36,12 @@ export default function ForgotPasswordPage() {
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError("");
     try {
       await verifyPasswordResetOtp(email, otp, newPassword);
+      showSuccess("Password reset — you can now log in.");
       router.push("/login");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Invalid or expired code");
+      showApiError(err, "Invalid or expired code");
     } finally {
       setLoading(false);
     }
@@ -67,7 +65,6 @@ export default function ForgotPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          {error && <p className="text-sm text-danger">{error}</p>}
           <Button type="submit" size="lg" className="w-full" disabled={loading}>
             {loading ? "Sending…" : "Send code"}
           </Button>
@@ -108,7 +105,6 @@ export default function ForgotPasswordPage() {
             onChange={(e) => setNewPassword(e.target.value)}
           />
         </div>
-        {error && <p className="text-sm text-danger">{error}</p>}
         <Button type="submit" size="lg" className="w-full" disabled={loading}>
           {loading ? "Updating…" : "Reset password"}
         </Button>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { Tag, X } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import { PriceTag } from "@/components/ui/price-tag";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resolveImageUrl } from "@/lib/utils";
 import { fetchShippingSettings, estimateShippingFee, ShippingSettings } from "@/lib/api-shipping";
-import { ApiError } from "@/lib/api";
+import { showApiError } from "@/lib/toast";
 
 export default function CartPage() {
   const { cart, isLoading, load, updateItem, removeItem, applyCoupon, removeCoupon } = useCartStore();
@@ -19,8 +20,8 @@ export default function CartPage() {
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [shippingSettings, setShippingSettings] = useState<ShippingSettings | null>(null);
   const [couponInput, setCouponInput] = useState("");
-  const [couponError, setCouponError] = useState("");
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const lastShownCouponError = useRef<string | null>(null);
 
   useEffect(() => {
     load();
@@ -29,6 +30,20 @@ export default function CartPage() {
       .catch(() => null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // The backend self-heals a coupon that expired or hit its limit between
+  // being applied and now — it clears it and reports why via
+  // cart.couponError. Surfaced once per distinct message rather than on
+  // every render, since this value stays put across re-renders until the
+  // cart is refetched.
+  useEffect(() => {
+    if (cart?.couponError && cart.couponError !== lastShownCouponError.current) {
+      toast.error(cart.couponError);
+      lastShownCouponError.current = cart.couponError;
+    } else if (!cart?.couponError) {
+      lastShownCouponError.current = null;
+    }
+  }, [cart?.couponError]);
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
@@ -48,6 +63,8 @@ export default function CartPage() {
     setBusyKey(key(productId, variationSku));
     try {
       await updateItem(productId, qty, variationSku || undefined);
+    } catch (err) {
+      showApiError(err, "Could not update quantity");
     } finally {
       setBusyKey(null);
     }
@@ -57,6 +74,8 @@ export default function CartPage() {
     setBusyKey(key(productId, variationSku));
     try {
       await removeItem(productId, variationSku || undefined);
+    } catch (err) {
+      showApiError(err, "Could not remove item");
     } finally {
       setBusyKey(null);
     }
@@ -66,12 +85,12 @@ export default function CartPage() {
     e.preventDefault();
     if (!couponInput.trim()) return;
     setApplyingCoupon(true);
-    setCouponError("");
     try {
       await applyCoupon(couponInput.trim());
       setCouponInput("");
+      toast.success("Coupon applied");
     } catch (err) {
-      setCouponError(err instanceof ApiError ? err.message : "Could not apply this coupon");
+      showApiError(err, "Could not apply this coupon");
     } finally {
       setApplyingCoupon(false);
     }
@@ -81,6 +100,9 @@ export default function CartPage() {
     setApplyingCoupon(true);
     try {
       await removeCoupon();
+      toast.success("Coupon removed");
+    } catch (err) {
+      showApiError(err, "Could not remove coupon");
     } finally {
       setApplyingCoupon(false);
     }
@@ -177,12 +199,6 @@ export default function CartPage() {
           <div className="rounded-2xl bg-surface card-shadow p-6 h-fit">
             <h2 className="font-display text-lg mb-4">Order summary</h2>
 
-            {cart?.couponError && (
-              <p className="text-xs text-danger bg-danger/10 rounded-lg px-3 py-2 mb-4">
-                {cart.couponError}
-              </p>
-            )}
-
             {cart?.couponCode ? (
               <div className="flex items-center justify-between rounded-lg border border-line bg-accent-soft/40 px-3 py-2 mb-4">
                 <span className="flex items-center gap-1.5 text-sm font-medium">
@@ -211,7 +227,7 @@ export default function CartPage() {
                 </Button>
               </form>
             )}
-            {couponError && <p className="text-xs text-danger -mt-2 mb-4">{couponError}</p>}
+
 
             <div className="flex justify-between text-sm mb-2">
               <span className="text-muted">Subtotal</span>

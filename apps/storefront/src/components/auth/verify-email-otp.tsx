@@ -5,7 +5,7 @@ import { AuthLayout } from "@/components/layout/auth-layout";
 import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { verifyRegistrationOtp, resendRegistrationOtp } from "@/lib/api-auth";
-import { ApiError } from "@/lib/api";
+import { showApiError, showSuccess } from "@/lib/toast";
 
 export function VerifyEmailOtp({
   email,
@@ -21,18 +21,15 @@ export function VerifyEmailOtp({
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError("");
     try {
       const { accessToken } = await verifyRegistrationOtp(email, otp);
       await onVerified(accessToken);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Invalid or expired code");
+      showApiError(err, "Invalid or expired code");
     } finally {
       setLoading(false);
     }
@@ -40,13 +37,11 @@ export function VerifyEmailOtp({
 
   async function handleResend() {
     setResending(true);
-    setError("");
-    setNotice("");
     try {
       const res = await resendRegistrationOtp(email);
-      setNotice(res.message);
+      showSuccess(res.message);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Could not resend code");
+      showApiError(err, "Could not resend code");
     } finally {
       setResending(false);
     }
@@ -67,8 +62,6 @@ export function VerifyEmailOtp({
             className="text-center text-lg tracking-[0.5em] font-medium"
           />
         </div>
-        {error && <p className="text-sm text-danger">{error}</p>}
-        {notice && <p className="text-sm text-muted">{notice}</p>}
         <Button type="submit" size="lg" className="w-full" disabled={loading}>
           {loading ? "Verifying…" : "Verify & continue"}
         </Button>

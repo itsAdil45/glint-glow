@@ -15,6 +15,8 @@ import { setAccessToken } from "@/lib/token";
 import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api";
+import { showApiError } from "@/lib/toast";
+import toast from "react-hot-toast";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { VerifyEmailOtp } from "@/components/auth/verify-email-otp";
 import { Mail, Lock } from "lucide-react";
@@ -29,7 +31,6 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/account";
-  const [serverError, setServerError] = useState("");
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const setUser = useAuthStore((s) => s.setUser);
   const setCart = useCartStore((s) => s.setCart);
@@ -50,7 +51,6 @@ export default function LoginPage() {
   }
 
   async function onSubmit(data: FormData) {
-    setServerError("");
     try {
       const { accessToken } = await loginUser(data);
       await completeSignIn(accessToken);
@@ -59,7 +59,7 @@ export default function LoginPage() {
         setUnverifiedEmail(data.email);
         return;
       }
-      setServerError(err instanceof ApiError ? err.message : "Something went wrong");
+      showApiError(err, "Something went wrong");
     }
   }
 
@@ -102,7 +102,6 @@ export default function LoginPage() {
             error={errors.password?.message}
           />
         </div>
-        {serverError && <p className="text-sm text-danger">{serverError}</p>}
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
@@ -114,7 +113,7 @@ export default function LoginPage() {
         <div className="h-px flex-1 bg-line" />
       </div>
 
-      <GoogleAuthButton redirect={redirect} text="signin_with" onError={setServerError} />
+      <GoogleAuthButton redirect={redirect} text="signin_with" onError={(msg) => toast.error(msg)} />
 
       <p className="text-center text-sm text-muted mt-6">
         Don&apos;t have an account?{" "}

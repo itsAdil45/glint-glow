@@ -28,6 +28,29 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+// The backend's exception filter wraps every error as
+// { statusCode, message, timestamp }, where `message` is whatever
+// exception.getResponse() returned — and for a plain
+// `new BadRequestException('some string')`, that's itself an object
+// ({ statusCode, message: 'some string', error: 'Bad Request' }), not the
+// string directly. So the human-readable text is usually one level
+// deeper than it looks, and a naive `body.message.toString()` on that
+// inner object produces the literal string "[object Object]" — this
+// unwraps every shape actually seen from this backend (flat string, flat
+// array from a raw ValidationPipe response, or one more level of either
+// nested inside).
+function extractErrorMessage(body: unknown, fallback: string): string {
+  const msg = (body as { message?: unknown })?.message;
+  if (typeof msg === "string") return msg;
+  if (Array.isArray(msg)) return msg.join(", ");
+  if (msg && typeof msg === "object") {
+    const inner = (msg as { message?: unknown }).message;
+    if (typeof inner === "string") return inner;
+    if (Array.isArray(inner)) return inner.join(", ");
+  }
+  return fallback;
+}
+
 interface RequestOptions extends RequestInit {
   auth?: boolean; // attach Authorization header
   withSession?: boolean; // attach x-session-id header (guest cart)
@@ -70,8 +93,7 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
     } catch {
       /* no body */
     }
-    const message =
-      (body as { message?: string | string[] })?.message?.toString() || res.statusText;
+    const message = extractErrorMessage(body, res.statusText);
     throw new ApiError(res.status, message, body);
   }
 

@@ -15,7 +15,8 @@ import { PriceTag } from "@/components/ui/price-tag";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { AddressForm } from "@/components/account/address-form";
-import { ApiError } from "@/lib/api";
+import toast from "react-hot-toast";
+import { showApiError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 interface GuestDetails {
@@ -53,7 +54,6 @@ export default function CheckoutPage() {
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [guest, setGuest] = useState<GuestDetails>(EMPTY_GUEST_DETAILS);
   const [placing, setPlacing] = useState(false);
-  const [error, setError] = useState("");
   const [shippingSettings, setShippingSettings] = useState<ShippingSettings | null>(null);
 
   useEffect(() => {
@@ -93,15 +93,14 @@ export default function CheckoutPage() {
   }
 
   async function handlePlaceOrder() {
-    setError("");
     if (!phone.trim()) {
-      setError("Please enter a phone number");
+      toast.error("Please enter a phone number");
       return;
     }
 
     if (user) {
       if (!selectedAddressId) {
-        setError("Please select a shipping address");
+        toast.error("Please select a shipping address");
         return;
       }
     } else {
@@ -115,7 +114,7 @@ export default function CheckoutPage() {
       ];
       for (const [field, label] of required) {
         if (!guest[field].trim()) {
-          setError(`Please enter your ${label.toLowerCase()}`);
+          toast.error(`Please enter your ${label.toLowerCase()}`);
           return;
         }
       }
@@ -129,9 +128,14 @@ export default function CheckoutPage() {
       const confirmationUrl = user
         ? `/order-confirmation/${order.orderNumber}`
         : `/order-confirmation/${order.orderNumber}?email=${encodeURIComponent(guest.email)}`;
+      // The navbar cart badge otherwise keeps showing the old item count
+      // until something re-fetches the cart — the backend already
+      // cleared it server-side as part of placing the order, but nothing
+      // was telling this tab's in-memory cart store that happened.
+      await loadCart();
       router.push(confirmationUrl);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Could not place order");
+      showApiError(err, "Could not place order");
     } finally {
       setPlacing(false);
     }
@@ -367,7 +371,6 @@ export default function CheckoutPage() {
           <p className="text-xs text-muted mb-4">
             Payment: Cash on delivery. You&apos;ll pay when your order arrives.
           </p>
-          {error && <p className="text-sm text-danger mb-3">{error}</p>}
           <Button
             size="lg"
             className="w-full"

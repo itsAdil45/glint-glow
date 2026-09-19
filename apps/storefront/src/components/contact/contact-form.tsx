@@ -8,7 +8,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { submitContactMessage } from "@/lib/api-contact";
-import { ApiError } from "@/lib/api";
+import { showApiError } from "@/lib/toast";
 
 const schema = z.object({
   name: z.string().min(2, "Enter your full name"),
@@ -21,7 +21,6 @@ type FormData = z.infer<typeof schema>;
 
 export function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
-  const [serverError, setServerError] = useState("");
 
   const {
     register,
@@ -31,13 +30,12 @@ export function ContactForm() {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   async function onSubmit(data: FormData) {
-    setServerError("");
     try {
       await submitContactMessage(data);
       setSubmitted(true);
       reset();
     } catch (err) {
-      setServerError(err instanceof ApiError ? err.message : "Something went wrong — please try again.");
+      showApiError(err, "Something went wrong — please try again.");
     }
   }
 
@@ -85,7 +83,6 @@ export function ContactForm() {
         <Textarea id="message" rows={5} {...register("message")} error={errors.message?.message} />
       </div>
 
-      {serverError && <p className="text-sm text-danger">{serverError}</p>}
 
       <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSubmitting}>
         {isSubmitting ? "Sending…" : "Send message"}

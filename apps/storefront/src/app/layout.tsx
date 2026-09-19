@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { WhatsAppButton } from "@/components/layout/whatsapp-button";
 import { defaultRobots, buildOrganizationJsonLd, buildWebSiteJsonLd, buildOpenGraph, buildTwitter } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/json-ld";
+import { Toaster } from "react-hot-toast";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -94,6 +95,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <SiteFooter />
           <WhatsAppButton />
         </Providers>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "var(--color-surface)",
+              color: "var(--color-ink)",
+              border: "1px solid var(--color-line)",
+              fontFamily: "var(--font-body)",
+              fontSize: "0.875rem",
+            },
+            success: { iconTheme: { primary: "var(--color-accent-ink)", secondary: "var(--color-paper)" } },
+            error: { iconTheme: { primary: "var(--color-danger)", secondary: "var(--color-paper)" } },
+          }}
+        />
       </body>
     </html>
   );

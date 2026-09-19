@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart-store";
 import { useAuthStore } from "@/store/auth-store";
 import { trackAddToCart } from "@/lib/gtm";
+import { showApiError } from "@/lib/toast";
 
 export function AddToCartPanel({ product }: { product: Product }) {
   const [selected, setSelected] = useState<Record<string, string>>(() => {
@@ -17,10 +18,7 @@ export function AddToCartPanel({ product }: { product: Product }) {
     return initial;
   });
   const [quantity, setQuantity] = useState(1);
-  const [status, setStatus] = useState<"idle" | "adding" | "added" | "error">(
-    "idle",
-  );
-  const [errorMessage, setErrorMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "adding" | "added">("idle");
 
   const addItem = useCartStore((s) => s.addItem);
   const isHydrating = useAuthStore((s) => s.isHydrating);
@@ -44,7 +42,6 @@ export function AddToCartPanel({ product }: { product: Product }) {
 
   async function handleAddToCart() {
     setStatus("adding");
-    setErrorMessage("");
     try {
       await addItem(product._id, quantity, matchedVariation?.sku);
       trackAddToCart({
@@ -60,10 +57,8 @@ export function AddToCartPanel({ product }: { product: Product }) {
       setStatus("added");
       setTimeout(() => setStatus("idle"), 2000);
     } catch (err) {
-      setStatus("error");
-      setErrorMessage(
-        err instanceof Error ? err.message : "Could not add to cart",
-      );
+      setStatus("idle");
+      showApiError(err, "Could not add to cart");
     }
   }
 
@@ -139,9 +134,6 @@ export function AddToCartPanel({ product }: { product: Product }) {
             ? "Added to cart"
             : "Add to cart"}
       </Button>
-      {status === "error" && (
-        <p className="text-sm text-danger">{errorMessage}</p>
-      )}
 
       {/* Sticky mobile add-to-cart bar */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-paper border-t border-line p-3 flex items-center gap-3">
