@@ -12,6 +12,7 @@ export interface CategoryInput {
   image?: string;
   isActive?: boolean;
   showInNavbar?: boolean;
+  isCategoryItem?: boolean;
   seoTitle?: string;
   seoDescription?: string;
 }

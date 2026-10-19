@@ -165,6 +165,11 @@ export default function CategoriesPage() {
                         Inactive
                       </span>
                     )}
+                    {cat.parentId && cat.isCategoryItem && (
+                      <span className="ml-2 text-[10px] uppercase tracking-wide text-accent-ink bg-line rounded-full px-2 py-0.5">
+                        In Shop by category
+                      </span>
+                    )}
                     {cat.showInNavbar === false && (
                       <span className="ml-2 text-[10px] uppercase tracking-wide text-muted bg-line rounded-full px-2 py-0.5">
                         Hidden from navbar
@@ -216,6 +221,7 @@ function CategoryForm({
   const [image, setImage] = useState(initial?.image || "");
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
   const [showInNavbar, setShowInNavbar] = useState(initial?.showInNavbar ?? true);
+  const [isCategoryItem, setIsCategoryItem] = useState(initial?.isCategoryItem ?? false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -241,6 +247,7 @@ function CategoryForm({
       image: image || undefined,
       isActive,
       showInNavbar,
+      isCategoryItem,
     };
     try {
       const result = initial ? await updateCategory(initial._id, payload) : await createCategory(payload);
@@ -316,6 +323,22 @@ function CategoryForm({
             from the menu.
           </p>
         </div>
+        {parentId && (
+          <div className="col-span-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={isCategoryItem}
+                onChange={(e) => setIsCategoryItem(e.target.checked)}
+              />
+              Show in &quot;Shop by category&quot;
+            </label>
+            <p className="text-xs text-muted mt-1 ml-6">
+              Lists this subcategory alongside the top-level categories on the home page and
+              Categories page. It needs an image to appear.
+            </p>
+          </div>
+        )}
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex gap-3">

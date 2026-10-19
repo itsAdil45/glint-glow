@@ -91,6 +91,7 @@ export class CategoriesService {
       image: dto.image,
       isActive: dto.isActive ?? true,
       showInNavbar: dto.showInNavbar ?? true,
+      isCategoryItem: dto.isCategoryItem ?? false,
       seo: { title: dto.seoTitle, description: dto.seoDescription },
     });
     return category.save();

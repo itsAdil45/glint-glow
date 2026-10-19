@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { fetchProducts, ProductQuery } from "@/lib/api-products";
-import { fetchCategories } from "@/lib/api-categories";
+import { fetchCategories, pickShopByCategoryItems } from "@/lib/api-categories";
 import { fetchBanners } from "@/lib/banners-data";
 import { CategoryCard } from "@/components/category/category-card";
 import { HeroSlider } from "@/components/layout/hero-slider";
@@ -79,9 +79,10 @@ export default async function HomePage() {
       fetchBanners(),
     ],
   );
-  // Top-level only — subcategories would otherwise show up as peers of their
+  // Top-level categories, plus subcategories explicitly flagged (with an image)
+  // as category items — other subcategories would show up as peers of their
   // own parent in this strip.
-  const categories = allCategories.filter((c) => !c.parentId);
+  const categories = pickShopByCategoryItems(allCategories);
 
   const rows = CURATED_ROWS.map((row, i) => ({ ...row, products: curated[i] }));
   const [fragrances, skinCare, makeupAccessories, makeup, lingerie] = rows;

@@ -33,6 +33,12 @@ export class Category {
   // appears in "Shop by category" and on collection pages when this is false.
   @Prop({ default: true })
   showInNavbar: boolean;
+
+  // Opt-in for subcategories: when true (and the category has an image) it is
+  // listed in the storefront's "Shop by category" section next to the top-level
+  // categories. Has no effect on top-level categories, which always show there.
+  @Prop({ default: false })
+  isCategoryItem: boolean;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

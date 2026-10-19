@@ -55,6 +55,7 @@ export interface Category {
   image?: string;
   isActive: boolean;
   showInNavbar?: boolean;
+  isCategoryItem?: boolean;
   seo: { title?: string; description?: string };
 }
 

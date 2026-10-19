@@ -47,6 +47,7 @@ export interface Category {
   slug: string;
   parentId: string | null;
   image?: string;
+  isCategoryItem?: boolean;
   seo: { title?: string; description?: string };
 }
 

@@ -7,6 +7,7 @@ export class CreateCategoryDto {
   @IsOptional() @IsString() image?: string;
   @IsOptional() @IsBoolean() isActive?: boolean;
   @IsOptional() @IsBoolean() showInNavbar?: boolean;
+  @IsOptional() @IsBoolean() isCategoryItem?: boolean;
   @IsOptional() @IsString() seoTitle?: string;
   @IsOptional() @IsString() seoDescription?: string;
 }
@@ -18,6 +19,7 @@ export class UpdateCategoryDto {
   @IsOptional() @IsString() image?: string;
   @IsOptional() @IsBoolean() isActive?: boolean;
   @IsOptional() @IsBoolean() showInNavbar?: boolean;
+  @IsOptional() @IsBoolean() isCategoryItem?: boolean;
   @IsOptional() @IsString() seoTitle?: string;
   @IsOptional() @IsString() seoDescription?: string;
 }

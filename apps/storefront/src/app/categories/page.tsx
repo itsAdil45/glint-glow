@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { fetchCategories } from "@/lib/api-categories";
+import { fetchCategories, pickShopByCategoryItems } from "@/lib/api-categories";
 import { CategoryCard } from "@/components/category/category-card";
 import { PageHero } from "@/components/layout/page-hero";
 import { buildOpenGraph, buildTwitter } from "@/lib/seo";
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function CategoriesPage() {
   const all = await fetchCategories().catch(() => []);
-  const categories = all.filter((c) => !c.parentId);
+  const categories = pickShopByCategoryItems(all);
 
   return (
     <div>
