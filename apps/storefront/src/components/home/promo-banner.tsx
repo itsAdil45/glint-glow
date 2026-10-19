@@ -79,13 +79,13 @@ function SplitBanner({ banner }: { banner: Banner }) {
 function FullBleedBanner({ banner }: { banner: Banner }) {
   const light = banner.theme === "light";
   const content = (
-    <div className="relative aspect-[16/9] sm:aspect-[21/7] w-full overflow-hidden rounded-3xl card-shadow">
+    <div className="relative aspect-[21/9] sm:aspect-[21/7] w-full overflow-hidden rounded-3xl card-shadow">
       <Image
         src={resolveImageUrl(banner.image)}
         alt={banner.imageAlt}
         fill
-        sizes="100vw"
-        className="object-cover"
+        sizes=""
+        className="object-contain md:object-cover bg-white/3"
       />
       {/* {!light && <div className="absolute inset-0 bg-ink/25" />} */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 gap-3">

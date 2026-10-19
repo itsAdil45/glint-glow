@@ -50,7 +50,7 @@ export function HeroSlider() {
   console.log("slides", slides);
   return (
     <div className="container-page pt-6">
-      <div className="relative aspect-[16/9] sm:aspect-[16/6] overflow-hidden rounded-3xl card-shadow">
+      <div className="relative aspect-[20/9] sm:aspect-[16/6] overflow-hidden rounded-3xl shadow-none md:card-shadow">
         {slides.map((s, i) => (
           <div
             key={s.id}
@@ -66,7 +66,7 @@ export function HeroSlider() {
                 fill
                 priority={i === 0}
                 sizes="100vw"
-                className="object-cover"
+                className="object-contain md:object-cover"
               />
             </a>
             {/* <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/25 to-transparent" /> */}
