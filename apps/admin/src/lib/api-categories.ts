@@ -11,6 +11,7 @@ export interface CategoryInput {
   parentId?: string;
   image?: string;
   isActive?: boolean;
+  showInNavbar?: boolean;
   seoTitle?: string;
   seoDescription?: string;
 }

@@ -35,9 +35,16 @@ export class CategoriesService {
    * Depth is capped at 3 (root -> subcategory -> leaf) to match what the
    * mega menu can actually render; anything deeper is silently dropped
    * rather than causing the storefront to recurse indefinitely.
+   * Categories with showInNavbar=false are excluded; hiding a parent also
+   * hides its whole subtree, since the tree is walked from the root down.
    */
   async findNavTree(): Promise<CategoryNavNode[]> {
-    const categories = await this.categoryModel.find({ isActive: true }).sort({ name: 1 }).exec();
+    // `$ne: false` (not `true`) so categories created before this flag existed
+    // — which have no showInNavbar field — keep showing in the navbar.
+    const categories = await this.categoryModel
+      .find({ isActive: true, showInNavbar: { $ne: false } })
+      .sort({ name: 1 })
+      .exec();
 
     const byParent = new Map<string, CategoryDocument[]>();
     for (const cat of categories) {
@@ -83,6 +90,7 @@ export class CategoriesService {
       parentId: dto.parentId || null,
       image: dto.image,
       isActive: dto.isActive ?? true,
+      showInNavbar: dto.showInNavbar ?? true,
       seo: { title: dto.seoTitle, description: dto.seoDescription },
     });
     return category.save();

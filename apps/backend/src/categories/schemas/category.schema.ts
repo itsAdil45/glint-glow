@@ -28,6 +28,11 @@ export class Category {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  // Controls only the storefront navbar / mega menu. The category still
+  // appears in "Shop by category" and on collection pages when this is false.
+  @Prop({ default: true })
+  showInNavbar: boolean;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

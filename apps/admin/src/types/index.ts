@@ -54,6 +54,7 @@ export interface Category {
   parentId: string | null;
   image?: string;
   isActive: boolean;
+  showInNavbar?: boolean;
   seo: { title?: string; description?: string };
 }
 

@@ -6,6 +6,7 @@ export class CreateCategoryDto {
   @IsOptional() @IsString() parentId?: string;
   @IsOptional() @IsString() image?: string;
   @IsOptional() @IsBoolean() isActive?: boolean;
+  @IsOptional() @IsBoolean() showInNavbar?: boolean;
   @IsOptional() @IsString() seoTitle?: string;
   @IsOptional() @IsString() seoDescription?: string;
 }
@@ -16,6 +17,7 @@ export class UpdateCategoryDto {
   @IsOptional() @IsString() parentId?: string;
   @IsOptional() @IsString() image?: string;
   @IsOptional() @IsBoolean() isActive?: boolean;
+  @IsOptional() @IsBoolean() showInNavbar?: boolean;
   @IsOptional() @IsString() seoTitle?: string;
   @IsOptional() @IsString() seoDescription?: string;
 }

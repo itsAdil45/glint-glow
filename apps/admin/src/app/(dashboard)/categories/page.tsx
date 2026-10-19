@@ -165,6 +165,11 @@ export default function CategoriesPage() {
                         Inactive
                       </span>
                     )}
+                    {cat.showInNavbar === false && (
+                      <span className="ml-2 text-[10px] uppercase tracking-wide text-muted bg-line rounded-full px-2 py-0.5">
+                        Hidden from navbar
+                      </span>
+                    )}
                   </p>
                   <p className="text-xs text-muted price-tag">/{cat.slug}</p>
                 </div>
@@ -210,6 +215,7 @@ function CategoryForm({
   const [parentId, setParentId] = useState(initial?.parentId || "");
   const [image, setImage] = useState(initial?.image || "");
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
+  const [showInNavbar, setShowInNavbar] = useState(initial?.showInNavbar ?? true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -234,6 +240,7 @@ function CategoryForm({
       parentId: parentId || undefined,
       image: image || undefined,
       isActive,
+      showInNavbar,
     };
     try {
       const result = initial ? await updateCategory(initial._id, payload) : await createCategory(payload);
@@ -293,6 +300,21 @@ function CategoryForm({
             <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
             Active (visible on storefront)
           </label>
+        </div>
+        <div className="col-span-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={showInNavbar}
+              onChange={(e) => setShowInNavbar(e.target.checked)}
+            />
+            Show in navbar
+          </label>
+          <p className="text-xs text-muted mt-1 ml-6">
+            Untick to keep this category out of the top menu. It still appears in &quot;Shop by
+            category&quot; and on its collection page. Hiding a parent also hides its subcategories
+            from the menu.
+          </p>
         </div>
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
