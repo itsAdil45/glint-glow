@@ -97,7 +97,7 @@ export default async function HomePage() {
         <ProductRail
           key="best-sellers"
           title="Best Sellers"
-          viewAllHref="/products?featured=true"
+          viewAllHref="/collections?sort=popular"
           products={featured.items}
         />
       ),
@@ -108,7 +108,7 @@ export default async function HomePage() {
         <ProductRail
           key="makeup"
           title={makeup.title}
-          viewAllHref={`/products?${makeup.queryKey}=true`}
+          viewAllHref={`/collections`}
           products={makeup.products}
         />
       ),
@@ -119,7 +119,7 @@ export default async function HomePage() {
         <ProductRail
           key="skin-care"
           title={skinCare.title}
-          viewAllHref={`/products?${skinCare.queryKey}=true`}
+          viewAllHref={`/collections`}
           products={skinCare.products}
         />
       ),
@@ -130,7 +130,7 @@ export default async function HomePage() {
         <ProductRail
           key="fragrances"
           title={fragrances.title}
-          viewAllHref={`/products?${fragrances.queryKey}=true`}
+          viewAllHref={`/collections`}
           products={fragrances.products}
         />
       ),
@@ -141,7 +141,7 @@ export default async function HomePage() {
         <ProductRail
           key="makeup-accessories"
           title={makeupAccessories.title}
-          viewAllHref={`/products?${makeupAccessories.queryKey}=true`}
+          viewAllHref={`/collections/accessories`}
           products={makeupAccessories.products}
         />
       ),
@@ -152,7 +152,7 @@ export default async function HomePage() {
         <ProductRail
           key="lingerie"
           title={lingerie.title}
-          viewAllHref={`/products?${lingerie.queryKey}=true`}
+          viewAllHref={`/collections/lingerie`}
           products={lingerie.products}
         />
       ),
@@ -163,7 +163,7 @@ export default async function HomePage() {
         <ProductRail
           key="new-arrivals"
           title="New Arrivals"
-          viewAllHref="/products?sort=newest"
+          viewAllHref="/collections?sort=newest"
           products={latest.items}
         />
       ),

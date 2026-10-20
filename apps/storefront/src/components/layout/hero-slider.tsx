@@ -67,6 +67,7 @@ export function HeroSlider() {
                 priority={i === 0}
                 sizes="100vw"
                 className="object-contain md:object-cover"
+                fetchPriority={i === 0 ? "high" : "low"}
               />
             </a>
             {/* <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/25 to-transparent" /> */}
