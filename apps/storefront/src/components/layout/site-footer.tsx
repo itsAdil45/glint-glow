@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 import {
   FacebookIcon,
@@ -25,7 +26,7 @@ export function SiteFooter() {
       <div className="container-page grid grid-cols-2 gap-10 py-14 lg:grid-cols-4">
         <div className="col-span-2">
           <span className="font-display text-2xl">
-            <img src="/logo.png" alt="GLOWN logo" width={250} height={50} />
+            <Image src="/logo.png" alt="GLOWN logo" width={250} height={83} />
           </span>
           <p className="mt-3 max-w-xs text-sm text-muted">
             Cosmetics and intimates, chosen with care. New arrivals every week.

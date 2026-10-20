@@ -1,22 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { fetchHeroSlides, HeroSlide } from "@/lib/hero-slides-data";
-import { Button } from "@/components/ui/button";
+import type { HeroSlide } from "@/lib/hero-slides-data";
 import { cn, resolveImageUrl } from "@/lib/utils";
 
 const AUTOPLAY_MS = 5500;
+// How long after mount the non-first slides start loading. Keeps them from
+// competing with slide 1 (the LCP image) for bandwidth on slow connections.
+const PRELOAD_REST_MS = 3000;
 
-export function HeroSlider() {
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
+// Slides come in as props from the server (see app/page.tsx) so the first
+// slide's <img> + preload hint are in the initial HTML.
+export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
+  const [loadRest, setLoadRest] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    fetchHeroSlides().then(setSlides);
+    const t = setTimeout(() => setLoadRest(true), PRELOAD_REST_MS);
+    return () => clearTimeout(t);
   }, []);
 
   const goTo = useCallback((i: number, count: number) => {
@@ -38,58 +42,37 @@ export function HeroSlider() {
     goTo(next, slides.length);
   }
 
-  if (slides.length === 0) {
-    return (
-      <div className="container-page pt-6">
-        <div className="aspect-[16/7] rounded-3xl bg-accent-soft animate-pulse" />
-      </div>
-    );
-  }
+  if (slides.length === 0) return null;
 
-  const slide = slides[index];
-  console.log("slides", slides);
   return (
     <div className="container-page pt-6">
       <div className="relative aspect-[20/9] sm:aspect-[16/6] overflow-hidden rounded-3xl shadow-none md:card-shadow">
-        {slides.map((s, i) => (
-          <div
-            key={s.id}
-            className={cn(
-              "absolute inset-0 transition-opacity duration-700",
-              i === index ? "opacity-100" : "opacity-0 pointer-events-none",
-            )}
-          >
-            <a href={slide.ctaHref} target="_blank" rel="noopener noreferrer">
-              <Image
-                src={resolveImageUrl(s.image)}
-                alt={s.imageAlt}
-                fill
-                priority={i === 0}
-                sizes="100vw"
-                className="object-contain md:object-cover"
-                fetchPriority={i === 0 ? "high" : "low"}
-              />
-            </a>
-            {/* <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/25 to-transparent" /> */}
-          </div>
-        ))}
-
-        {/* <div className="relative h-full flex items-center px-8 sm:px-14">
-          <div className="max-w-md">
-            <span className="font-body text-xs tracking-widest text-paper/80 uppercase">
-              {slide.eyebrow}
-            </span>
-            <h2 className="font-display text-4xl sm:text-6xl text-paper leading-[1.05] mt-2">
-              {slide.title}
-            </h2>
-            <p className="text-paper/85 mt-4 max-w-sm text-sm sm:text-base">
-              {slide.subtitle}
-            </p>
-            <Button variant="accent" size="lg" className="mt-6" asChild>
-              <Link href={slide.ctaHref}>{slide.ctaLabel}</Link>
-            </Button>
-          </div>
-        </div> */}
+        {slides.map((s, i) => {
+          // Slide 0 always renders (it's the LCP image); the rest mount once
+          // the page has settled, or immediately if the user navigates to one.
+          if (i !== 0 && i !== index && !loadRest) return null;
+          return (
+            <div
+              key={s.id}
+              className={cn(
+                "absolute inset-0 transition-opacity duration-700",
+                i === index ? "opacity-100" : "opacity-0 pointer-events-none",
+              )}
+            >
+              <a href={s.ctaHref} target="_blank" rel="noopener noreferrer">
+                <Image
+                  src={resolveImageUrl(s.image)}
+                  alt={s.imageAlt}
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className="object-contain md:object-cover"
+                  fetchPriority={i === 0 ? "high" : "low"}
+                />
+              </a>
+            </div>
+          );
+        })}
 
         {slides.length > 1 && (
           <>
@@ -108,19 +91,25 @@ export function HeroSlider() {
               <ChevronRight size={18} className="text-ink" />
             </button>
 
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2">
+            {/* Buttons are 24px tall for a usable touch target; the visible
+                dot is the inner span, so the look is unchanged. */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center">
               {slides.map((s, i) => (
                 <button
                   key={s.id}
                   aria-label={`Go to slide ${i + 1}`}
                   onClick={() => handleManualNav(i)}
-                  className={cn(
-                    "h-2 rounded-full transition-all",
-                    i === index
-                      ? "w-7 bg-paper"
-                      : "w-2 bg-paper/50 hover:bg-paper/75",
-                  )}
-                />
+                  className="group flex h-6 items-center justify-center px-1"
+                >
+                  <span
+                    className={cn(
+                      "block h-2 rounded-full transition-all",
+                      i === index
+                        ? "w-7 bg-paper"
+                        : "w-2 bg-paper/50 group-hover:bg-paper/75",
+                    )}
+                  />
+                </button>
               ))}
             </div>
           </>

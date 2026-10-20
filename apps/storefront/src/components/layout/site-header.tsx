@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   Search,
@@ -52,7 +53,7 @@ export function SiteHeader() {
           href="/"
           className="font-display text-2xl tracking-tight shrink-0"
         >
-          <img src="/logo.png" alt="GLOWN logo" width={200} height={50} />
+          <Image src="/logo.png" alt="GLOWN logo" width={200} height={67} loading="eager" />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-7">

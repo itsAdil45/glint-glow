@@ -10,17 +10,17 @@ import { defaultRobots, buildOrganizationJsonLd, buildWebSiteJsonLd, buildOpenGr
 import { JsonLd } from "@/components/seo/json-ld";
 import { Toaster } from "react-hot-toast";
 
+// Both families are variable fonts on Google Fonts, so omitting `weight`
+// loads one file per family instead of one per weight/style. Italic is
+// dropped — nothing in the storefront uses it.
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
 });
 
 const jost = Jost({
   variable: "--font-jost",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
 });
 
 // Not set locally by default — every environment (dev, staging, other

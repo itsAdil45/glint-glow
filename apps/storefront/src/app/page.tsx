@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { fetchProducts, ProductQuery } from "@/lib/api-products";
 import { fetchCategories, pickShopByCategoryItems } from "@/lib/api-categories";
 import { fetchBanners } from "@/lib/banners-data";
+import { fetchHeroSlides } from "@/lib/hero-slides-data";
 import { CategoryCard } from "@/components/category/category-card";
 import { HeroSlider } from "@/components/layout/hero-slider";
 import { ProductRail } from "@/components/product/product-rail";
@@ -60,7 +61,7 @@ const SLOT = {
 };
 
 export default async function HomePage() {
-  const [featured, latest, allCategories, curated, banners] = await Promise.all(
+  const [featured, latest, allCategories, curated, banners, heroSlides] = await Promise.all(
     [
       // "Best Sellers" is admin-curated via the isFeatured toggle — sort=popular
       // alone doesn't filter by it at all, it just ranks by ratingsCount.
@@ -77,6 +78,11 @@ export default async function HomePage() {
         ),
       ),
       fetchBanners(),
+      // Fetched here (server, in parallel) rather than inside HeroSlider's
+      // useEffect: the hero image is the LCP element, and a client-side fetch
+      // meant it wasn't even in the HTML until JS had loaded, hydrated and
+      // made an extra API round trip.
+      fetchHeroSlides(),
     ],
   );
   // Top-level categories, plus subcategories explicitly flagged (with an image)
@@ -176,7 +182,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <HeroSlider />
+      <HeroSlider slides={heroSlides} />
 
       {/* Categories */}
       {categories.length > 0 && (
