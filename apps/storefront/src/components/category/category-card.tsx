@@ -21,13 +21,23 @@ function gradientFor(id: string) {
   return PLACEHOLDER_GRADIENTS[hash % PLACEHOLDER_GRADIENTS.length];
 }
 
-export function CategoryCard({ category, sizes = "20vw" }: { category: Category; sizes?: string }) {
+export function CategoryCard({
+  category,
+  sizes = "20vw",
+  eager = false,
+}: {
+  category: Category;
+  sizes?: string;
+  // Set for cards on the first screen so their images are requested with the
+  // HTML instead of waiting for lazy-loading to kick in.
+  eager?: boolean;
+}) {
   return (
     <Link
       href={`/collections/${category.slug}`}
       className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface card-shadow transition-shadow"
     >
-      <div className="relative aspect-[4/5] overflow-hidden">
+      <div className="relative aspect-[4/5] overflow-hidden bg-accent-soft">
         {category.image ? (
           <>
             <Image
@@ -35,6 +45,7 @@ export function CategoryCard({ category, sizes = "20vw" }: { category: Category;
               alt={category.name}
               fill
               sizes={sizes}
+              loading={eager ? "eager" : undefined}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

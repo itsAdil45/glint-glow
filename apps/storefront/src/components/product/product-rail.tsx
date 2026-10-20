@@ -29,9 +29,16 @@ export function ProductRail({
     setCanScrollRight(el.scrollLeft < maxScroll - 4);
   }, []);
 
+  // ResizeObserver fires after layout, so reading scrollWidth/clientWidth in
+  // its callback doesn't force a synchronous reflow the way measuring in a
+  // mount effect did (that ran once per rail, seven times on the homepage).
   useEffect(() => {
-    updateScrollState();
-  }, [updateScrollState, products]);
+    const el = scrollRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(updateScrollState);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [updateScrollState]);
 
   function scrollByAmount(direction: 1 | -1) {
     const el = scrollRef.current;
@@ -45,7 +52,10 @@ export function ProductRail({
 
   return (
     // border-t-2 border-accent-ink
-    <section className=" py-10">
+    // content-visibility: skip layout/paint for off-screen rails until they're
+    // near the viewport. The intrinsic size reserves space so page height
+    // doesn't jump, and "auto" remembers the real size once rendered.
+    <section className="py-10 [content-visibility:auto] [contain-intrinsic-size:auto_460px]">
       <div className="container-page">
         <div className="flex items-baseline justify-between mb-6">
           <h2 className="font-display text-3xl">{title}</h2>
