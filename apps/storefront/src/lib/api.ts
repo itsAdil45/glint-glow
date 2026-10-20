@@ -13,7 +13,7 @@ export class ApiError extends Error {
   }
 }
 
-async function refreshAccessToken(): Promise<string | null> {
+async function requestNewAccessToken(): Promise<string | null> {
   try {
     const res = await fetch(`${API_URL}/auth/refresh`, {
       method: "POST",
@@ -26,6 +26,22 @@ async function refreshAccessToken(): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+// Single-flight: Providers' mount refresh, 401-retries from other requests
+// and React Strict Mode's double-run effects can all ask for a new token at
+// the same moment. They share one POST /auth/refresh — firing several in
+// parallel is wasteful and, with refresh-token rotation, one can invalidate
+// the others' token.
+let refreshInFlight: Promise<string | null> | null = null;
+
+function refreshAccessToken(): Promise<string | null> {
+  if (!refreshInFlight) {
+    refreshInFlight = requestNewAccessToken().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
 }
 
 // The backend's exception filter wraps every error as
@@ -57,7 +73,7 @@ interface RequestOptions extends RequestInit {
   skipRefreshRetry?: boolean;
 }
 
-export async function apiFetch<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
+async function performRequest<T>(path: string, options: RequestOptions): Promise<T> {
   const { auth = true, withSession = false, skipRefreshRetry, headers, ...rest } = options;
 
   const finalHeaders: Record<string, string> = {
@@ -82,7 +98,7 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
   if (res.status === 401 && auth && !skipRefreshRetry) {
     const newToken = await refreshAccessToken();
     if (newToken) {
-      return apiFetch<T>(path, { ...options, skipRefreshRetry: true });
+      return performRequest<T>(path, { ...options, skipRefreshRetry: true });
     }
   }
 
@@ -99,6 +115,29 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
 
   if (res.status === 204) return undefined as T;
   return res.json();
+}
+
+// Identical GETs that overlap in time share one network request. Most views
+// fetch in a mount effect, and in dev React Strict Mode runs every effect
+// twice (mount -> cleanup -> mount), so each of those fetches went out twice;
+// the same happens in production whenever two components ask for the same
+// data at once (e.g. header + page). Browser-only: on the server this module
+// state would be shared across users' requests. Mutations are never deduped.
+const inFlightGets = new Map<string, Promise<unknown>>();
+
+export function apiFetch<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
+  const method = (options.method ?? "GET").toUpperCase();
+  const dedupable =
+    typeof window !== "undefined" && method === "GET" && !options.body && !options.signal;
+  if (!dedupable) return performRequest<T>(path, options);
+
+  const key = [options.auth ?? true, options.withSession ?? false, getAccessToken() ?? "", path].join("|");
+  const existing = inFlightGets.get(key);
+  if (existing) return existing as Promise<T>;
+
+  const request = performRequest<T>(path, options).finally(() => inFlightGets.delete(key));
+  inFlightGets.set(key, request);
+  return request;
 }
 
 export { API_URL, refreshAccessToken };
