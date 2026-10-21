@@ -95,6 +95,21 @@ export class Order {
 
   @Prop({ default: () => new Date() })
   placedAt: Date;
+
+  // --- Admin-only bookkeeping. `select: false` keeps both out of every
+  // default query, so customers' order endpoints never expose them; the
+  // admin endpoints opt in with `+itemSourcePrices +sourcePaid`.
+
+  // Each line's source price as it was when the order was placed, in the
+  // same order as `items` (null = the product had none then).
+  // (No schema defaults on either field: defaults would be applied to the
+  // new document that placeOrder returns to the customer.)
+  @Prop({ type: [Number], default: undefined, select: false })
+  itemSourcePrices?: (number | null)[];
+
+  // Whether the shop has paid its supplier for this order's sourcing.
+  @Prop({ type: Boolean, select: false })
+  sourcePaid?: boolean;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -14,6 +20,8 @@ import { PlaceOrderDto } from './dto/order.dto';
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     private cartService: CartService,
@@ -183,6 +191,23 @@ export class OrdersService {
     });
     await order.save();
 
+    // Snapshot each line's source price for the admin's cost view. Done as a
+    // separate write (not part of the doc saved above) so the private figure
+    // never ends up in the response returned to the customer. Best-effort:
+    // the order is already placed, and without a snapshot the admin view
+    // falls back to the product's current source price.
+    try {
+      const sourcePrices = await this.productsService.findSourcePrices(
+        orderItems.map((i) => i.productId.toString()),
+      );
+      await this.orderModel.updateOne(
+        { _id: order._id },
+        { itemSourcePrices: orderItems.map((i) => sourcePrices.get(i.productId.toString()) ?? null) },
+      );
+    } catch (err) {
+      this.logger.warn(`Could not snapshot source prices for ${orderNumber}: ${(err as Error).message}`);
+    }
+
     if (couponCode && couponObjectId) {
       await this.couponsService.recordRedemption(
         couponObjectId,
@@ -226,8 +251,57 @@ export class OrdersService {
     return this.orderModel.find({ userId }).sort({ createdAt: -1 }).exec();
   }
 
-  findAllAdmin() {
-    return this.orderModel.find().sort({ createdAt: -1 }).exec();
+  /**
+   * Admin-only view of orders: adds each line's source (cost) price, the
+   * order's total source cost, and whether it's been paid. A line uses the
+   * price snapshotted when the order was placed; if there was none then (or
+   * the order predates this feature) it falls back to the product's current
+   * source price. `sourceCostComplete` is false when some line has no price,
+   * i.e. `sourceCost` is only a partial total.
+   */
+  private async withSourceCost(orders: any[]) {
+    const productIds = [
+      ...new Set(orders.flatMap((o) => o.items.map((i: any) => i.productId.toString()))),
+    ] as string[];
+    const current = await this.productsService.findSourcePrices(productIds);
+
+    return orders.map((order) => {
+      const { itemSourcePrices, ...rest } = order;
+      const items = order.items.map((item: any, index: number) => ({
+        ...item,
+        sourcePrice:
+          itemSourcePrices?.[index] ?? current.get(item.productId.toString()) ?? null,
+      }));
+      const priced = items.filter((i: any) => i.sourcePrice !== null);
+      const sourceCost = priced.reduce((sum: number, i: any) => sum + i.sourcePrice * i.quantity, 0);
+      return {
+        ...rest,
+        items,
+        sourceCost: Math.round(sourceCost * 100) / 100,
+        sourceCostComplete: priced.length === items.length,
+        sourcePaid: !!order.sourcePaid,
+      };
+    });
+  }
+
+  async findAllAdmin() {
+    const orders = await this.orderModel
+      .find()
+      .select('+itemSourcePrices +sourcePaid')
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+    return this.withSourceCost(orders);
+  }
+
+  async findOneAdmin(orderId: string) {
+    const order = await this.orderModel
+      .findById(orderId)
+      .select('+itemSourcePrices +sourcePaid')
+      .lean()
+      .exec();
+    if (!order) throw new NotFoundException('Order not found');
+    return (await this.withSourceCost([order]))[0];
   }
 
   async findOne(userId: string, orderId: string, isAdmin: boolean) {
@@ -254,9 +328,25 @@ export class OrdersService {
     return order;
   }
 
+  // Admin-only endpoints, so both return the admin view (with source cost)
+  // — the order detail page replaces its state with whatever these return.
   async updateStatus(orderId: string, status: OrderStatus) {
-    const order = await this.orderModel.findByIdAndUpdate(orderId, { status }, { new: true }).exec();
+    const order = await this.orderModel
+      .findByIdAndUpdate(orderId, { status }, { new: true })
+      .select('+itemSourcePrices +sourcePaid')
+      .lean()
+      .exec();
     if (!order) throw new NotFoundException('Order not found');
-    return order;
+    return (await this.withSourceCost([order]))[0];
+  }
+
+  async updateSourcePaid(orderId: string, sourcePaid: boolean) {
+    const order = await this.orderModel
+      .findByIdAndUpdate(orderId, { sourcePaid }, { new: true })
+      .select('+itemSourcePrices +sourcePaid')
+      .lean()
+      .exec();
+    if (!order) throw new NotFoundException('Order not found');
+    return (await this.withSourceCost([order]))[0];
   }
 }

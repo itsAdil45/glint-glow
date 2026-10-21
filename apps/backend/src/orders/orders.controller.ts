@@ -7,7 +7,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from '../users/schemas/user.schema';
 import { OrdersService } from './orders.service';
-import { PlaceOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
+import { PlaceOrderDto, UpdateOrderStatusDto, UpdateSourcePaidDto } from './dto/order.dto';
 import { OrderStatus } from './schemas/order.schema';
 
 @Controller('orders')
@@ -58,7 +58,8 @@ export class OrdersController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   findOne(@CurrentUser() user: { userId: string; role: string }, @Param('id') id: string) {
-    return this.ordersService.findOne(user.userId, id, user.role === UserRole.ADMIN);
+    if (user.role === UserRole.ADMIN) return this.ordersService.findOneAdmin(id);
+    return this.ordersService.findOne(user.userId, id, false);
   }
 
   @Patch(':id/status')
@@ -66,5 +67,12 @@ export class OrdersController {
   @Roles(UserRole.ADMIN)
   updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, dto.status as OrderStatus);
+  }
+
+  @Patch(':id/source-paid')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  updateSourcePaid(@Param('id') id: string, @Body() dto: UpdateSourcePaidDto) {
+    return this.ordersService.updateSourcePaid(id, dto.sourcePaid);
   }
 }

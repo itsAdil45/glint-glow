@@ -98,11 +98,26 @@ export class ProductsService {
   }
 
   findByIdAdmin(id: string) {
-    return this.productModel.findById(id).exec();
+    return this.productModel.findById(id).select('+sourcePrice').exec();
   }
 
   findAllAdmin() {
-    return this.productModel.find().sort({ createdAt: -1 }).exec();
+    return this.productModel.find().select('+sourcePrice').sort({ createdAt: -1 }).exec();
+  }
+
+  /** Admin-only: current source price per product id (products without one are omitted). */
+  async findSourcePrices(ids: string[]): Promise<Map<string, number>> {
+    if (!ids.length) return new Map();
+    const docs = await this.productModel
+      .find({ _id: { $in: ids } })
+      .select('+sourcePrice')
+      .lean()
+      .exec();
+    const prices = new Map<string, number>();
+    for (const doc of docs as any[]) {
+      if (typeof doc.sourcePrice === 'number') prices.set(doc._id.toString(), doc.sourcePrice);
+    }
+    return prices;
   }
 
   private validateVariations(dto: Partial<CreateProductDto>) {
@@ -132,6 +147,7 @@ export class ProductsService {
       images: dto.images || [],
       basePrice: dto.basePrice,
       compareAtPrice: dto.compareAtPrice,
+      sourcePrice: typeof dto.sourcePrice === 'number' ? dto.sourcePrice : undefined,
       hasVariations: !!dto.hasVariations,
       attributes: dto.attributes || [],
       variations: dto.variations || [],
@@ -178,13 +194,19 @@ export class ProductsService {
     if (dto.seoTitle !== undefined) update['seo.title'] = dto.seoTitle;
     if (dto.seoDescription !== undefined) update['seo.description'] = dto.seoDescription;
     if (dto.seoKeywords !== undefined) update['seo.keywords'] = dto.seoKeywords;
+    // undefined = leave as is, null = clear it, number = set it.
+    if (dto.sourcePrice === null) update.$unset = { sourcePrice: 1 };
+    else if (dto.sourcePrice !== undefined) update.sourcePrice = dto.sourcePrice;
     if (dto.slug) update.slug = slugify(dto.slug, { lower: true });
     if (dto.categoryIds) update.categoryIds = dto.categoryIds.map((id) => new Types.ObjectId(id));
     if (dto.relatedProductIds)
       update.relatedProductIds = dto.relatedProductIds.map((id) => new Types.ObjectId(id));
     if (dto.images) update.images = dto.images;
 
-    const product = await this.productModel.findByIdAndUpdate(id, update, { new: true }).exec();
+    const product = await this.productModel
+      .findByIdAndUpdate(id, update, { new: true })
+      .select('+sourcePrice')
+      .exec();
     if (!product) throw new NotFoundException('Product not found');
     return product;
   }

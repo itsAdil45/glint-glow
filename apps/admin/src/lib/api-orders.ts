@@ -15,3 +15,10 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
     body: JSON.stringify({ status }),
   });
 }
+
+export async function updateOrderSourcePaid(id: string, sourcePaid: boolean): Promise<Order> {
+  return apiFetch<Order>(`/orders/${id}/source-paid`, {
+    method: "PATCH",
+    body: JSON.stringify({ sourcePaid }),
+  });
+}
