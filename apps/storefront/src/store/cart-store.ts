@@ -8,6 +8,7 @@ import {
   applyCartCoupon,
   removeCartCoupon,
 } from "@/lib/api-cart";
+import { waitForAuthHydration } from "@/store/auth-store";
 
 interface CartState {
   cart: CartResponse | null;
@@ -36,6 +37,12 @@ export const useCartStore = create<CartState>((set) => ({
   load: async () => {
     set({ isLoading: true });
     try {
+      // On a page refresh the access token is gone until Providers has
+      // restored the session. Fetching before that sends the request as a
+      // guest, which returns the (empty) guest cart instead of the logged-in
+      // user's — so the cart looked lost until the next add-to-cart or a
+      // visit to the cart page re-fetched it.
+      await waitForAuthHydration();
       const cart = await fetchCart();
       set({ cart, itemCount: countItems(cart), isLoading: false });
     } catch {

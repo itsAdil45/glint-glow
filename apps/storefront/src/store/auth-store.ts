@@ -20,3 +20,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null });
   },
 }));
+
+/**
+ * Resolves once the initial session restore (Providers: refresh token ->
+ * profile) has finished. The access token only lives in memory, so until then
+ * a request goes out as a guest even if the user is logged in — anything that
+ * fetches per-user data on page load (like the cart) should await this first.
+ */
+export function waitForAuthHydration(): Promise<void> {
+  if (!useAuthStore.getState().isHydrating) return Promise.resolve();
+  return new Promise((resolve) => {
+    const unsubscribe = useAuthStore.subscribe((state) => {
+      if (!state.isHydrating) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
+}
