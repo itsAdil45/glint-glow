@@ -86,6 +86,13 @@ export class Product {
   @Prop({ min: 0 })
   compareAtPrice?: number;
 
+  // What the shop pays to source this product — private to the admin.
+  // `select: false` keeps it out of every default query, so it can't leak
+  // through the public storefront endpoints; admin queries opt in with
+  // `+sourcePrice`. Optional, and product-level (not per variation).
+  @Prop({ min: 0, select: false })
+  sourcePrice?: number;
+
   @Prop({ default: false })
   hasVariations: boolean;
 

@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { fetchAdminOrder, updateOrderStatus } from "@/lib/api-orders";
+import { fetchAdminOrder, updateOrderStatus, updateOrderSourcePaid } from "@/lib/api-orders";
 import { Order, OrderStatus } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 
 const STATUSES: OrderStatus[] = [
   "pending",
@@ -24,6 +25,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [updatingSourcePaid, setUpdatingSourcePaid] = useState(false);
 
   useEffect(() => {
     fetchAdminOrder(params.id)
@@ -39,6 +41,21 @@ export default function OrderDetailPage() {
       setOrder(updated);
     } finally {
       setUpdating(false);
+    }
+  }
+
+  async function handleSourcePaidToggle() {
+    if (!order) return;
+    const next = !order.sourcePaid;
+    setUpdatingSourcePaid(true);
+    setOrder({ ...order, sourcePaid: next });
+    try {
+      setOrder(await updateOrderSourcePaid(order._id, next));
+    } catch {
+      setOrder((current) => (current ? { ...current, sourcePaid: !next } : current));
+      alert("Could not update sourcing paid status");
+    } finally {
+      setUpdatingSourcePaid(false);
     }
   }
 
@@ -86,6 +103,11 @@ export default function OrderDetailPage() {
               <div key={i} className="flex justify-between text-sm">
                 <div>
                   <p>{item.title}</p>
+                  <p className="text-xs text-muted">
+                    {item.sourcePrice != null
+                      ? `Source ${formatPrice(item.sourcePrice)} × ${item.quantity} = ${formatPrice(item.sourcePrice * item.quantity)}`
+                      : "No source price"}
+                  </p>
                   {item.variationSku && (
                     <p className="text-xs text-muted">
                       {Object.entries(item.attributes)
@@ -132,6 +154,32 @@ export default function OrderDetailPage() {
             <br />
             {order.phone}
           </p>
+        </div>
+
+        <div className="bg-surface border border-line rounded-lg p-5 h-fit lg:col-start-2">
+          <h2 className="text-sm font-medium mb-3">Sourcing</h2>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted">Source cost</span>
+            <span className="price-tag">
+              {order.sourceCost || order.sourceCostComplete
+                ? formatPrice(order.sourceCost ?? 0)
+                : "—"}
+            </span>
+          </div>
+          {!order.sourceCostComplete && (
+            <p className="text-xs text-muted mt-1.5">
+              Some items have no source price, so this total is partial.
+            </p>
+          )}
+          <div className="flex items-center justify-between border-t border-line mt-4 pt-4">
+            <span className="text-sm">Source price paid</span>
+            <Switch
+              checked={!!order.sourcePaid}
+              onChange={handleSourcePaidToggle}
+              disabled={updatingSourcePaid}
+              label="Toggle sourcing paid"
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -29,6 +29,8 @@ export interface Product {
   images: ProductImage[];
   basePrice: number;
   compareAtPrice?: number;
+  // Private cost price; null/undefined = not set. Only the admin API returns it.
+  sourcePrice?: number | null;
   hasVariations: boolean;
   attributes: ProductAttribute[];
   variations: ProductVariation[];
@@ -73,6 +75,8 @@ export interface OrderItem {
   quantity: number;
   price: number;
   image?: string;
+  // Admin API only; null = no source price for this line.
+  sourcePrice?: number | null;
 }
 
 export interface Order {
@@ -98,6 +102,11 @@ export interface Order {
   status: OrderStatus;
   paymentMethod: string;
   placedAt: string;
+  // Admin API only.
+  sourceCost?: number;
+  // false when some line has no source price, so sourceCost is a partial total.
+  sourceCostComplete?: boolean;
+  sourcePaid?: boolean;
 }
 
 export interface AdminUser {

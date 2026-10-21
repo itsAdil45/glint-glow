@@ -39,6 +39,9 @@ export function ProductForm({
   const [compareAtPrice, setCompareAtPrice] = useState(
     initial?.compareAtPrice ?? undefined,
   );
+  const [sourcePrice, setSourcePrice] = useState<number | undefined>(
+    initial?.sourcePrice ?? undefined,
+  );
   const [stock, setStock] = useState(initial?.stock ?? 0);
   const [hasVariations, setHasVariations] = useState(
     initial?.hasVariations || false,
@@ -142,6 +145,8 @@ export function ProductForm({
       images,
       basePrice: Number(basePrice),
       compareAtPrice: compareAtPrice ? Number(compareAtPrice) : undefined,
+      // null clears a saved value on edit; undefined just omits it on create
+      sourcePrice: sourcePrice !== undefined ? Number(sourcePrice) : isEdit ? null : undefined,
       hasVariations,
       attributes,
       variations,
@@ -437,6 +442,24 @@ export function ProductForm({
             baseSlug={slug}
           />
         )}
+
+        <div className="max-w-xs">
+          <Label htmlFor="sourcePrice">Source price (optional)</Label>
+          <Input
+            id="sourcePrice"
+            type="number"
+            step="0.01"
+            min={0}
+            value={sourcePrice ?? ""}
+            onChange={(e) =>
+              setSourcePrice(e.target.value ? Number(e.target.value) : undefined)
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            What this product costs you. Never shown on the storefront — used to work out the
+            source cost of orders.
+          </p>
+        </div>
       </Section>
 
       {/* Related products */}

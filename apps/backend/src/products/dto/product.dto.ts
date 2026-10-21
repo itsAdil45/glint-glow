@@ -46,6 +46,8 @@ export class CreateProductDto {
   images?: ProductImageDto[];
   @IsNumber() @Min(0) basePrice: number;
   @IsOptional() @IsNumber() @Min(0) compareAtPrice?: number;
+  // Optional; send null on update to clear a previously saved value.
+  @IsOptional() @IsNumber() @Min(0) sourcePrice?: number | null;
   @IsOptional() @IsBoolean() hasVariations?: boolean;
   @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => ProductAttributeDto)
   attributes?: ProductAttributeDto[];

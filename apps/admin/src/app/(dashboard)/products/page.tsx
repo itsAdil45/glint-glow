@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { API_URL } from "@/lib/api";
 import { HomeSectionsCell, HomeSectionField } from "@/components/products/home-sections-cell";
+import { SourcePriceCell } from "@/components/products/source-price-cell";
 
 function resolveUrl(url: string) {
   if (url.startsWith("http")) return url;
@@ -85,6 +86,7 @@ export default function ProductsPage() {
             <tr>
               <th className="text-left px-5 py-3 font-medium">Product</th>
               <th className="text-left px-5 py-3 font-medium">Price</th>
+              <th className="text-left px-5 py-3 font-medium">Source price</th>
               <th className="text-left px-5 py-3 font-medium">Stock</th>
               <th className="text-left px-5 py-3 font-medium">Published</th>
               <th className="text-left px-5 py-3 font-medium">Best Seller</th>
@@ -126,6 +128,18 @@ export default function ProductsPage() {
                   <td className="px-5 py-3 price-tag">
                     {product.hasVariations ? "from " : ""}
                     {formatPrice(price)}
+                  </td>
+                  <td className="px-5 py-3">
+                    <SourcePriceCell
+                      product={product}
+                      onSaved={(value) =>
+                        setProducts((prev) =>
+                          prev.map((p) =>
+                            p._id === product._id ? { ...p, sourcePrice: value } : p,
+                          ),
+                        )
+                      }
+                    />
                   </td>
                   <td className="px-5 py-3">
                     <span className={stock <= 5 ? "text-warn font-medium" : ""}>{stock}</span>
@@ -176,7 +190,7 @@ export default function ProductsPage() {
             })}
             {!loading && products.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-muted text-sm">
+                <td colSpan={8} className="px-5 py-8 text-center text-muted text-sm">
                   No products yet.{" "}
                   <Link href="/products/new" className="underline underline-offset-4">
                     Create your first one

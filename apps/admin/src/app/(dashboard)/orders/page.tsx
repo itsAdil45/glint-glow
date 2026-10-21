@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { fetchAdminOrders } from "@/lib/api-orders";
+import { fetchAdminOrders, updateOrderSourcePaid } from "@/lib/api-orders";
 import { Order, OrderStatus } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 
 const STATUS_FILTERS: (OrderStatus | "all")[] = [
   "all",
@@ -22,12 +23,28 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdminOrders()
       .then(setOrders)
       .finally(() => setLoading(false));
   }, []);
+
+  async function handleSourcePaidToggle(order: Order) {
+    const next = !order.sourcePaid;
+    setPendingId(order._id);
+    setOrders((prev) => prev.map((o) => (o._id === order._id ? { ...o, sourcePaid: next } : o)));
+    try {
+      await updateOrderSourcePaid(order._id, next);
+    } catch {
+      // roll back on failure
+      setOrders((prev) => prev.map((o) => (o._id === order._id ? { ...o, sourcePaid: !next } : o)));
+      alert("Could not update sourcing paid status");
+    } finally {
+      setPendingId(null);
+    }
+  }
 
   const filtered = filter === "all" ? orders : orders.filter((o) => o.status === filter);
 
@@ -57,6 +74,8 @@ export default function OrdersPage() {
               <th className="text-left px-5 py-3 font-medium">Customer phone</th>
               <th className="text-left px-5 py-3 font-medium">Status</th>
               <th className="text-right px-5 py-3 font-medium">Total</th>
+              <th className="text-right px-5 py-3 font-medium">Source cost</th>
+              <th className="text-left px-5 py-3 font-medium">Sourcing paid</th>
             </tr>
           </thead>
           <tbody>
@@ -73,11 +92,33 @@ export default function OrdersPage() {
                   <StatusBadge status={order.status} />
                 </td>
                 <td className="px-5 py-3 text-right price-tag">{formatPrice(order.total)}</td>
+                <td className="px-5 py-3 text-right">
+                  {order.sourceCost || order.sourceCostComplete ? (
+                    <span className="price-tag">
+                      {formatPrice(order.sourceCost ?? 0)}
+                      {!order.sourceCostComplete && (
+                        <span className="block text-[10px] uppercase tracking-wide text-muted">
+                          partial
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-muted">—</span>
+                  )}
+                </td>
+                <td className="px-5 py-3">
+                  <Switch
+                    checked={!!order.sourcePaid}
+                    onChange={() => handleSourcePaidToggle(order)}
+                    disabled={pendingId === order._id}
+                    label={`Toggle sourcing paid for order ${order.orderNumber}`}
+                  />
+                </td>
               </tr>
             ))}
             {!loading && filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-muted text-sm">
+                <td colSpan={7} className="px-5 py-8 text-center text-muted text-sm">
                   No orders match this filter.
                 </td>
               </tr>

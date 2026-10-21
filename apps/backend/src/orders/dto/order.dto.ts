@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class PlaceOrderDto {
   // Logged-in checkout — an existing saved address.
@@ -53,4 +53,9 @@ export class PlaceOrderDto {
 export class UpdateOrderStatusDto {
   @IsIn(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])
   status: string;
+}
+
+export class UpdateSourcePaidDto {
+  @IsBoolean()
+  sourcePaid: boolean;
 }
