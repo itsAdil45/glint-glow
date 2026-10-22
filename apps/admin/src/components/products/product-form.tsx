@@ -10,6 +10,7 @@ import { ImageUploader } from "./image-uploader";
 import { VariationBuilder } from "./variation-builder";
 import { slugify } from "@/lib/utils";
 import { ApiError } from "@/lib/api";
+import { getYouTubeId } from "@/lib/youtube";
 
 export function ProductForm({
   categories,
@@ -42,6 +43,7 @@ export function ProductForm({
   const [sourcePrice, setSourcePrice] = useState<number | undefined>(
     initial?.sourcePrice ?? undefined,
   );
+  const [videoUrl, setVideoUrl] = useState(initial?.videoUrl ?? "");
   const [stock, setStock] = useState(initial?.stock ?? 0);
   const [hasVariations, setHasVariations] = useState(
     initial?.hasVariations || false,
@@ -132,8 +134,13 @@ export function ProductForm({
 
   async function handleSubmit(e: React.FormEvent, publishOverride?: boolean) {
     e.preventDefault();
-    setSubmitting(true);
     setError("");
+
+    if (videoUrl.trim() && !getYouTubeId(videoUrl)) {
+      setError("The video link must be a valid YouTube URL (youtube.com/watch?v=…, youtu.be/…).");
+      return;
+    }
+    setSubmitting(true);
 
     const payload: ProductInput = {
       title,
@@ -147,6 +154,8 @@ export function ProductForm({
       compareAtPrice: compareAtPrice ? Number(compareAtPrice) : undefined,
       // null clears a saved value on edit; undefined just omits it on create
       sourcePrice: sourcePrice !== undefined ? Number(sourcePrice) : isEdit ? null : undefined,
+      // null removes a saved video on edit; undefined just omits it on create
+      videoUrl: videoUrl.trim() ? videoUrl.trim() : isEdit ? null : undefined,
       hasVariations,
       attributes,
       variations,
@@ -379,6 +388,31 @@ export function ProductForm({
       {/* Images */}
       <Section title="Images">
         <ImageUploader images={images} onChange={setImages} />
+      </Section>
+
+      {/* Video */}
+      <Section
+        title="Video"
+        subtitle="Optional — shown as a video section on the product page"
+      >
+        <div className="max-w-xl">
+          <Label htmlFor="videoUrl">YouTube link</Label>
+          <Input
+            id="videoUrl"
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=…"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            error={
+              videoUrl.trim() && !getYouTubeId(videoUrl)
+                ? "Enter a valid YouTube link"
+                : undefined
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            Accepts youtube.com/watch, youtu.be, Shorts and embed links. Leave empty for no video.
+          </p>
+        </div>
       </Section>
 
       {/* Pricing / variations */}

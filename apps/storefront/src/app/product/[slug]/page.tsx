@@ -11,6 +11,8 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buildBreadcrumbJsonLd, buildOpenGraph, buildTwitter } from "@/lib/seo";
 import { resolveImageUrl } from "@/lib/utils";
 import { ViewItemTracker } from "@/components/product/view-item-tracker";
+import { ProductVideo } from "@/components/product/product-video";
+import { getYouTubeId } from "@/lib/youtube";
 import { Product } from "@/types";
 
 interface PageProps {
@@ -124,6 +126,8 @@ export default async function ProductPage({ params }: PageProps) {
     },
   };
 
+  const videoId = product.videoUrl ? getYouTubeId(product.videoUrl) : null;
+
   return (
     <div>
       <script
@@ -161,6 +165,16 @@ export default async function ProductPage({ params }: PageProps) {
             {product.description}
           </p>
         </div>
+        {videoId && (
+          <section className="mt-10 border-t border-line pt-6" aria-labelledby="product-video-heading">
+            <h2 id="product-video-heading" className="font-display text-lg mb-3">
+              Product video
+            </h2>
+            <div className="max-w-3xl">
+              <ProductVideo videoId={videoId} title={product.title} />
+            </div>
+          </section>
+        )}
         <ProductReviews
           productId={product._id}
           ratingsAvg={product.ratingsAvg}

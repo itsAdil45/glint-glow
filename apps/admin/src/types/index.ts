@@ -31,6 +31,8 @@ export interface Product {
   compareAtPrice?: number;
   // Private cost price; null/undefined = not set. Only the admin API returns it.
   sourcePrice?: number | null;
+  // Optional YouTube link shown on the product page; null/undefined = no video.
+  videoUrl?: string | null;
   hasVariations: boolean;
   attributes: ProductAttribute[];
   variations: ProductVariation[];

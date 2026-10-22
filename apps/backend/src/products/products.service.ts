@@ -148,6 +148,7 @@ export class ProductsService {
       basePrice: dto.basePrice,
       compareAtPrice: dto.compareAtPrice,
       sourcePrice: typeof dto.sourcePrice === 'number' ? dto.sourcePrice : undefined,
+      videoUrl: dto.videoUrl ? dto.videoUrl.trim() : undefined,
       hasVariations: !!dto.hasVariations,
       attributes: dto.attributes || [],
       variations: dto.variations || [],
@@ -194,9 +195,14 @@ export class ProductsService {
     if (dto.seoTitle !== undefined) update['seo.title'] = dto.seoTitle;
     if (dto.seoDescription !== undefined) update['seo.description'] = dto.seoDescription;
     if (dto.seoKeywords !== undefined) update['seo.keywords'] = dto.seoKeywords;
-    // undefined = leave as is, null = clear it, number = set it.
-    if (dto.sourcePrice === null) update.$unset = { sourcePrice: 1 };
+    // For these optional fields: undefined = leave as is, null = clear it,
+    // a value = set it.
+    const unset: Record<string, 1> = {};
+    if (dto.sourcePrice === null) unset.sourcePrice = 1;
     else if (dto.sourcePrice !== undefined) update.sourcePrice = dto.sourcePrice;
+    if (dto.videoUrl === null) unset.videoUrl = 1;
+    else if (dto.videoUrl !== undefined) update.videoUrl = dto.videoUrl.trim();
+    if (Object.keys(unset).length) update.$unset = unset;
     if (dto.slug) update.slug = slugify(dto.slug, { lower: true });
     if (dto.categoryIds) update.categoryIds = dto.categoryIds.map((id) => new Types.ObjectId(id));
     if (dto.relatedProductIds)

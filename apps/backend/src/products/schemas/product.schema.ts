@@ -93,6 +93,11 @@ export class Product {
   @Prop({ min: 0, select: false })
   sourcePrice?: number;
 
+  // Optional YouTube link shown as a video section on the product page.
+  // Stored as entered (validated in the DTO); the storefront extracts the ID.
+  @Prop({ trim: true })
+  videoUrl?: string;
+
   @Prop({ default: false })
   hasVariations: boolean;
 

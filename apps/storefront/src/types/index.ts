@@ -29,6 +29,7 @@ export interface Product {
   images: ProductImage[];
   basePrice: number;
   compareAtPrice?: number;
+  videoUrl?: string;
   hasVariations: boolean;
   attributes: ProductAttribute[];
   variations: ProductVariation[];

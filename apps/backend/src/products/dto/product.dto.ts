@@ -8,10 +8,16 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   Min,
   MinLength,
   ValidateNested,
 } from 'class-validator';
+
+// youtube.com/watch?v=ID, youtu.be/ID, /shorts/ID, /embed/ID, /live/ID (a
+// YouTube ID is always 11 chars of [A-Za-z0-9_-]).
+const YOUTUBE_URL =
+  /^https?:\/\/(?:www\.|m\.)?(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)[\w-]{11}(?:[?&#/].*)?$/i;
 
 class ProductImageDto {
   @IsString() url: string;
@@ -48,6 +54,10 @@ export class CreateProductDto {
   @IsOptional() @IsNumber() @Min(0) compareAtPrice?: number;
   // Optional; send null on update to clear a previously saved value.
   @IsOptional() @IsNumber() @Min(0) sourcePrice?: number | null;
+  // Optional YouTube link; send null on update to remove it.
+  @IsOptional()
+  @Matches(YOUTUBE_URL, { message: 'videoUrl must be a valid YouTube video link' })
+  videoUrl?: string | null;
   @IsOptional() @IsBoolean() hasVariations?: boolean;
   @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => ProductAttributeDto)
   attributes?: ProductAttributeDto[];
