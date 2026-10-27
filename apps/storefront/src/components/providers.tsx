@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { refreshAccessToken } from "@/lib/api";
 import { fetchProfile } from "@/lib/api-auth";
 import { useAuthStore } from "@/store/auth-store";
+import { RouteTracker } from "@/components/layout/route-tracker";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -29,5 +30,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* Suspense keeps useSearchParams (inside RouteTracker) from de-optimising static pages */}
+      <Suspense fallback={null}>
+        <RouteTracker />
+      </Suspense>
+      {children}
+    </QueryClientProvider>
+  );
 }

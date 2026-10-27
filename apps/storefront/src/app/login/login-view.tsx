@@ -11,6 +11,7 @@ import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { loginUser, fetchProfile } from "@/lib/api-auth";
 import { mergeGuestCart } from "@/lib/api-cart";
+import { resolveAuthRedirect } from "@/lib/auth-redirect";
 import { setAccessToken } from "@/lib/token";
 import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
@@ -30,7 +31,8 @@ type FormData = z.infer<typeof schema>;
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/account";
+  // ?redirect= if present, else the page they came from, else /account
+  const redirect = resolveAuthRedirect(searchParams.get("redirect"));
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const setUser = useAuthStore((s) => s.setUser);
   const setCart = useCartStore((s) => s.setCart);
