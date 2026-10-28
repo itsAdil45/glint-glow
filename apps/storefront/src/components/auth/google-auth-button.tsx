@@ -97,7 +97,11 @@ export function GoogleAuthButton({
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={() => setScriptLoaded(true)}
+        // onReady, not onLoad: onLoad only fires the first time the script is
+        // downloaded, so after navigating login <-> register (script already
+        // loaded, component remounted) it never fired again and the button was
+        // never rendered until a full refresh. onReady fires on every mount.
+        onReady={() => setScriptLoaded(true)}
       />
       <div
         ref={containerRef}
