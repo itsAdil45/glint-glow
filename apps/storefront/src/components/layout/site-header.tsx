@@ -40,9 +40,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 bg-paper/95 backdrop-blur border-b border-line">
       <TopBar />
 
-      <div className="container-page flex h-20 items-center justify-between gap-4">
+      <div className="container-page flex h-20 items-center justify-between gap-2 sm:gap-4">
         <button
-          className="lg:hidden"
+          className="-ml-2.5 flex h-10 w-10 shrink-0 items-center justify-center lg:hidden"
           aria-label="Toggle menu"
           onClick={() => setMobileOpen((v) => !v)}
         >
@@ -53,7 +53,16 @@ export function SiteHeader() {
           href="/"
           className="font-display text-2xl tracking-tight shrink-0"
         >
-          <Image src="/logo.png" alt="GLOWN logo" width={200} height={67} loading="eager" />
+          <Image
+            src="/logo.png"
+            alt="GLOWN logo"
+            width={200}
+            height={67}
+            loading="eager"
+            // scales with the screen (200px max): a fixed 200px logo made the header
+            // ~402px wide, so phones narrower than that scrolled sideways
+            className="w-[clamp(96px,34vw,200px)]"
+          />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-7">

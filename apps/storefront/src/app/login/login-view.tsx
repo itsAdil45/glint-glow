@@ -101,7 +101,7 @@ export default function LoginPage() {
           hint={
             <Link
               href="/forgot-password"
-              className="text-xs text-accent-ink underline-offset-4 hover:underline"
+              className="-m-3 inline-block p-3 text-xs text-accent-ink underline-offset-4 hover:underline"
             >
               Forgot password?
             </Link>

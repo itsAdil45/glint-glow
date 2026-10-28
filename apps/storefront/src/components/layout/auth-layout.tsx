@@ -45,23 +45,24 @@ export function AuthLayout({
             {/* mobile-only corner glow, standing in for the brand panel */}
             <div
               aria-hidden
-              className="absolute -right-24 -top-24 h-52 w-52 rounded-full bg-gradient-to-br from-accent-soft to-accent/40 lg:hidden"
+              className="absolute -right-24 -top-24 h-52 w-52 rounded-full bg-gradient-to-br from-accent-soft to-accent/25 lg:hidden"
             />
 
             <div className="relative flex items-center justify-between gap-4">
               <Link
                 href="/"
                 aria-label="Back to shop"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors hover:border-ink/40 hover:bg-accent-soft/60"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors hover:border-ink/40 hover:bg-accent-soft/60"
               >
                 <ArrowLeft size={18} />
               </Link>
               {switcher && (
-                <p className="text-sm text-ink-soft">
+                <p className="text-right text-sm leading-snug text-ink-soft">
                   {switcher.prompt}{" "}
                   <Link
                     href={switcher.href}
-                    className="font-medium text-accent-ink underline decoration-accent-ink/30 underline-offset-[6px] transition-colors hover:decoration-accent-ink"
+                    /* -m-3 p-3 enlarges the tap area to ~44px without shifting the text */
+                    className="-m-3 inline-block p-3 font-medium text-accent-ink underline decoration-accent-ink/30 underline-offset-[6px] transition-colors hover:decoration-accent-ink"
                   >
                     {switcher.label}
                   </Link>
