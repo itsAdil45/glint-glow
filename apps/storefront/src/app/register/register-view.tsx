@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AuthLayout } from "@/components/layout/auth-layout";
-import { Input, Label } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { AuthField } from "@/components/auth/auth-field";
+import { AuthSubmit } from "@/components/auth/auth-submit";
+import { PasswordStrength } from "@/components/auth/password-strength";
 import { registerUser, fetchProfile } from "@/lib/api-auth";
 import { mergeGuestCart } from "@/lib/api-cart";
 import { setAccessToken } from "@/lib/token";
@@ -39,8 +39,10 @@ export default function RegisterPage() {
   const {
     register: registerField,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+    control,
+    formState: { errors, isSubmitting, touchedFields },
+  } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onTouched" });
+  const password = useWatch({ control, name: "password" });
 
   async function onSubmit(data: FormData) {
     try {
@@ -74,55 +76,66 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Create account" subtitle="Join to check out faster and track your orders.">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <AuthLayout
+      title="Create account"
+      subtitle="Join to check out faster and track your orders."
+      switcher={{ prompt: "Already a member?", label: "Log in", href: "/login" }}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+        <AuthField
+          id="name"
+          label="Full name"
+          autoComplete="name"
+          icon={<User size={18} />}
+          {...registerField("name")}
+          error={errors.name?.message}
+          valid={touchedFields.name}
+        />
+        <AuthField
+          id="email"
+          label="Email"
+          type="email"
+          autoComplete="email"
+          icon={<Mail size={18} />}
+          {...registerField("email")}
+          error={errors.email?.message}
+          valid={touchedFields.email}
+        />
+        <AuthField
+          id="phone"
+          label="Phone (optional)"
+          type="tel"
+          autoComplete="tel"
+          icon={<Phone size={18} />}
+          {...registerField("phone")}
+          error={errors.phone?.message}
+        />
         <div>
-          <Label htmlFor="name">Full name</Label>
-          <Input id="name" icon={<User size={16} />} {...registerField("name")} error={errors.name?.message} />
-        </div>
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            icon={<Mail size={16} />}
-            {...registerField("email")}
-            error={errors.email?.message}
-          />
-        </div>
-        <div>
-          <Label htmlFor="phone">Phone (optional)</Label>
-          <Input id="phone" icon={<Phone size={16} />} {...registerField("phone")} error={errors.phone?.message} />
-        </div>
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <Input
+          <AuthField
             id="password"
+            label="Password"
             type="password"
-            icon={<Lock size={16} />}
+            autoComplete="new-password"
+            icon={<Lock size={18} />}
             {...registerField("password")}
             error={errors.password?.message}
           />
+          <PasswordStrength password={password ?? ""} />
         </div>
-        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Sending code…" : "Create account"}
-        </Button>
+        <div className="pt-1">
+          <AuthSubmit loading={isSubmitting} loadingText="Sending code…">
+            Create account
+          </AuthSubmit>
+        </div>
       </form>
 
-      <div className="flex items-center gap-3 my-6">
+      <div className="my-7 flex items-center gap-4">
         <div className="h-px flex-1 bg-line" />
-        <span className="text-xs text-muted uppercase tracking-wide">or</span>
+        <span className="text-[11px] uppercase tracking-[0.14em] text-ink-soft">or continue with</span>
         <div className="h-px flex-1 bg-line" />
       </div>
 
       <GoogleAuthButton redirect="/account" text="signup_with" onError={(msg) => toast.error(msg)} />
-
-      <p className="text-center text-sm text-muted mt-6">
-        Already have an account?{" "}
-        <Link href="/login" className="text-ink underline underline-offset-4">
-          Log in
-        </Link>
-      </p>
     </AuthLayout>
   );
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/layout/auth-layout";
-import { Input, Label } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { AuthField } from "@/components/auth/auth-field";
+import { AuthSubmit } from "@/components/auth/auth-submit";
+import { PasswordStrength } from "@/components/auth/password-strength";
 import { requestPasswordResetOtp, verifyPasswordResetOtp } from "@/lib/api-auth";
 import { showApiError, showSuccess } from "@/lib/toast";
 import { Mail, Lock } from "lucide-react";
@@ -47,71 +47,69 @@ export default function ForgotPasswordPage() {
     }
   }
 
+  const switcher = { prompt: "Remembered it?", label: "Log in", href: "/login" };
+
   if (step === "request") {
     return (
       <AuthLayout
         title="Forgot password"
         subtitle="Enter your email and we'll send a one-time code."
+        switcher={switcher}
       >
-        <form onSubmit={handleRequest} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              icon={<Mail size={16} />}
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <Button type="submit" size="lg" className="w-full" disabled={loading}>
-            {loading ? "Sending…" : "Send code"}
-          </Button>
+        <form onSubmit={handleRequest} className="space-y-7">
+          <AuthField
+            id="email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            icon={<Mail size={18} />}
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <AuthSubmit loading={loading} loadingText="Sending…">
+            Send code
+          </AuthSubmit>
         </form>
-        <p className="text-center text-sm text-muted mt-6">
-          <Link href="/login" className="underline underline-offset-4">
-            Back to login
-          </Link>
-        </p>
       </AuthLayout>
     );
   }
 
   return (
-    <AuthLayout title="Enter code" subtitle={message || `We sent a code to ${email}`}>
-      <form onSubmit={handleVerify} className="space-y-4">
+    <AuthLayout title="Enter code" subtitle={message || `We sent a code to ${email}`} switcher={switcher}>
+      <form onSubmit={handleVerify} className="space-y-7">
+        <AuthField
+          id="otp"
+          label="6-digit code"
+          required
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+          className="pl-[0.6em] text-center text-2xl font-medium tracking-[0.6em]"
+        />
         <div>
-          <Label htmlFor="otp">6-digit code</Label>
-          <Input
-            id="otp"
-            required
-            inputMode="numeric"
-            maxLength={6}
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            className="text-center text-lg tracking-[0.5em] font-medium"
-          />
-        </div>
-        <div>
-          <Label htmlFor="newPassword">New password</Label>
-          <Input
+          <AuthField
             id="newPassword"
+            label="New password"
             type="password"
-            icon={<Lock size={16} />}
+            autoComplete="new-password"
+            icon={<Lock size={18} />}
             required
             minLength={8}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
+          <PasswordStrength password={newPassword} />
         </div>
-        <Button type="submit" size="lg" className="w-full" disabled={loading}>
-          {loading ? "Updating…" : "Reset password"}
-        </Button>
+        <AuthSubmit loading={loading} loadingText="Updating…">
+          Reset password
+        </AuthSubmit>
         <button
           type="button"
           onClick={() => setStep("request")}
-          className="w-full text-center text-xs text-muted underline underline-offset-4"
+          className="w-full text-center text-xs text-ink-soft underline underline-offset-4 hover:text-ink"
         >
           Use a different email
         </button>

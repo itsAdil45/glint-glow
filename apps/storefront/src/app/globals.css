@@ -13,6 +13,7 @@
   --color-gold: #b8965f;
   --color-gold-soft: #f3ead9;
   --color-danger: #a13d3d;
+  --color-success: #4f7f61;
 
   --font-display: var(--font-cormorant), Georgia, serif;
   --font-body: var(--font-jost), system-ui, sans-serif;
@@ -34,6 +35,7 @@
   --color-gold: var(--color-gold);
   --color-gold-soft: var(--color-gold-soft);
   --color-danger: var(--color-danger);
+  --color-success: var(--color-success);
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);
@@ -102,4 +104,28 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-accent-ink);
   outline-offset: 2px;
+}
+
+/* AuthField draws its own focus indicator (animated underline), so skip the global outline. */
+.auth-input:focus-visible {
+  outline: none;
+}
+
+/* Auth pages: slow float on the decorative orbs / cards. */
+@keyframes auth-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+.auth-float {
+  animation: auth-float 7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-float {
+    animation: none;
+  }
 }

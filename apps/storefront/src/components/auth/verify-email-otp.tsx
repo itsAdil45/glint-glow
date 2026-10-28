@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { AuthLayout } from "@/components/layout/auth-layout";
-import { Input, Label } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { AuthField } from "@/components/auth/auth-field";
+import { AuthSubmit } from "@/components/auth/auth-submit";
 import { verifyRegistrationOtp, resendRegistrationOtp } from "@/lib/api-auth";
 import { showApiError, showSuccess } from "@/lib/toast";
 
@@ -49,31 +49,30 @@ export function VerifyEmailOtp({
 
   return (
     <AuthLayout title="Verify your email" subtitle={infoMessage || `We sent a code to ${email}`}>
-      <form onSubmit={handleVerify} className="space-y-4">
-        <div>
-          <Label htmlFor="otp">6-digit code</Label>
-          <Input
-            id="otp"
-            required
-            inputMode="numeric"
-            maxLength={6}
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            className="text-center text-lg tracking-[0.5em] font-medium"
-          />
-        </div>
-        <Button type="submit" size="lg" className="w-full" disabled={loading}>
-          {loading ? "Verifying…" : "Verify & continue"}
-        </Button>
+      <form onSubmit={handleVerify} className="space-y-7">
+        <AuthField
+          id="otp"
+          label="6-digit code"
+          required
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+          className="pl-[0.6em] text-center text-2xl font-medium tracking-[0.6em]"
+        />
+        <AuthSubmit loading={loading} loadingText="Verifying…">
+          Verify &amp; continue
+        </AuthSubmit>
         <div className="flex items-center justify-between text-xs">
-          <button type="button" onClick={onBack} className="text-muted underline underline-offset-4">
+          <button type="button" onClick={onBack} className="text-ink-soft underline underline-offset-4 hover:text-ink">
             Use a different email
           </button>
           <button
             type="button"
             onClick={handleResend}
             disabled={resending}
-            className="text-muted underline underline-offset-4 disabled:opacity-50"
+            className="text-accent-ink underline underline-offset-4 disabled:opacity-50"
           >
             {resending ? "Sending…" : "Resend code"}
           </button>
